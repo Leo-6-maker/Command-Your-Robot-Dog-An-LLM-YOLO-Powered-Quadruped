@@ -25,6 +25,13 @@ from .task2_adapter import (
     Task2MotionAdapter,
     TurnFailedError,
 )
+from .task4_integration import (
+    CameraFrameTimeoutError,
+    Task4Integration,
+    Task4IntegrationClosedError,
+    UnknownSceneObjectError,
+    load_object_positions,
+)
 from .validator import (
     CommandPlan,
     GotoObjectAction,
@@ -38,6 +45,7 @@ from .validator import (
 
 __all__ = [
     "CommandPlan",
+    "CameraFrameTimeoutError",
     "ExecutionResult",
     "GotoObjectAction",
     "GotoObjectMissionFailedError",
@@ -59,10 +67,14 @@ __all__ = [
     "StopAction",
     "Task2AdapterError",
     "Task2MotionAdapter",
+    "Task4Integration",
+    "Task4IntegrationClosedError",
     "TerminalChatLoop",
     "TurnAction",
     "TurnFailedError",
+    "UnknownSceneObjectError",
     "build_openai_chat_loop",
+    "load_object_positions",
     "parse_and_validate",
     "validate_plan",
 ]

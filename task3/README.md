@@ -112,6 +112,30 @@ threading.Thread(target=chat.run, daemon=True).start()
 
 只有执行成功的计划会成为下一句的上下文，因此 `Do that again slower` 可以引用上一次成功动作。OpenAI 请求记录延迟和 token 数，后续可直接用于两种 LLM 的实验对比。
 
+## Task 4 对接
+
+`Task4Integration` 把 Task 2 的相机、机器人平面位置和仿真时间组合成 Task 4 要求的同一步快照，并把 `task4.goto_object()` 包装为执行器回调：
+
+```python
+from task3 import PlanExecutor, Task2MotionAdapter, Task4Integration
+from task3.task4_integration import load_object_positions
+
+motion = Task2MotionAdapter(platform)
+task4 = Task4Integration(
+    platform,
+    motion,
+    load_object_positions(task2_assets / "objects.json"),
+    weights=str(task2_assets / "yolo11n.pt"),
+)
+executor = PlanExecutor(motion, goto_object=task4.goto_object)
+
+# MuJoCo 主循环：
+fresh_camera_frame = platform.step()
+task4.capture_after_step(fresh_camera_frame)
+```
+
+`capture_after_step()` 必须紧接 `platform.step()` 并在仿真主线程中调用。`goto_object()` 仍在 Task 3 工作线程运行并等待新快照，因此 YOLO、LLM 和导航任务都不会接管 MuJoCo。场景中的目标坐标只在视觉停止后计算最终距离，用于课程 C2 验证，不参与转向或前进决策。
+
 ## 测试
 
 从仓库根目录运行：
