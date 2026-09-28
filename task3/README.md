@@ -1,6 +1,6 @@
 # Task 3 — LLM command planning
 
-本目录目前完成动作 JSON 协议、本地验证器、Task 2 非阻塞动作队列的阻塞适配器，以及串行动作执行器。LLM 和终端循环将在后续步骤接入。
+本目录目前完成动作 JSON 协议、本地验证器、Task 2 非阻塞动作队列的阻塞适配器、串行动作执行器、OpenAI Structured Outputs 规划器和异步终端 chat loop。
 
 ## 动作协议
 
@@ -76,6 +76,41 @@ result = executor.execute(validated_plan)  # 在 Task 3 工作线程调用
 ```python
 executor = PlanExecutor(adapter, goto_object=task4_callback)
 ```
+
+## LLM 与终端 chat loop
+
+终端 chat loop 是完整入口；LLM 是它内部把英文句子转换成动作 JSON 的环节：
+
+```text
+terminal → OpenAIPlanner → local validator → PlanExecutor → Task 2
+```
+
+先在当前终端临时设置 API key（不要写进代码或提交到 Git）：
+
+```bash
+export OPENAI_API_KEY="your-key-here"
+```
+
+然后在未来的仿真入口中创建 chat loop：
+
+```python
+import threading
+from task3.chat_loop import build_openai_chat_loop
+
+chat = build_openai_chat_loop(executor)
+threading.Thread(target=chat.run, daemon=True).start()
+
+# 主线程继续运行 MuJoCo / platform.step()，不能在这里等待 LLM。
+```
+
+每条普通指令会在独立 worker 中依次完成 LLM、验证和执行。运行期间可输入：
+
+- `/status`：查看当前是否忙碌；
+- `/stop`：立即取消当前计划并清空 Task 2 动作；
+- `/help`：显示本地控制命令；
+- `/quit`：停止并退出终端循环。
+
+只有执行成功的计划会成为下一句的上下文，因此 `Do that again slower` 可以引用上一次成功动作。OpenAI 请求记录延迟和 token 数，后续可直接用于两种 LLM 的实验对比。
 
 ## 测试
 
