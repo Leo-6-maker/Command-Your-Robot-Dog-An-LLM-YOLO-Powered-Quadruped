@@ -38,3 +38,12 @@ results, and demo evidence are still open.
 
 Install `ultralytics` alongside the simulator dependencies before running YOLO. The default
 weights are `yolo11n.pt`; Ultralytics downloads them on first model load if absent.
+
+To inspect a saved Task 2 camera frame before navigation integration:
+
+```powershell
+python task4.py path\to\camera_frame.png
+```
+
+This prints `[DETECT]` lines and saves `camera_frame_task4.png` beside the input. It checks the
+perception path only; it is not a navigation trial.

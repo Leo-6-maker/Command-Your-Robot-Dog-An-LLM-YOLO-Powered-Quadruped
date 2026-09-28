@@ -4,8 +4,10 @@ Input frames are RGB uint8 images from ``dog_front_camera``. Camera capture,
 motion skills, and the Task 3 command parser stay outside this module.
 """
 
+import argparse
 from dataclasses import dataclass
 import math
+from pathlib import Path
 import time
 from typing import Callable
 
@@ -266,3 +268,24 @@ def goto_object(
         return fail("timeout")
     finally:
         stop()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Run Task 4 YOLO/color grounding on one RGB frame"
+    )
+    parser.add_argument("image", type=Path, help="saved RGB frame from the onboard camera")
+    parser.add_argument("--weights", default="yolo11n.pt")
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+
+    with Image.open(args.image) as source:
+        rgb_frame = np.asarray(source.convert("RGB"))
+    detections = YoloColorDetector(weights=args.weights).detect(rgb_frame)
+    output = args.output or args.image.with_name(f"{args.image.stem}_task4.png")
+    Image.fromarray(annotate_frame(rgb_frame, detections)).save(output)
+    print(f"[FRAME] output={output} detections={len(detections)}")
+
+
+if __name__ == "__main__":
+    main()
