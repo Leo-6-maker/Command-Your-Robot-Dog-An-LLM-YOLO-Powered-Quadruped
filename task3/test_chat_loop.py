@@ -130,6 +130,7 @@ def test_local_status_help_and_quit_do_not_call_llm():
 
     assert planner.calls == []
     assert executor.cancel_count == 1
+    assert loop.quit_requested is True
     assert "[CHAT] status=IDLE" in logs
 
 

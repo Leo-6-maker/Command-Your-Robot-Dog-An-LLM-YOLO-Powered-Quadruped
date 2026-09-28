@@ -136,6 +136,27 @@ task4.capture_after_step(fresh_camera_frame)
 
 `capture_after_step()` 必须紧接 `platform.step()` 并在仿真主线程中调用。`goto_object()` 仍在 Task 3 工作线程运行并等待新快照，因此 YOLO、LLM 和导航任务都不会接管 MuJoCo。场景中的目标坐标只在视觉停止后计算最终距离，用于课程 C2 验证，不参与转向或前进决策。
 
+## 完整运行入口
+
+`task3.run` 会一次性组装 Task 2 平台、Task 3 LLM/chat/executor 和 Task 4：
+
+```bash
+conda activate ee5112-minilab
+export OPENAI_API_KEY="your-key-here"
+python -m task3.run \
+  --task2-root /path/to/extracted/task2-project
+```
+
+浏览器模式和无窗口模式分别使用 `--gui`、`--headless`。首次检查建议先禁用 chat，确认仿真、相机和 YOLO 全部能启动且绝不会调用 API：
+
+```bash
+python -m task3.run \
+  --task2-root /path/to/extracted/task2-project \
+  --headless --no-chat --duration 5
+```
+
+`--task2-root` 指向包含 `task2/platform.py` 的项目目录；也可以设置 `TASK2_ROOT` 环境变量。默认从 Task 2 包的 `assets/` 自动读取 `objects.json` 和 `yolo11n.pt`。终端输入 `/quit` 会取消正在执行的动作并让 MuJoCo 主循环安全退出。
+
 ## 测试
 
 从仓库根目录运行：

@@ -47,6 +47,7 @@ class TerminalChatLoop:
         self._lock = threading.RLock()
         self._worker: threading.Thread | None = None
         self._cancel_requested = threading.Event()
+        self._quit_requested = threading.Event()
         self._previous_successful_plan: CommandPlan | None = None
 
     @property
@@ -58,6 +59,11 @@ class TerminalChatLoop:
     def previous_successful_plan(self) -> CommandPlan | None:
         with self._lock:
             return self._previous_successful_plan
+
+    @property
+    def quit_requested(self) -> bool:
+        """Tell the simulator owner thread that the user entered ``/quit``."""
+        return self._quit_requested.is_set()
 
     def submit(self, command: str) -> bool:
         """Start one LLM→validator→executor job; return False when already busy."""
@@ -100,6 +106,7 @@ class TerminalChatLoop:
         stripped = line.strip()
         local = stripped.lower()
         if local in {"/quit", "/exit"}:
+            self._quit_requested.set()
             self.cancel()
             return False
         if local == "/stop":
@@ -125,6 +132,7 @@ class TerminalChatLoop:
                 break
             except KeyboardInterrupt:
                 self.log("")
+                self._quit_requested.set()
                 self.cancel()
                 break
             if not self.handle_line(line):
