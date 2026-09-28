@@ -1,6 +1,6 @@
 # Task 3 — LLM command planning
 
-本目录目前完成动作 JSON 协议、本地验证器，以及 Task 2 非阻塞动作队列的阻塞适配器。LLM、终端循环和动作执行器将在后续步骤接入。
+本目录目前完成动作 JSON 协议、本地验证器、Task 2 非阻塞动作队列的阻塞适配器，以及串行动作执行器。LLM 和终端循环将在后续步骤接入。
 
 ## 动作协议
 
@@ -57,6 +57,25 @@ turn_result = adapter.turn(90.0)
 - 检查闭环转向的 `SUCCESS` / `FAIL` 结果；
 - 在墙钟超时后清空队列；
 - 把其他线程调用的 `stop()` 识别为取消，而不是误报成功。
+
+## 动作执行器
+
+`PlanExecutor` 只接收 Validator 返回的 `CommandPlan`，按顺序把动作交给 Adapter：
+
+```python
+from task3.executor import PlanExecutor
+
+executor = PlanExecutor(adapter, logger=print)
+result = executor.execute(validated_plan)  # 在 Task 3 工作线程调用
+```
+
+每一步开始和结束都会打印 `[EXEC]`；整份计划最终打印一次 `[DONE]`。任意一步失败都会立即调用 `stop()`、跳过剩余动作并返回 `ExecutionResult(status="FAIL", ...)`。另一个线程可以调用 `executor.cancel()` 中断当前计划。
+
+`goto_object` 通过构造函数注入，当前尚未连接 Task 4：
+
+```python
+executor = PlanExecutor(adapter, goto_object=task4_callback)
+```
 
 ## 测试
 
