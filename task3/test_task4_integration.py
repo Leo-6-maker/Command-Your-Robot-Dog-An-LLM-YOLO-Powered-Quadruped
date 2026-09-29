@@ -335,6 +335,19 @@ def test_narrow_near_box_approaches_and_reobserves():
     assert len(moves) == 3  # One observed extra step, then two terminal steps.
 
 
+def test_close_chair_does_not_oscillate_over_small_center_offsets():
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    detection = Detection("chair", "green", 0.8, (96, 1, 424, 478), 640, 480)
+    assert goto_object(
+        "chair", "green", SimpleNamespace(detect=lambda _: [detection]),
+        lambda after: CameraObservation(frame, (2.3, 1), (after or 0) + 1),
+        lambda *_: None, lambda *_: pytest.fail("near-box turn would oscillate"),
+        lambda: None, lambda *_: 0.7, final_approach_steps=0,
+    )
+
+
 def _capture_exception(target, function, *args):
     try:
         function(*args)

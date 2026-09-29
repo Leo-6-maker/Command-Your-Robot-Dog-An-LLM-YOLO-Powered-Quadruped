@@ -247,7 +247,8 @@ def goto_object(
                 2 * math.tan(math.radians(camera_fovy_deg) / 2)
             )
             height_share = (y2 - y1) / target.frame_height
-            if abs(offset_x) > center_tolerance * target.frame_width:
+            tolerance = max(center_tolerance, 0.12 if height_share >= 0.75 else 0)
+            if abs(offset_x) > tolerance * target.frame_width:
                 angle = -math.degrees(math.atan2(offset_x, focal_px))
                 if height_share >= 0.75:
                     angle = max(-12.0, min(12.0, angle))

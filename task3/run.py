@@ -43,6 +43,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="maximum simulation seconds (default: 120)",
     )
     parser.add_argument("--port", type=int, default=8765, help="Task 2 browser port")
+    parser.add_argument("--mission-timeout", type=float, default=120,
+                        help="Task 4 mission wall-clock timeout in seconds")
     parser.add_argument("--start", type=float, nargs=3, default=(0, 0, 0),
                         metavar=("X", "Y", "YAW_DEG"),
                         help="robot start pose for the shared Task 2 scene")
@@ -116,6 +118,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if not math.isfinite(args.duration) or args.duration <= 0:
         raise SystemExit("--duration must be finite and positive")
+    if not math.isfinite(args.mission_timeout) or args.mission_timeout <= 0:
+        raise SystemExit("--mission-timeout must be finite and positive")
     if not all(math.isfinite(value) for value in args.start):
         raise SystemExit("--start values must be finite")
     if (
@@ -165,6 +169,7 @@ def main(argv: list[str] | None = None) -> int:
             motion,
             load_object_positions(objects_path),
             weights=str(weights_path),
+            mission_timeout_s=args.mission_timeout,
         )
         executor = PlanExecutor(motion, goto_object=task4.goto_object, logger=log)
         if not args.no_chat:
