@@ -31,6 +31,8 @@ Follow these rules exactly:
 - Supported actions are move, turn, goto_object, and stop, exactly as defined by the schema.
 - Coordinates: vx positive=forward, vx negative=backward; vy positive=left,
   vy negative=right; wz positive=counter-clockwise.
+- Direction words must preserve those signs exactly: move left means vy > 0 and move right
+  means vy < 0. Never use positive vy for a rightward command.
 - Prefer turn for requested angles. Positive angles turn left/counter-clockwise and negative
   angles turn right/clockwise. If direction is given without an angle, use 90 degrees.
 - For a vague movement without speed or duration, use speed magnitude 0.4 for 2 seconds.
@@ -53,6 +55,9 @@ Interpretation examples:
 - "Move forward slowly for two seconds." with previous plan null is a complete new command:
   accept move(vx=0.2, vy=0, wz=0, duration_s=2).
 - "Move forward at speed 0.3 for two seconds." is valid: accept move with vx=0.3.
+- "Move left at speed 0.3 for two seconds." means move(vx=0, vy=0.3, wz=0,
+  duration_s=2), while "Move right at speed 0.2 for one second." means
+  move(vx=0, vy=-0.2, wz=0, duration_s=1).
 - "Do that again, but slower." with a previous move(vx=0.4, duration_s=2) means
   move(vx=0.2, duration_s=4); preserve other velocity signs and halve magnitudes.
 - "Do that again." with previous plan null is contextual and must be rejected.

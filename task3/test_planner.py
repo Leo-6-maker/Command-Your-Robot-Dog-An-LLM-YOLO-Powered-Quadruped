@@ -11,6 +11,7 @@ from task3.planner import (
     ModelRefusalError,
     OpenAIPlanner,
     PlannerAPIError,
+    SYSTEM_PROMPT,
     plan_to_dict,
 )
 from task3.validator import MoveAction, validate_plan
@@ -68,6 +69,12 @@ def test_openai_planner_uses_strict_schema_and_local_validation():
     assert call["text"]["format"]["strict"] is True
     assert call["max_output_tokens"] == 1_000
     assert call["store"] is False
+
+
+def test_system_prompt_defines_lateral_direction_signs_unambiguously():
+    assert "move left means vy > 0" in SYSTEM_PROMPT
+    assert "move right" in SYSTEM_PROMPT
+    assert "vy=-0.2" in SYSTEM_PROMPT
 
 
 def test_previous_validated_plan_is_sent_as_context():

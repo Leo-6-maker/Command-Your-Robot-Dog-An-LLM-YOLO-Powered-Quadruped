@@ -185,3 +185,6 @@ python -m task3.run \
 ```bash
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
+
+真实浏览器纯运动演示的命令、结果和失败修正记录见
+[`evidence/step10_pure_motion.md`](evidence/step10_pure_motion.md)。
