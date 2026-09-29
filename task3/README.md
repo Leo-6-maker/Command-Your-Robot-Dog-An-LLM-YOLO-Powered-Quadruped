@@ -219,6 +219,34 @@ python -m task3.run \
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
+测试覆盖 JSON/schema 边界、本地拒绝、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。当前结果为 `98 passed`。
+
+## 终端日志协议
+
+每条日志必须只占一行，使用固定前缀和 `key=value`字段。用户输入、模型 message 和 exception 会先折叠换行与多余空白，防止伪造 `[EXEC]` 或 `[DONE]` 证据行。
+
+```text
+[RUNTIME] event=START mode=browser duration_s=120.0
+[CHAT] event=READY input=english hint=/help
+[CMD] text=Move forward for one second.
+[LLM] provider=ollama model=qwen2.5:7b latency_s=1.246 input_tokens=1120 output_tokens=48 accepted=true actions=1
+[PLAN] accepted=true actions=1 message=Moving forward.
+[EXEC] step=1/1 type=move vx=0.40 vy=0.00 wz=0.00 duration_s=1.00
+[EXEC] step=1/1 type=move status=SUCCESS
+[DONE] status=SUCCESS actions=1
+[RUNTIME] event=STOP steps=24001 sim_time=120.00
+```
+
+前缀含义：
+
+- `[RUNTIME]`：MuJoCo 主循环开始或结束；
+- `[CHAT]`：终端循环状态和本地控制命令；
+- `[CMD]`：当次用户英文指令；
+- `[LLM]`：供应商、模型、延迟、token 与计划大小；
+- `[PLAN]`：经本地 validator 确认的计划；
+- `[EXEC]`：每个动作的开始参数和完成状态；
+- `[DONE]`：一条指令的最终 `SUCCESS` / `REJECTED` / `FAIL` / `CANCELLED` / `ERROR`。
+
 ## 20 条 LLM benchmark
 
 `benchmark_cases.json` 固定了 10 条基础命令、5 条同义改写和 5 条无效/越界命令。每条都使用独立上下文，只测试 LLM 规划和本地 validator，不会调用动作执行器或 MuJoCo。
@@ -246,3 +274,6 @@ python -m task3.benchmark \
 20 条双模型 benchmark 的可读报告和原始结果分别见
 [`evidence/step13_benchmark.md`](evidence/step13_benchmark.md) 和
 [`evidence/step13_benchmark_results.json`](evidence/step13_benchmark_results.json)。
+
+第 14 步的自动测试范围、日志协议和验证结果见
+[`evidence/step14_tests_logs.md`](evidence/step14_tests_logs.md)。

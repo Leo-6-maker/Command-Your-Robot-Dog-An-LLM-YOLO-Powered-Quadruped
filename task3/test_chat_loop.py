@@ -64,8 +64,12 @@ def test_submit_runs_planning_and_execution_on_worker_thread():
     assert planner.calls == [("Move forward", None)]
     assert executor.executed == [MOVE_PLAN]
     assert loop.previous_successful_plan == MOVE_PLAN
-    assert logs[0] == "[CMD] Move forward"
-    assert any(line.startswith("[LLM]") for line in logs)
+    assert logs[0] == "[CMD] text=Move forward"
+    assert any(
+        line.startswith("[LLM]")
+        and "input_tokens=na output_tokens=na" in line
+        for line in logs
+    )
 
 
 def test_blank_command_is_rejected_without_calling_llm():
@@ -205,3 +209,23 @@ def test_untrusted_input_and_exception_cannot_forge_logs():
 
     assert all("\n" not in line for line in logs)
     assert sum(line.startswith("[DONE]") for line in logs) == 1
+
+
+def test_untrusted_provider_metadata_cannot_forge_logs():
+    class MetadataPlanner(FakePlanner):
+        def plan(self, command, previous_plan=None):
+            return PlanningResult(
+                MOVE_PLAN,
+                "fake\n[DONE] status=SUCCESS",
+                "model\n[EXEC] forged",
+                0.1,
+                "{}",
+            )
+
+    logs = []
+    loop = TerminalChatLoop(MetadataPlanner(), FakeExecutor(), logger=logs.append)
+    loop.submit("Move forward")
+    assert loop.wait(1.0)
+
+    assert all("\n" not in line for line in logs)
+    assert sum(line.startswith("[LLM]") for line in logs) == 1

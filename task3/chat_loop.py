@@ -6,6 +6,7 @@ from typing import Protocol
 
 from .command_policy import local_rejection_reason
 from .executor import ExecutionResult, PlanExecutor
+from .log_format import inline_value, optional_count
 from .planner import OllamaPlanner, OpenAIPlanner, PlanningResult
 from .validator import CommandPlan, validate_plan
 
@@ -74,10 +75,10 @@ class TerminalChatLoop:
             return False
         with self._lock:
             if self._worker is not None and self._worker.is_alive():
-                self.log("[CHAT] busy; use /stop or wait for [DONE]")
+                self.log("[CHAT] status=BUSY hint=/stop")
                 return False
             self._cancel_requested.clear()
-            self.log(f"[CMD] {_single_line(command)}")
+            self.log(f"[CMD] text={inline_value(command, limit=500)}")
             self._worker = threading.Thread(
                 target=self._process_command,
                 args=(command,),
@@ -91,7 +92,7 @@ class TerminalChatLoop:
         """Cancel model-to-executor handoff and any action already in progress."""
         self._cancel_requested.set()
         self.executor.cancel()
-        self.log("[CHAT] stop requested")
+        self.log("[CHAT] event=STOP_REQUESTED")
 
     def wait(self, timeout: float | None = None) -> bool:
         """Wait for the current command; return True if it has finished."""
@@ -117,14 +118,14 @@ class TerminalChatLoop:
             self.log(f"[CHAT] status={'BUSY' if self.busy else 'IDLE'}")
             return True
         if local == "/help":
-            self.log("[CHAT] commands: /status /stop /help /quit")
+            self.log("[CHAT] event=HELP commands=/status,/stop,/help,/quit")
             return True
         self.submit(stripped)
         return True
 
     def run(self) -> None:
         """Run the interactive prompt; launch this method outside the sim thread."""
-        self.log("[CHAT] Task 3 ready. Enter an English command; /help shows controls.")
+        self.log("[CHAT] event=READY input=english hint=/help")
         while True:
             try:
                 line = self.input_fn("robot> ")
@@ -132,13 +133,12 @@ class TerminalChatLoop:
                 self.cancel()
                 break
             except KeyboardInterrupt:
-                self.log("")
                 self._quit_requested.set()
                 self.cancel()
                 break
             if not self.handle_line(line):
                 break
-        self.log("[CHAT] terminal loop closed")
+        self.log("[CHAT] event=CLOSED")
 
     def _process_command(self, command: str) -> None:
         stage = "planning"
@@ -150,7 +150,7 @@ class TerminalChatLoop:
                 )
                 self.log(
                     "[LLM] provider=local model=command-policy latency_s=0.000 "
-                    "accepted=false actions=0"
+                    "input_tokens=0 output_tokens=0 accepted=false actions=0"
                 )
                 self.executor.execute(plan)
                 return
@@ -159,8 +159,11 @@ class TerminalChatLoop:
             planning = self.planner.plan(command, previous_plan)
             plan = planning.plan
             self.log(
-                f"[LLM] provider={planning.provider} model={planning.model} "
-                f"latency_s={planning.latency_s:.3f} accepted="
+                f"[LLM] provider={inline_value(planning.provider, limit=40)} "
+                f"model={inline_value(planning.model, limit=100)} "
+                f"latency_s={planning.latency_s:.3f} "
+                f"input_tokens={optional_count(planning.input_tokens)} "
+                f"output_tokens={optional_count(planning.output_tokens)} accepted="
                 f"{str(plan.accepted).lower()} actions={len(plan.actions)}"
             )
             if self._cancel_requested.is_set():
@@ -174,7 +177,7 @@ class TerminalChatLoop:
         except Exception as exc:
             self.log(
                 f"[DONE] status=ERROR stage={stage} "
-                f"error={type(exc).__name__} reason={_single_line(exc)}"
+                f"error={type(exc).__name__} reason={inline_value(exc, limit=500)}"
             )
 
 
@@ -199,8 +202,3 @@ def build_ollama_chat_loop(
     return TerminalChatLoop(
         OllamaPlanner(model=model, host=host), executor, logger=logger
     )
-
-
-def _single_line(value: object, limit: int = 500) -> str:
-    text = " ".join(str(value).split())
-    return (text or "unknown")[:limit]

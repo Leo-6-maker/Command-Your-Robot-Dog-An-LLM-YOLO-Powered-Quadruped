@@ -160,14 +160,14 @@ def main(argv: list[str] | None = None) -> int:
                 daemon=True,
             ).start()
         else:
-            log("[CHAT] disabled by --no-chat; no API client or request will be created")
+            log("[CHAT] status=DISABLED reason=no_chat")
 
         browser_only = bool(args.gui or args.headless)
         with platform.scene.viewer(browser_only) as viewer:
             if not browser_only:
                 _configure_native_camera(viewer, platform)
             log(
-                f"[RUNTIME] started mode={_mode_name(args)} "
+                f"[RUNTIME] event=START mode={_mode_name(args)} "
                 f"duration_s={args.duration:.1f}"
             )
             steps = run_simulation_loop(
@@ -179,7 +179,10 @@ def main(argv: list[str] | None = None) -> int:
                 pace_wall_clock=not args.headless,
                 chat=chat,
             )
-        log(f"[RUNTIME] stopped steps={steps} sim_time={platform.data.time:.2f}")
+        log(
+            f"[RUNTIME] event=STOP steps={steps} "
+            f"sim_time={platform.data.time:.2f}"
+        )
         return 0
     finally:
         if chat is not None:

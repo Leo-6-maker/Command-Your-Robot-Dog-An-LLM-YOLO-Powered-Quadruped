@@ -100,6 +100,48 @@ def test_goto_object_uses_injected_task4_callback():
     assert targets == [("chair", "green")]
 
 
+def test_move_goto_and_turn_preserve_requested_order():
+    ordered_calls = []
+
+    class OrderedMotion(FakeMotion):
+        def move(self, vx, vy, wz, duration_s):
+            ordered_calls.append(("move", vx, vy, wz, duration_s))
+
+        def turn(self, angle_deg):
+            ordered_calls.append(("turn", angle_deg))
+            return self.turn_result
+
+    motion = OrderedMotion()
+    executor = PlanExecutor(
+        motion,
+        goto_object=lambda class_name, color: ordered_calls.append(
+            ("goto_object", class_name, color)
+        )
+        or True,
+        logger=lambda _: None,
+    )
+    plan = validate_plan(
+        {
+            "accepted": True,
+            "message": "Three ordered actions.",
+            "actions": [
+                {"type": "move", "vx": 0.3, "vy": 0, "wz": 0, "duration_s": 2},
+                {"type": "goto_object", "class": "chair", "color": "red"},
+                {"type": "turn", "angle_deg": -45},
+            ],
+        }
+    )
+
+    result = executor.execute(plan)
+
+    assert result.status == "SUCCESS"
+    assert ordered_calls == [
+        ("move", 0.3, 0.0, 0.0, 2.0),
+        ("goto_object", "chair", "red"),
+        ("turn", -45.0),
+    ]
+
+
 def test_missing_task4_callback_fails_and_stops_motion():
     motion = FakeMotion()
     executor = PlanExecutor(motion, logger=lambda _: None)

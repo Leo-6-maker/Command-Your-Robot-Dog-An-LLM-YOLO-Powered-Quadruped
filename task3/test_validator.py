@@ -54,6 +54,26 @@ def test_valid_stop_plan():
     assert plan.actions == (StopAction(),)
 
 
+def test_exact_numeric_safety_boundaries_are_accepted():
+    plan = validate_plan(
+        {
+            "accepted": True,
+            "message": "Boundary values.",
+            "actions": [
+                {"type": "move", "vx": -1, "vy": 1, "wz": -1, "duration_s": 60},
+                {"type": "turn", "angle_deg": 720},
+                {"type": "turn", "angle_deg": -720},
+            ],
+        }
+    )
+
+    assert plan.actions == (
+        MoveAction(vx=-1.0, vy=1.0, wz=-1.0, duration_s=60.0),
+        TurnAction(angle_deg=720.0),
+        TurnAction(angle_deg=-720.0),
+    )
+
+
 @pytest.mark.parametrize(
     ("mutation", "error_path"),
     [

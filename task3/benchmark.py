@@ -90,7 +90,12 @@ def run_provider(
 ) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     for index, case in enumerate(cases, start=1):
-        print(f"[{planner.model}] {index:02d}/20 {case['id']}", flush=True)
+        print(
+            f"[BENCH] provider={type(planner).__name__.removesuffix('Planner').lower()} "
+            f"model={planner.model} "
+            f"case={case['id']} index={index}/20",
+            flush=True,
+        )
         started = time.monotonic()
         try:
             result = planner.plan(case["prompt"])

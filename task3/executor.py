@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import threading
 from typing import Literal, Protocol
 
+from .log_format import inline_value
 from .task2_adapter import MotionCancelledError
 from .validator import (
     CommandPlan,
@@ -82,11 +83,11 @@ class PlanExecutor:
             total = len(plan.actions)
             self.log(
                 f"[PLAN] accepted={str(plan.accepted).lower()} actions={total} "
-                f"message={_single_line(plan.message)}"
+                f"message={inline_value(plan.message)}"
             )
             if not plan.accepted:
                 self.log(
-                    f"[DONE] status=REJECTED actions=0 reason={_single_line(plan.message)}"
+                    f"[DONE] status=REJECTED actions=0 reason={inline_value(plan.message)}"
                 )
                 return ExecutionResult(
                     status="REJECTED",
@@ -108,7 +109,7 @@ class PlanExecutor:
                         f"status=SUCCESS{completion}"
                     )
                 except MotionCancelledError as exc:
-                    reason = _single_line(exc)
+                    reason = inline_value(exc)
                     self.log(
                         f"[DONE] status=CANCELLED completed={completed}/{total} "
                         f"reason={reason}"
@@ -123,8 +124,8 @@ class PlanExecutor:
                     )
                 except Exception as exc:
                     stop_error = self._stop_after_failure(action)
-                    reason = _single_line(exc)
-                    suffix = f" stop_error={_single_line(stop_error)}" if stop_error else ""
+                    reason = inline_value(exc)
+                    suffix = f" stop_error={inline_value(stop_error)}" if stop_error else ""
                     self.log(
                         f"[DONE] status=FAIL step={index}/{total} "
                         f"type={_action_type(action)} error={type(exc).__name__} "
@@ -207,9 +208,3 @@ def _start_log(action: RobotAction, index: int, total: int) -> str:
     if isinstance(action, GotoObjectAction):
         return f"{prefix} class={action.class_name} color={action.color}"
     return prefix
-
-
-def _single_line(value: object, limit: int = 300) -> str:
-    """Prevent model/error text from forging extra terminal log lines."""
-    text = " ".join(str(value).split())
-    return (text or "unknown")[:limit]
