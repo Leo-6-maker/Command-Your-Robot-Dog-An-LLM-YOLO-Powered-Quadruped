@@ -1,0 +1,1589 @@
+{
+  "run_time_utc": "2026-09-29T14:40:59.727836+00:00",
+  "cases_path": "task3/benchmark_cases.json",
+  "cases": [
+    {
+      "id": "basic_01",
+      "group": "basic",
+      "prompt": "Move forward at speed 0.4 for two seconds.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "move",
+            "vx": 0.4,
+            "vy": 0.0,
+            "wz": 0.0,
+            "duration_s": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_02",
+      "group": "basic",
+      "prompt": "Move backward at speed 0.3 for one second.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "move",
+            "vx": -0.3,
+            "vy": 0.0,
+            "wz": 0.0,
+            "duration_s": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_03",
+      "group": "basic",
+      "prompt": "Move left at speed 0.25 for three seconds.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "move",
+            "vx": 0.0,
+            "vy": 0.25,
+            "wz": 0.0,
+            "duration_s": 3.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_04",
+      "group": "basic",
+      "prompt": "Move right at speed 0.2 for one second.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "move",
+            "vx": 0.0,
+            "vy": -0.2,
+            "wz": 0.0,
+            "duration_s": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_05",
+      "group": "basic",
+      "prompt": "Turn left 90 degrees.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "turn",
+            "angle_deg": 90.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_06",
+      "group": "basic",
+      "prompt": "Turn right 45 degrees.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "turn",
+            "angle_deg": -45.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_07",
+      "group": "basic",
+      "prompt": "Go to the green chair.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "goto_object",
+            "class": "chair",
+            "color": "green"
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_08",
+      "group": "basic",
+      "prompt": "Go to the red chair.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "goto_object",
+            "class": "chair",
+            "color": "red"
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_09",
+      "group": "basic",
+      "prompt": "Move forward at speed 0.3 for two seconds, then turn left 90 degrees.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "move",
+            "vx": 0.3,
+            "vy": 0.0,
+            "wz": 0.0,
+            "duration_s": 2.0
+          },
+          {
+            "type": "turn",
+            "angle_deg": 90.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "basic_10",
+      "group": "basic",
+      "prompt": "Stop now.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "stop"
+          }
+        ]
+      }
+    },
+    {
+      "id": "paraphrase_01",
+      "group": "paraphrase",
+      "prompt": "Advance straight ahead at 0.4 speed for two seconds.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "move",
+            "vx": 0.4,
+            "vy": 0.0,
+            "wz": 0.0,
+            "duration_s": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "paraphrase_02",
+      "group": "paraphrase",
+      "prompt": "Slide toward your right at speed 0.2 for one second.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "move",
+            "vx": 0.0,
+            "vy": -0.2,
+            "wz": 0.0,
+            "duration_s": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "paraphrase_03",
+      "group": "paraphrase",
+      "prompt": "Make a quarter-turn counter-clockwise.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "turn",
+            "angle_deg": 90.0
+          }
+        ]
+      }
+    },
+    {
+      "id": "paraphrase_04",
+      "group": "paraphrase",
+      "prompt": "Head over to the emerald-colored chair.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "goto_object",
+            "class": "chair",
+            "color": "green"
+          }
+        ]
+      }
+    },
+    {
+      "id": "paraphrase_05",
+      "group": "paraphrase",
+      "prompt": "Freeze in place immediately.",
+      "expected": {
+        "accepted": true,
+        "actions": [
+          {
+            "type": "stop"
+          }
+        ]
+      }
+    },
+    {
+      "id": "invalid_01",
+      "group": "invalid",
+      "prompt": "Move forward at speed 1.5 for two seconds.",
+      "expected": {
+        "accepted": false,
+        "actions": []
+      }
+    },
+    {
+      "id": "invalid_02",
+      "group": "invalid",
+      "prompt": "Move left for 75 seconds.",
+      "expected": {
+        "accepted": false,
+        "actions": []
+      }
+    },
+    {
+      "id": "invalid_03",
+      "group": "invalid",
+      "prompt": "Turn right 900 degrees.",
+      "expected": {
+        "accepted": false,
+        "actions": []
+      }
+    },
+    {
+      "id": "invalid_04",
+      "group": "invalid",
+      "prompt": "Go to the blue chair.",
+      "expected": {
+        "accepted": false,
+        "actions": []
+      }
+    },
+    {
+      "id": "invalid_05",
+      "group": "invalid",
+      "prompt": "Write a poem about robot dogs.",
+      "expected": {
+        "accepted": false,
+        "actions": []
+      }
+    }
+  ],
+  "openai_pricing_url": "https://developers.openai.com/api/docs/models/gpt-4o-mini",
+  "providers": [
+    {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "summary": {
+        "correct": 15,
+        "total": 20,
+        "accuracy_percent": 75.0,
+        "by_group": {
+          "basic": {
+            "correct": 9,
+            "total": 10,
+            "accuracy_percent": 90.0
+          },
+          "paraphrase": {
+            "correct": 1,
+            "total": 5,
+            "accuracy_percent": 20.0
+          },
+          "invalid": {
+            "correct": 5,
+            "total": 5,
+            "accuracy_percent": 100.0
+          }
+        },
+        "latency_mean_s": 1.095569,
+        "latency_median_s": 1.052258,
+        "input_tokens": 21800,
+        "cached_input_tokens": 0,
+        "output_tokens": 552,
+        "estimated_cost_usd": 0.0036012,
+        "failures": [
+          "basic_06",
+          "paraphrase_02",
+          "paraphrase_03",
+          "paraphrase_04",
+          "paraphrase_05"
+        ]
+      },
+      "records": [
+        {
+          "id": "basic_01",
+          "group": "basic",
+          "prompt": "Move forward at speed 0.4 for two seconds.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.507028,
+          "input_tokens": 1093,
+          "cached_input_tokens": 0,
+          "output_tokens": 39,
+          "estimated_cost_usd": 0.00018735
+        },
+        {
+          "id": "basic_02",
+          "group": "basic",
+          "prompt": "Move backward at speed 0.3 for one second.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": -0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": -0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.263689,
+          "input_tokens": 1093,
+          "cached_input_tokens": 0,
+          "output_tokens": 40,
+          "estimated_cost_usd": 0.00018795
+        },
+        {
+          "id": "basic_03",
+          "group": "basic",
+          "prompt": "Move left at speed 0.25 for three seconds.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": 0.25,
+                "wz": 0.0,
+                "duration_s": 3.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": 0.25,
+                "wz": 0.0,
+                "duration_s": 3.0
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.33235,
+          "input_tokens": 1093,
+          "cached_input_tokens": 0,
+          "output_tokens": 39,
+          "estimated_cost_usd": 0.00018735
+        },
+        {
+          "id": "basic_04",
+          "group": "basic",
+          "prompt": "Move right at speed 0.2 for one second.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": -0.2,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": -0.2,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.221075,
+          "input_tokens": 1093,
+          "cached_input_tokens": 0,
+          "output_tokens": 40,
+          "estimated_cost_usd": 0.00018795
+        },
+        {
+          "id": "basic_05",
+          "group": "basic",
+          "prompt": "Turn left 90 degrees.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.230629,
+          "input_tokens": 1087,
+          "cached_input_tokens": 0,
+          "output_tokens": 24,
+          "estimated_cost_usd": 0.00017745
+        },
+        {
+          "id": "basic_06",
+          "group": "basic",
+          "prompt": "Turn right 45 degrees.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": -45.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The command is rejected because it requires a previous plan for context.",
+          "correct": false,
+          "failure_reason": "semantic plan mismatch",
+          "latency_s": 1.026273,
+          "input_tokens": 1087,
+          "cached_input_tokens": 0,
+          "output_tokens": 24,
+          "estimated_cost_usd": 0.00017745
+        },
+        {
+          "id": "basic_07",
+          "group": "basic",
+          "prompt": "Go to the green chair.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "green"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "green"
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.12446,
+          "input_tokens": 1087,
+          "cached_input_tokens": 0,
+          "output_tokens": 28,
+          "estimated_cost_usd": 0.00017985
+        },
+        {
+          "id": "basic_08",
+          "group": "basic",
+          "prompt": "Go to the red chair.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "red"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "red"
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.023523,
+          "input_tokens": 1087,
+          "cached_input_tokens": 0,
+          "output_tokens": 28,
+          "estimated_cost_usd": 0.00017985
+        },
+        {
+          "id": "basic_09",
+          "group": "basic",
+          "prompt": "Move forward at speed 0.3 for two seconds, then turn left 90 degrees.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              },
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              },
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.023266,
+          "input_tokens": 1100,
+          "cached_input_tokens": 0,
+          "output_tokens": 48,
+          "estimated_cost_usd": 0.0001938
+        },
+        {
+          "id": "basic_10",
+          "group": "basic",
+          "prompt": "Stop now.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "stop"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "stop"
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.927773,
+          "input_tokens": 1084,
+          "cached_input_tokens": 0,
+          "output_tokens": 19,
+          "estimated_cost_usd": 0.000174
+        },
+        {
+          "id": "paraphrase_01",
+          "group": "paraphrase",
+          "prompt": "Advance straight ahead at 0.4 speed for two seconds.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "message": "Command accepted.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.11955,
+          "input_tokens": 1094,
+          "cached_input_tokens": 0,
+          "output_tokens": 39,
+          "estimated_cost_usd": 0.0001875
+        },
+        {
+          "id": "paraphrase_02",
+          "group": "paraphrase",
+          "prompt": "Slide toward your right at speed 0.2 for one second.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": -0.2,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The command is ambiguous; 'slide' is not a supported action.",
+          "correct": false,
+          "failure_reason": "semantic plan mismatch",
+          "latency_s": 1.127013,
+          "input_tokens": 1095,
+          "cached_input_tokens": 0,
+          "output_tokens": 25,
+          "estimated_cost_usd": 0.00017925
+        },
+        {
+          "id": "paraphrase_03",
+          "group": "paraphrase",
+          "prompt": "Make a quarter-turn counter-clockwise.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "Context-dependent input requires a previous plan.",
+          "correct": false,
+          "failure_reason": "semantic plan mismatch",
+          "latency_s": 0.921615,
+          "input_tokens": 1089,
+          "cached_input_tokens": 0,
+          "output_tokens": 19,
+          "estimated_cost_usd": 0.00017475
+        },
+        {
+          "id": "paraphrase_04",
+          "group": "paraphrase",
+          "prompt": "Head over to the emerald-colored chair.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "green"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "Emerald-colored chair is not a supported target.",
+          "correct": false,
+          "failure_reason": "semantic plan mismatch",
+          "latency_s": 1.022608,
+          "input_tokens": 1089,
+          "cached_input_tokens": 0,
+          "output_tokens": 21,
+          "estimated_cost_usd": 0.00017595
+        },
+        {
+          "id": "paraphrase_05",
+          "group": "paraphrase",
+          "prompt": "Freeze in place immediately.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "stop"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The command is not a supported action.",
+          "correct": false,
+          "failure_reason": "semantic plan mismatch",
+          "latency_s": 1.176041,
+          "input_tokens": 1086,
+          "cached_input_tokens": 0,
+          "output_tokens": 19,
+          "estimated_cost_usd": 0.0001743
+        },
+        {
+          "id": "invalid_01",
+          "group": "invalid",
+          "prompt": "Move forward at speed 1.5 for two seconds.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The speed exceeds the allowed limit.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.078244,
+          "input_tokens": 1093,
+          "cached_input_tokens": 0,
+          "output_tokens": 18,
+          "estimated_cost_usd": 0.00017475
+        },
+        {
+          "id": "invalid_02",
+          "group": "invalid",
+          "prompt": "Move left for 75 seconds.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The command duration exceeds the allowed limit.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.918453,
+          "input_tokens": 1088,
+          "cached_input_tokens": 0,
+          "output_tokens": 19,
+          "estimated_cost_usd": 0.0001746
+        },
+        {
+          "id": "invalid_03",
+          "group": "invalid",
+          "prompt": "Turn right 900 degrees.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The turn angle exceeds the maximum limit of 360 degrees.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.928736,
+          "input_tokens": 1087,
+          "cached_input_tokens": 0,
+          "output_tokens": 23,
+          "estimated_cost_usd": 0.00017685
+        },
+        {
+          "id": "invalid_04",
+          "group": "invalid",
+          "prompt": "Go to the blue chair.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The blue chair is not a supported target.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.018679,
+          "input_tokens": 1087,
+          "cached_input_tokens": 0,
+          "output_tokens": 20,
+          "estimated_cost_usd": 0.00017505
+        },
+        {
+          "id": "invalid_05",
+          "group": "invalid",
+          "prompt": "Write a poem about robot dogs.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "This command is not a supported robot action.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.920375,
+          "input_tokens": 1088,
+          "cached_input_tokens": 0,
+          "output_tokens": 20,
+          "estimated_cost_usd": 0.0001752
+        }
+      ]
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:7b",
+      "summary": {
+        "correct": 16,
+        "total": 20,
+        "accuracy_percent": 80.0,
+        "by_group": {
+          "basic": {
+            "correct": 10,
+            "total": 10,
+            "accuracy_percent": 100.0
+          },
+          "paraphrase": {
+            "correct": 4,
+            "total": 5,
+            "accuracy_percent": 80.0
+          },
+          "invalid": {
+            "correct": 2,
+            "total": 5,
+            "accuracy_percent": 40.0
+          }
+        },
+        "latency_mean_s": 0.973458,
+        "latency_median_s": 0.852546,
+        "input_tokens": 22403,
+        "cached_input_tokens": 0,
+        "output_tokens": 1089,
+        "estimated_cost_usd": 0.0,
+        "failures": [
+          "paraphrase_02",
+          "invalid_01",
+          "invalid_02",
+          "invalid_03"
+        ]
+      },
+      "records": [
+        {
+          "id": "basic_01",
+          "group": "basic",
+          "prompt": "Move forward at speed 0.4 for two seconds.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "message": "Moving forward at speed 0.4 for 2 seconds.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.246223,
+          "input_tokens": 1247,
+          "cached_input_tokens": null,
+          "output_tokens": 77,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_02",
+          "group": "basic",
+          "prompt": "Move backward at speed 0.3 for one second.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": -0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": -0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "message": "Moving backward at speed 0.3 for 1 second.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.235813,
+          "input_tokens": 1247,
+          "cached_input_tokens": null,
+          "output_tokens": 77,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_03",
+          "group": "basic",
+          "prompt": "Move left at speed 0.25 for three seconds.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": 0.25,
+                "wz": 0.0,
+                "duration_s": 3.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": 0.25,
+                "wz": 0.0,
+                "duration_s": 3.0
+              }
+            ]
+          },
+          "message": "Moving left at speed 0.25 for 3 seconds.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.258577,
+          "input_tokens": 1248,
+          "cached_input_tokens": null,
+          "output_tokens": 79,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_04",
+          "group": "basic",
+          "prompt": "Move right at speed 0.2 for one second.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": -0.2,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": -0.2,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "message": "Moving right at speed 0.2 for 1 second.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.238379,
+          "input_tokens": 1247,
+          "cached_input_tokens": null,
+          "output_tokens": 77,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_05",
+          "group": "basic",
+          "prompt": "Turn left 90 degrees.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "message": "Turning left 90 degrees.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.766445,
+          "input_tokens": 1242,
+          "cached_input_tokens": null,
+          "output_tokens": 48,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_06",
+          "group": "basic",
+          "prompt": "Turn right 45 degrees.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": -45.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": -45.0
+              }
+            ]
+          },
+          "message": "Turning right 45 degrees.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.778743,
+          "input_tokens": 1242,
+          "cached_input_tokens": null,
+          "output_tokens": 48,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_07",
+          "group": "basic",
+          "prompt": "Go to the green chair.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "green"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "green"
+              }
+            ]
+          },
+          "message": "Moving to the green chair.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.853056,
+          "input_tokens": 1241,
+          "cached_input_tokens": null,
+          "output_tokens": 53,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_08",
+          "group": "basic",
+          "prompt": "Go to the red chair.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "red"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "red"
+              }
+            ]
+          },
+          "message": "Moving to the red chair.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.852036,
+          "input_tokens": 1241,
+          "cached_input_tokens": null,
+          "output_tokens": 53,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_09",
+          "group": "basic",
+          "prompt": "Move forward at speed 0.3 for two seconds, then turn left 90 degrees.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              },
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.3,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              },
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "message": "Moving forward at 0.3 speed for 2 seconds, then turning left 90 degrees.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.672573,
+          "input_tokens": 1255,
+          "cached_input_tokens": null,
+          "output_tokens": 105,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "basic_10",
+          "group": "basic",
+          "prompt": "Stop now.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "stop"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "stop"
+              }
+            ]
+          },
+          "message": "Stopping now.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.56691,
+          "input_tokens": 1238,
+          "cached_input_tokens": null,
+          "output_tokens": 35,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "paraphrase_01",
+          "group": "paraphrase",
+          "prompt": "Advance straight ahead at 0.4 speed for two seconds.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.4,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "message": "Moving forward at 0.4 speed for 2 seconds.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 1.236434,
+          "input_tokens": 1248,
+          "cached_input_tokens": null,
+          "output_tokens": 77,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "paraphrase_02",
+          "group": "paraphrase",
+          "prompt": "Slide toward your right at speed 0.2 for one second.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": -0.2,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 0.0,
+                "vy": 0.2,
+                "wz": 0.0,
+                "duration_s": 1.0
+              }
+            ]
+          },
+          "message": "Moving right at speed 0.2 for 1 second.",
+          "correct": false,
+          "failure_reason": "semantic plan mismatch",
+          "latency_s": 1.233694,
+          "input_tokens": 1249,
+          "cached_input_tokens": null,
+          "output_tokens": 77,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "paraphrase_03",
+          "group": "paraphrase",
+          "prompt": "Make a quarter-turn counter-clockwise.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "turn",
+                "angle_deg": 90.0
+              }
+            ]
+          },
+          "message": "Turning counter-clockwise by 90 degrees.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.820881,
+          "input_tokens": 1243,
+          "cached_input_tokens": null,
+          "output_tokens": 51,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "paraphrase_04",
+          "group": "paraphrase",
+          "prompt": "Head over to the emerald-colored chair.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "green"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "goto_object",
+                "class": "chair",
+                "color": "green"
+              }
+            ]
+          },
+          "message": "Moving to the green chair.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.8507,
+          "input_tokens": 1244,
+          "cached_input_tokens": null,
+          "output_tokens": 53,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "paraphrase_05",
+          "group": "paraphrase",
+          "prompt": "Freeze in place immediately.",
+          "expected": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "stop"
+              }
+            ]
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "stop"
+              }
+            ]
+          },
+          "message": "Freezing in place.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.602262,
+          "input_tokens": 1241,
+          "cached_input_tokens": null,
+          "output_tokens": 37,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "invalid_01",
+          "group": "invalid",
+          "prompt": "Move forward at speed 1.5 for two seconds.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": true,
+            "actions": [
+              {
+                "type": "move",
+                "vx": 1.0,
+                "vy": 0.0,
+                "wz": 0.0,
+                "duration_s": 2.0
+              }
+            ]
+          },
+          "message": "Moving forward at speed 1.5 for 2 seconds.",
+          "correct": false,
+          "failure_reason": "semantic plan mismatch",
+          "latency_s": 1.21557,
+          "input_tokens": 1247,
+          "cached_input_tokens": null,
+          "output_tokens": 77,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "invalid_02",
+          "group": "invalid",
+          "prompt": "Move left for 75 seconds.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": null,
+          "message": null,
+          "correct": false,
+          "failure_reason": "PlanValidationError: $.actions[0].duration_s: must be between 0 and 60",
+          "latency_s": 1.166475,
+          "input_tokens": null,
+          "cached_input_tokens": null,
+          "output_tokens": null,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "invalid_03",
+          "group": "invalid",
+          "prompt": "Turn right 900 degrees.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": null,
+          "message": null,
+          "correct": false,
+          "failure_reason": "PlanValidationError: $.actions[0].angle_deg: must be between -720 and 720",
+          "latency_s": 0.808641,
+          "input_tokens": null,
+          "cached_input_tokens": null,
+          "output_tokens": null,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "invalid_04",
+          "group": "invalid",
+          "prompt": "Go to the blue chair.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The requested blue chair is not a supported target.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.4775,
+          "input_tokens": 1241,
+          "cached_input_tokens": null,
+          "output_tokens": 29,
+          "estimated_cost_usd": 0.0
+        },
+        {
+          "id": "invalid_05",
+          "group": "invalid",
+          "prompt": "Write a poem about robot dogs.",
+          "expected": {
+            "accepted": false,
+            "actions": []
+          },
+          "actual": {
+            "accepted": false,
+            "actions": []
+          },
+          "message": "The command 'Write a poem about robot dogs' is not a supported robot action.",
+          "correct": true,
+          "failure_reason": null,
+          "latency_s": 0.588249,
+          "input_tokens": 1242,
+          "cached_input_tokens": null,
+          "output_tokens": 36,
+          "estimated_cost_usd": 0.0
+        }
+      ]
+    }
+  ]
+}

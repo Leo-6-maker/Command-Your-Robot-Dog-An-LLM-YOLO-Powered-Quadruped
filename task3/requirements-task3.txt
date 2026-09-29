@@ -1,0 +1,6 @@
+# Python dependency added by Task 3. Task 2 supplies MuJoCo, NumPy,
+# Ultralytics and its simulator dependencies.
+openai==3.20.0
+
+# The second provider is an external local runtime, not a pip package:
+#   Ollama + qwen2.5:7b (https://ollama.com/)

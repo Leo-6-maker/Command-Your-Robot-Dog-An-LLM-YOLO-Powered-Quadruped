@@ -1,0 +1,108 @@
+{
+  "type": "object",
+  "properties": {
+    "accepted": {
+      "type": "boolean",
+      "description": "True only when the English input is a safe supported robot command."
+    },
+    "message": {
+      "type": "string",
+      "description": "A non-blank user-facing acknowledgement or rejection reason, in English.",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "actions": {
+      "type": "array",
+      "description": "Ordered actions to execute automatically.",
+      "minItems": 0,
+      "maxItems": 8,
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["move"]
+              },
+              "vx": {
+                "type": "number",
+                "minimum": -1.0,
+                "maximum": 1.0,
+                "description": "Normalised forward velocity; positive is forward."
+              },
+              "vy": {
+                "type": "number",
+                "minimum": -1.0,
+                "maximum": 1.0,
+                "description": "Normalised lateral velocity; positive is left."
+              },
+              "wz": {
+                "type": "number",
+                "minimum": -1.0,
+                "maximum": 1.0,
+                "description": "Normalised yaw rate; positive is counter-clockwise."
+              },
+              "duration_s": {
+                "type": "number",
+                "exclusiveMinimum": 0.0,
+                "maximum": 60.0
+              }
+            },
+            "required": ["type", "vx", "vy", "wz", "duration_s"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["turn"]
+              },
+              "angle_deg": {
+                "type": "number",
+                "minimum": -720.0,
+                "maximum": 720.0,
+                "description": "Signed turn angle; positive is counter-clockwise."
+              }
+            },
+            "required": ["type", "angle_deg"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["goto_object"]
+              },
+              "class": {
+                "type": "string",
+                "enum": ["chair"]
+              },
+              "color": {
+                "type": "string",
+                "enum": ["red", "green"]
+              }
+            },
+            "required": ["type", "class", "color"],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["stop"]
+              }
+            },
+            "required": ["type"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "required": ["accepted", "message", "actions"],
+  "additionalProperties": false
+}
