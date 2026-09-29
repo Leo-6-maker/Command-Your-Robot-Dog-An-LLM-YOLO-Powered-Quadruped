@@ -1,6 +1,6 @@
 # Task 3 — LLM command planning
 
-本目录目前完成动作 JSON 协议、本地验证器、Task 2 非阻塞动作队列的阻塞适配器、串行动作执行器、OpenAI Structured Outputs 规划器和异步终端 chat loop。
+本目录目前完成动作 JSON 协议、本地验证器、Task 2 非阻塞动作队列的阻塞适配器、串行动作执行器、OpenAI Structured Outputs 与本地 Ollama/Qwen 规划器，以及异步终端 chat loop。
 
 ## 动作协议
 
@@ -82,7 +82,7 @@ executor = PlanExecutor(adapter, goto_object=task4_callback)
 终端 chat loop 是完整入口；LLM 是它内部把英文句子转换成动作 JSON 的环节：
 
 ```text
-terminal → OpenAIPlanner → local validator → PlanExecutor → Task 2
+terminal → OpenAIPlanner / OllamaPlanner → local validator → PlanExecutor → Task 2
 ```
 
 先在当前终端临时设置 API key（不要写进代码或提交到 Git）：
@@ -116,7 +116,36 @@ threading.Thread(target=chat.run, daemon=True).start()
 - `/help`：显示本地控制命令；
 - `/quit`：停止并退出终端循环。
 
-只有执行成功的计划会成为下一句的上下文，因此 `Do that again slower` 可以引用上一次成功动作。OpenAI 请求记录延迟和 token 数，后续可直接用于两种 LLM 的实验对比。
+只有执行成功的计划会成为下一句的上下文，因此 `Do that again slower` 可以引用上一次成功动作。OpenAI 和 Ollama 请求都记录供应商、模型、延迟和 token 数，后续可直接用于两种 LLM 的实验对比。
+
+## 本地 Qwen（Ollama）
+
+第二个 LLM 使用 `qwen2.5:7b`，通过本机 Ollama 的 `http://127.0.0.1:11434/api/chat` 接口运行。Ollama 负责加载模型和使用 GPU 推理；Task 3 仍负责 prompt、JSON Schema、本地 validator、上下文和动作执行。两种 LLM 共用同一套安全边界。
+
+本项目的用户本地安装位置为 `$HOME/.local/ollama`，可执行文件为 `$HOME/.local/bin/ollama`。重启电脑后先在一个终端启动本地服务：
+
+```bash
+$HOME/.local/bin/ollama serve
+```
+
+如果还没有模型，只需下载一次：
+
+```bash
+$HOME/.local/bin/ollama pull qwen2.5:7b
+```
+
+然后在另一个终端运行 Task 3：
+
+```bash
+conda activate ee5112-minilab
+python -m task3.run \
+  --provider ollama \
+  --model qwen2.5:7b \
+  --task2-root /path/to/extracted/task2-project \
+  --gui
+```
+
+本地 Qwen 不需要 `OPENAI_API_KEY`，不会产生 OpenAI API 费用；代价是模型会占用本地磁盘、GPU 显存和电力。如果 Ollama 未启动，程序会输出 `[DONE] status=ERROR` 及本地连接错误，不会退回到付费的 OpenAI 服务。
 
 ## 拒绝与上下文策略
 
@@ -180,6 +209,8 @@ python -m task3.run \
 
 `--task2-root` 指向包含 `task2/platform.py` 的项目目录；也可以设置 `TASK2_ROOT` 环境变量。默认从 Task 2 包的 `assets/` 自动读取 `objects.json` 和 `yolo11n.pt`。终端输入 `/quit` 会取消正在执行的动作并让 MuJoCo 主循环安全退出。
 
+`--provider openai` 是默认值；使用本地模型时显式传入 `--provider ollama`。也可用 `TASK3_PROVIDER`、`TASK3_OLLAMA_MODEL` 和 `OLLAMA_HOST` 环境变量覆盖默认值。
+
 ## 测试
 
 从仓库根目录运行：
@@ -190,3 +221,6 @@ conda run -n ee5112-minilab python -m pytest -q task3
 
 真实浏览器纯运动演示的命令、结果和失败修正记录见
 [`evidence/step10_pure_motion.md`](evidence/step10_pure_motion.md)。
+
+本地 Qwen 接入、选型和真实执行记录见
+[`evidence/step12_local_qwen.md`](evidence/step12_local_qwen.md)。

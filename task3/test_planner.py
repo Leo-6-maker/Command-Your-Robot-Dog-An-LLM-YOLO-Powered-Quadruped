@@ -9,6 +9,7 @@ from task3.planner import (
     IncompleteModelResponseError,
     MissingAPIKeyError,
     ModelRefusalError,
+    OllamaPlanner,
     OpenAIPlanner,
     PlannerAPIError,
     SYSTEM_PROMPT,
@@ -75,6 +76,12 @@ def test_system_prompt_defines_lateral_direction_signs_unambiguously():
     assert "move left means vy > 0" in SYSTEM_PROMPT
     assert "move right" in SYSTEM_PROMPT
     assert "vy=-0.2" in SYSTEM_PROMPT
+
+
+def test_system_prompt_defines_turn_direction_signs_unambiguously():
+    assert '"Turn left 90 degrees." means turn(angle_deg=90)' in SYSTEM_PROMPT
+    assert '"Turn right 90 degrees."' in SYSTEM_PROMPT
+    assert "turn(angle_deg=-90)" in SYSTEM_PROMPT
 
 
 def test_system_prompt_explicitly_accepts_both_scene_chairs():
@@ -156,3 +163,73 @@ def test_missing_api_key_has_actionable_message(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     with pytest.raises(MissingAPIKeyError, match="OPENAI_API_KEY"):
         OpenAIPlanner()
+
+
+def test_ollama_planner_uses_schema_zero_temperature_and_local_validation():
+    calls = []
+
+    def requester(url, payload, timeout):
+        calls.append((url, payload, timeout))
+        return {
+            "done": True,
+            "model": "qwen2.5:7b",
+            "message": {
+                "content": json.dumps(
+                    {
+                        "accepted": True,
+                        "message": "Moving right.",
+                        "actions": [
+                            {
+                                "type": "move",
+                                "vx": 0,
+                                "vy": -0.2,
+                                "wz": 0,
+                                "duration_s": 1,
+                            }
+                        ],
+                    }
+                )
+            },
+            "prompt_eval_count": 120,
+            "eval_count": 30,
+        }
+
+    clock = iter([5.0, 5.4])
+    planner = OllamaPlanner(
+        model="qwen2.5:7b",
+        host="http://localhost:11434/",
+        requester=requester,
+        monotonic=lambda: next(clock),
+    )
+
+    result = planner.plan("Move right at speed 0.2 for one second")
+
+    assert result.provider == "ollama"
+    assert result.model == "qwen2.5:7b"
+    assert result.plan.actions == (MoveAction(0.0, -0.2, 0.0, 1.0),)
+    assert result.input_tokens == 120
+    assert result.output_tokens == 30
+    assert result.latency_s == pytest.approx(0.4)
+    url, payload, timeout = calls[0]
+    assert url == "http://localhost:11434/api/chat"
+    assert payload["format"]["additionalProperties"] is False
+    assert payload["options"] == {"temperature": 0, "seed": 42}
+    assert "Required JSON schema" in payload["messages"][0]["content"]
+    assert timeout == 120.0
+
+
+def test_ollama_planner_rejects_incomplete_and_wraps_connection_errors():
+    incomplete = OllamaPlanner(
+        requester=lambda _url, _payload, _timeout: {
+            "done": False,
+            "message": {"content": "{}"},
+        }
+    )
+    with pytest.raises(IncompleteModelResponseError, match="incomplete"):
+        incomplete.plan("Move forward")
+
+    def offline(_url, _payload, _timeout):
+        raise ConnectionError("offline")
+
+    with pytest.raises(PlannerAPIError, match="Ollama request failed"):
+        OllamaPlanner(requester=offline).plan("Move forward")

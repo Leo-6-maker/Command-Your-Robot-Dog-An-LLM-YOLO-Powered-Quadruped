@@ -10,7 +10,11 @@ import threading
 import time
 from typing import Callable, Protocol
 
-from .chat_loop import TerminalChatLoop, build_openai_chat_loop
+from .chat_loop import (
+    TerminalChatLoop,
+    build_ollama_chat_loop,
+    build_openai_chat_loop,
+)
 from .executor import PlanExecutor
 from .task2_adapter import Task2MotionAdapter
 from .task4_integration import Task4Integration, load_object_positions
@@ -48,9 +52,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="override Task 2 assets directory containing objects.json and yolo11n.pt",
     )
     parser.add_argument(
+        "--provider",
+        choices=("openai", "ollama"),
+        default=os.getenv("TASK3_PROVIDER", "openai"),
+        help="LLM provider (default: TASK3_PROVIDER or openai)",
+    )
+    parser.add_argument(
         "--model",
         default=None,
-        help="OpenAI model override (default: TASK3_OPENAI_MODEL or gpt-4o-mini)",
+        help="provider model override",
+    )
+    parser.add_argument(
+        "--ollama-host",
+        default=None,
+        help="Ollama URL override (default: OLLAMA_HOST or http://127.0.0.1:11434)",
     )
     parser.add_argument(
         "--no-chat",
@@ -95,7 +110,11 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if not math.isfinite(args.duration) or args.duration <= 0:
         raise SystemExit("--duration must be finite and positive")
-    if not args.no_chat and not os.getenv("OPENAI_API_KEY"):
+    if (
+        not args.no_chat
+        and args.provider == "openai"
+        and not os.getenv("OPENAI_API_KEY")
+    ):
         raise SystemExit(
             "OPENAI_API_KEY is not set. Export it before enabling chat, "
             "or use --no-chat for a free offline smoke test."
@@ -126,7 +145,15 @@ def main(argv: list[str] | None = None) -> int:
         )
         executor = PlanExecutor(motion, goto_object=task4.goto_object, logger=log)
         if not args.no_chat:
-            chat = build_openai_chat_loop(executor, model=args.model, logger=log)
+            if args.provider == "ollama":
+                chat = build_ollama_chat_loop(
+                    executor,
+                    model=args.model,
+                    host=args.ollama_host,
+                    logger=log,
+                )
+            else:
+                chat = build_openai_chat_loop(executor, model=args.model, logger=log)
             threading.Thread(
                 target=chat.run,
                 name="task3-terminal",

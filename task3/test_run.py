@@ -118,3 +118,12 @@ def test_chat_mode_fails_before_simulator_when_api_key_is_missing(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     with pytest.raises(SystemExit, match="OPENAI_API_KEY"):
         main(["--duration", "1"])
+
+
+def test_ollama_mode_does_not_require_openai_api_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    parser = build_parser()
+    args = parser.parse_args(["--provider", "ollama", "--duration", "1"])
+
+    assert args.provider == "ollama"
+    assert args.model is None

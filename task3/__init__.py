@@ -1,6 +1,6 @@
 """Task 3 natural-language command planning and execution."""
 
-from .chat_loop import TerminalChatLoop, build_openai_chat_loop
+from .chat_loop import TerminalChatLoop, build_ollama_chat_loop, build_openai_chat_loop
 from .command_policy import local_rejection_reason
 from .executor import (
     ExecutionResult,
@@ -12,6 +12,7 @@ from .planner import (
     IncompleteModelResponseError,
     MissingAPIKeyError,
     ModelRefusalError,
+    OllamaPlanner,
     OpenAIPlanner,
     PlannerAPIError,
     PlannerError,
@@ -59,6 +60,7 @@ __all__ = [
     "MotionCancelledError",
     "MotionTimeoutError",
     "OpenAIPlanner",
+    "OllamaPlanner",
     "PlanValidationError",
     "PlanExecutor",
     "PlannerAPIError",
@@ -75,6 +77,7 @@ __all__ = [
     "TurnFailedError",
     "UnknownSceneObjectError",
     "build_openai_chat_loop",
+    "build_ollama_chat_loop",
     "load_object_positions",
     "local_rejection_reason",
     "parse_and_validate",

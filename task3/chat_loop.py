@@ -6,7 +6,7 @@ from typing import Protocol
 
 from .command_policy import local_rejection_reason
 from .executor import ExecutionResult, PlanExecutor
-from .planner import OpenAIPlanner, PlanningResult
+from .planner import OllamaPlanner, OpenAIPlanner, PlanningResult
 from .validator import CommandPlan, validate_plan
 
 
@@ -186,6 +186,19 @@ def build_openai_chat_loop(
 ) -> TerminalChatLoop:
     """Convenience constructor used by the future simulator entry point."""
     return TerminalChatLoop(OpenAIPlanner(model=model), executor, logger=logger)
+
+
+def build_ollama_chat_loop(
+    executor: PlanExecutor,
+    *,
+    model: str | None = None,
+    host: str | None = None,
+    logger: Callable[[str], None] = print,
+) -> TerminalChatLoop:
+    """Build a chat loop backed by a local Ollama model."""
+    return TerminalChatLoop(
+        OllamaPlanner(model=model, host=host), executor, logger=logger
+    )
 
 
 def _single_line(value: object, limit: int = 500) -> str:

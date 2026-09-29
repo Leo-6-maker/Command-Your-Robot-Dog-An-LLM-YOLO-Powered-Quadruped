@@ -6,6 +6,7 @@ import json
 import os
 import time
 from typing import Any, Protocol
+from urllib.request import Request, urlopen
 
 from .schema import openai_response_format
 from .validator import (
@@ -19,6 +20,8 @@ from .validator import (
 
 
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+DEFAULT_OLLAMA_MODEL = "qwen2.5:7b"
+DEFAULT_OLLAMA_HOST = "http://127.0.0.1:11434"
 MAX_COMMAND_LENGTH = 1_000
 MAX_OUTPUT_TOKENS = 1_000
 
@@ -59,6 +62,8 @@ Interpretation examples:
 - "Move left at speed 0.3 for two seconds." means move(vx=0, vy=0.3, wz=0,
   duration_s=2), while "Move right at speed 0.2 for one second." means
   move(vx=0, vy=-0.2, wz=0, duration_s=1).
+- "Turn left 90 degrees." means turn(angle_deg=90), while "Turn right 90 degrees."
+  means turn(angle_deg=-90). Never use a positive angle for a right turn.
 - "Do that again, but slower." with a previous move(vx=0.4, duration_s=2) means
   move(vx=0.2, duration_s=4); preserve other velocity signs and halve magnitudes.
 - "Do that again." with previous plan null is contextual and must be rejected.
@@ -140,17 +145,7 @@ class OpenAIPlanner:
         if len(command) > MAX_COMMAND_LENGTH:
             raise ValueError(f"command must not exceed {MAX_COMMAND_LENGTH} characters")
 
-        context = (
-            json.dumps(plan_to_dict(previous_plan), separators=(",", ":"))
-            if previous_plan is not None
-            else "null"
-        )
-        user_input = (
-            "Current English command:\n"
-            f"{command}\n\n"
-            "Previous successful validated plan (JSON or null):\n"
-            f"{context}"
-        )
+        user_input = _planner_user_input(command, previous_plan)
         started = self._monotonic()
         try:
             response = self._client.responses.create(
@@ -197,6 +192,97 @@ class OpenAIPlanner:
         )
 
 
+OllamaRequester = Callable[[str, dict[str, Any], float], dict[str, Any]]
+
+
+class OllamaPlanner:
+    """Translate commands with a local Ollama model, then validate locally."""
+
+    def __init__(
+        self,
+        *,
+        model: str | None = None,
+        host: str | None = None,
+        timeout_s: float = 120.0,
+        requester: OllamaRequester | None = None,
+        monotonic: Callable[[], float] = time.monotonic,
+    ):
+        if timeout_s <= 0:
+            raise ValueError("timeout_s must be positive")
+        self.model = model or os.getenv("TASK3_OLLAMA_MODEL", DEFAULT_OLLAMA_MODEL)
+        self.host = (host or os.getenv("OLLAMA_HOST", DEFAULT_OLLAMA_HOST)).rstrip("/")
+        if not self.host.startswith(("http://", "https://")):
+            raise ValueError("Ollama host must start with http:// or https://")
+        self.timeout_s = float(timeout_s)
+        self._requester = requester or _ollama_post_json
+        self._monotonic = monotonic
+
+    def plan(
+        self,
+        command: str,
+        previous_plan: CommandPlan | None = None,
+    ) -> PlanningResult:
+        if not isinstance(command, str):
+            raise TypeError("command must be text")
+        command = command.strip()
+        if not command:
+            raise ValueError("command must not be blank")
+        if len(command) > MAX_COMMAND_LENGTH:
+            raise ValueError(f"command must not exceed {MAX_COMMAND_LENGTH} characters")
+
+        from .schema import load_action_plan_schema
+
+        schema = load_action_plan_schema()
+        grounded_prompt = (
+            SYSTEM_PROMPT
+            + "\n\nRequired JSON schema:\n"
+            + json.dumps(schema, separators=(",", ":"))
+        )
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": grounded_prompt},
+                {
+                    "role": "user",
+                    "content": _planner_user_input(command, previous_plan),
+                },
+            ],
+            "format": schema,
+            "stream": False,
+            "options": {"temperature": 0, "seed": 42},
+            "keep_alive": "5m",
+        }
+        started = self._monotonic()
+        try:
+            response = self._requester(
+                f"{self.host}/api/chat", payload, self.timeout_s
+            )
+        except Exception as exc:
+            raise PlannerAPIError(
+                f"Ollama request failed ({type(exc).__name__}): {exc}"
+            ) from exc
+        latency_s = self._monotonic() - started
+
+        if not isinstance(response, dict) or response.get("done") is False:
+            raise IncompleteModelResponseError("Ollama returned an incomplete response")
+        message = response.get("message")
+        raw_json = message.get("content") if isinstance(message, dict) else None
+        if not isinstance(raw_json, str) or not raw_json.strip():
+            raise IncompleteModelResponseError("Ollama returned no structured text")
+
+        plan = parse_and_validate(raw_json)
+        response_model = response.get("model")
+        return PlanningResult(
+            plan=plan,
+            provider="ollama",
+            model=response_model if isinstance(response_model, str) else self.model,
+            latency_s=latency_s,
+            raw_json=raw_json,
+            input_tokens=_optional_int(response.get("prompt_eval_count")),
+            output_tokens=_optional_int(response.get("eval_count")),
+        )
+
+
 def plan_to_dict(plan: CommandPlan) -> dict[str, Any]:
     """Serialize only trusted typed plans for provider-neutral conversation context."""
     actions: list[dict[str, Any]] = []
@@ -224,6 +310,23 @@ def plan_to_dict(plan: CommandPlan) -> dict[str, Any]:
     return {"accepted": plan.accepted, "message": plan.message, "actions": actions}
 
 
+def _planner_user_input(
+    command: str,
+    previous_plan: CommandPlan | None,
+) -> str:
+    context = (
+        json.dumps(plan_to_dict(previous_plan), separators=(",", ":"))
+        if previous_plan is not None
+        else "null"
+    )
+    return (
+        "Current English command:\n"
+        f"{command}\n\n"
+        "Previous successful validated plan (JSON or null):\n"
+        f"{context}"
+    )
+
+
 def _default_openai_client() -> OpenAIClientLike:
     if not os.getenv("OPENAI_API_KEY"):
         raise MissingAPIKeyError(
@@ -236,6 +339,24 @@ def _default_openai_client() -> OpenAIClientLike:
             "the openai package is missing; install task3/requirements-task3.txt"
         ) from exc
     return OpenAI()
+
+
+def _ollama_post_json(
+    url: str,
+    payload: dict[str, Any],
+    timeout_s: float,
+) -> dict[str, Any]:
+    request = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urlopen(request, timeout=timeout_s) as response:
+        body = json.load(response)
+    if not isinstance(body, dict):
+        raise TypeError("Ollama response body must be a JSON object")
+    return body
 
 
 def _optional_int(value: object) -> int | None:
