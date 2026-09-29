@@ -249,7 +249,10 @@ def goto_object(
             height_share = (y2 - y1) / target.frame_height
             width_share = (x2 - x1) / target.frame_width
             tolerance = max(center_tolerance, 0.12 if height_share >= 0.75 else 0)
-            ready_to_stop = height_share >= stop_box_height and width_share >= 0.42
+            ready_to_stop = (
+                (height_share >= stop_box_height and width_share >= 0.42)
+                or (height_share >= 0.85 and width_share >= 0.55)
+            )
             if not ready_to_stop and abs(offset_x) > tolerance * target.frame_width:
                 angle = -math.degrees(math.atan2(offset_x, focal_px))
                 if height_share >= 0.75:
@@ -259,7 +262,7 @@ def goto_object(
                 continue
             # ponytail: the terminal steps retain the teammate's scene calibration;
             # success still requires a fresh class/color detection after stopping.
-            if height_share >= stop_box_height:
+            if ready_to_stop or height_share >= stop_box_height:
                 # Height saturates when the chair meets the image borders. Width
                 # still separates the too-far and nearly-cropped cases in this scene.
                 if width_share < 0.42:

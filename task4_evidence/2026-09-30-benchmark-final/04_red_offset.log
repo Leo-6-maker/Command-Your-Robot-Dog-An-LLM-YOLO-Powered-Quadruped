@@ -1,0 +1,8 @@
+[KEYBOARD] evdev not installed; browser keyboard control is available
+[MAP] switched to object_lab
+[DETECT] class=chair color=red conf=0.61 bbox=[285,137,348,240]
+[DETECT] class=orange color=red conf=0.56 bbox=[180,208,224,248]
+[TRIAL] class=chair color=red source=explicit_target start=[0.5, -1.0, 0.0]
+[DETECT] class=chair color=red conf=0.61 bbox=[285,137,348,240]
+[DETECT] class=orange color=red conf=0.56 bbox=[180,208,224,248]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=2.12

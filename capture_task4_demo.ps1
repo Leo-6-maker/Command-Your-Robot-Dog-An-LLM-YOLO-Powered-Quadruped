@@ -5,6 +5,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $workspace = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location -LiteralPath $workspace
 $trialLog = Join-Path $workspace "runs\task4_demo_$RunId.log"
 $video = Join-Path $workspace "task4_evidence\video_clip_$RunId.mp4"
 $stopFile = Join-Path $workspace "runs\stop_record_$RunId.flag"
