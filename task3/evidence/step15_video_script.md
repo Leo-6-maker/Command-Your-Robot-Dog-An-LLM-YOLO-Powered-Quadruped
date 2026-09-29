@@ -1,6 +1,18 @@
 # Step 15 — Task 3 desktop-video script
 
-Status: recording setup prepared; do not mark Step 15 complete until the saved video is checked.
+Status: **complete (2026-09-30)**. The recording was reviewed by the operator, converted
+to the final MP4 submission format, and successfully decoded from beginning to end.
+
+## Final artifact
+
+- Submission file: `EE5112_MiniLab1_3_Task3_Demo.mp4`
+- Saved at: `/home/ziyan/Videos/Screencasts/EE5112_MiniLab1_3_Task3_Demo.mp4`
+- Source retained: `Screencast From 2026-09-30 00-18-54.webm`
+- Video: H.264 (`avc1`), 1920x1080, 30 FPS, `yuv420p`
+- Duration: 95.8 seconds
+- Size: 8,631,630 bytes
+- Audio: none (the demonstration evidence is terminal text and simulator video)
+- SHA-256: `60286cd75e30b259b027c979f05546675a1a5cb6f65f1b407d9fe5bb06c28d0c`
 
 ## Required visible evidence
 
