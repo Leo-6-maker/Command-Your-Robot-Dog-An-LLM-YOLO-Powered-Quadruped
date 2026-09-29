@@ -229,3 +229,29 @@ def test_untrusted_provider_metadata_cannot_forge_logs():
 
     assert all("\n" not in line for line in logs)
     assert sum(line.startswith("[LLM]") for line in logs) == 1
+
+
+def test_direction_mismatch_is_rejected_before_execution():
+    wrong_right_plan = validate_plan(
+        {
+            "accepted": True,
+            "message": "Moving right.",
+            "actions": [
+                {"type": "move", "vx": 0, "vy": 0.2, "wz": 0, "duration_s": 1}
+            ],
+        }
+    )
+    executor = FakeExecutor()
+    logs = []
+    loop = TerminalChatLoop(
+        FakePlanner(wrong_right_plan), executor, logger=logs.append
+    )
+
+    loop.submit("Move right at speed 0.2 for one second.")
+    assert loop.wait(1.0)
+
+    assert len(executor.executed) == 1
+    assert executor.executed[0].accepted is False
+    assert executor.executed[0].actions == ()
+    assert loop.previous_successful_plan is None
+    assert any(line.startswith("[GUARD] status=REJECTED") for line in logs)

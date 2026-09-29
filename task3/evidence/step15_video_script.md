@@ -19,7 +19,7 @@ Start the GNOME desktop recorder only after the terminal shows `[CHAT] event=REA
 1. Explicit forward motion:
 
    ```text
-   Move forward at speed 0.3 for two seconds.
+   Move forward at speed 0.6 for two seconds.
    ```
 
 2. Successful-context reference:
@@ -34,10 +34,10 @@ Start the GNOME desktop recorder only after the terminal shows `[CHAT] event=REA
    Turn left 90 degrees.
    ```
 
-4. Lateral direction/sign demonstration:
+4. Lateral direction/sign demonstration (the stronger two-second command is easier to see):
 
    ```text
-   Move right at speed 0.2 for one second.
+   Move left at speed 0.4 for two seconds.
    ```
 
 5. Required rejection example:

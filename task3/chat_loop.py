@@ -4,7 +4,7 @@ from collections.abc import Callable
 import threading
 from typing import Protocol
 
-from .command_policy import local_rejection_reason
+from .command_policy import local_rejection_reason, plan_consistency_reason
 from .executor import ExecutionResult, PlanExecutor
 from .log_format import inline_value, optional_count
 from .planner import OllamaPlanner, OpenAIPlanner, PlanningResult
@@ -169,6 +169,22 @@ class TerminalChatLoop:
             if self._cancel_requested.is_set():
                 self.log("[DONE] status=CANCELLED stage=planning")
                 return
+            consistency_reason = plan_consistency_reason(command, plan)
+            if consistency_reason is not None:
+                self.log(
+                    "[GUARD] status=REJECTED "
+                    f"reason={inline_value(consistency_reason, limit=500)}"
+                )
+                plan = validate_plan(
+                    {
+                        "accepted": False,
+                        "message": (
+                            "The generated action contradicted the requested "
+                            "direction, so it was not executed."
+                        ),
+                        "actions": [],
+                    }
+                )
             stage = "execution"
             result = self.executor.execute(plan)
             if result.status == "SUCCESS" and plan.accepted:
