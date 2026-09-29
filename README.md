@@ -16,19 +16,28 @@ Task 3 is implemented in [`task3/`](task3/README.md). It provides:
 - independent schema, numeric safety, and explicit-direction consistency checks;
 - a non-blocking terminal chat loop and sequential Task 2 action adapter;
 - integration with `task4.py` for camera-only `goto_object` navigation;
-- 102 automated tests and a fixed 20-command two-model benchmark.
+- 113 Task 3/4 integration tests and a fixed 20-command two-model benchmark.
 
 The final Task 3 report is [`task3/Task3_Report.md`](task3/Task3_Report.md). The recorded
 desktop demonstration uses local `qwen2.5:7b`; OpenAI and Qwen are compared separately with the
 same benchmark cases, so the video does not need to duplicate the complete demonstration for
 both providers.
 
-## Task 4 core
+## Task 4 — evaluated and recorded
 
-Latest local handoff, real trial failures, and Windows run commands:
-[`TASK4_HANDOFF.md`](TASK4_HANDOFF.md). Task 4 is integrated but has **not** passed
-the full C1-C3 navigation acceptance criteria. Historical Task 3 integration logs
-do not establish live class/color detection at the moment of stopping.
+Task 4's fixed final-controller evaluation is
+[`task4_evidence/2026-09-30-benchmark-v7/`](task4_evidence/2026-09-30-benchmark-v7/):
+8/10 complete C1–C3 missions, 9/10 stopped-frame class/color matches and
+0/10 object-contact trials. The two successful real English-command GUI
+missions are joined in [`Video_Task4.mp4`](task4_evidence/Video_Task4.mp4).
+The report-ready method, ten-trial table and failure analysis are in
+[`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md).
+
+## Task 4 core and integration
+
+Historical calibration, trial failures and Windows run commands:
+[`TASK4_HANDOFF.md`](TASK4_HANDOFF.md). The fixed final batch above establishes
+the reported C1–C3 results; historical Task 3 integration logs alone do not.
 
 `task4.py` contains CPU YOLO class detection, red/green color grounding, annotated frames, and a
 callback-driven `goto_object` controller. It assumes a fresh `CameraObservation` with the RGB

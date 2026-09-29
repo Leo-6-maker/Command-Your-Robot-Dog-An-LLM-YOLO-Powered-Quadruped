@@ -1,5 +1,13 @@
 # Task 4 接手记录（2026-09-30）
 
+**当前状态（2026-09-30 最终更新）：**Task 4 已连接队友的 Task 2/3，固定版
+`49af5ed` 的十次试验为 8/10 成功、停车帧类别和颜色 9/10 正确、零物体接触；
+真实英文命令的红椅隐藏目标与绿椅演示均成功。详见
+[`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md)、
+[`task4_evidence/2026-09-30-benchmark-v7/`](task4_evidence/2026-09-30-benchmark-v7/)
+和 [`Video_Task4.mp4`](task4_evidence/Video_Task4.mp4)。以下各节保留的是
+接手时和逐步调试的历史状态，并非最终验收结论。
+
 已接收团队 main 的 `1c8f0fb`。Task 2 的运行源码在 ZIP 内，Task 3 已实现
 相机快照、阻塞运动适配、LLM 命令派发。继续复用它们。
 

@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image
 
 
-# Candidate calibration shared by both entry points; formal multi-pose trials pending.
+# Fixed calibration shared by the trial runner and Task 3 entry point.
 CAMERA_FOVY_DEG = 100.0
 STOP_BOX_HEIGHT = 0.97
 FINAL_APPROACH_STEPS = 4
