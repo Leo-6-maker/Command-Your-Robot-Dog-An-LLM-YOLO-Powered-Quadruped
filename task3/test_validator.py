@@ -145,6 +145,8 @@ def test_schema_is_strict_and_openai_ready():
     assert schema["type"] == "object"
     assert schema["additionalProperties"] is False
     assert set(schema["required"]) == {"accepted", "message", "actions"}
+    assert schema["properties"]["message"]["minLength"] == 1
+    assert schema["properties"]["message"]["maxLength"] == 300
     assert all(
         variant["additionalProperties"] is False
         for variant in schema["properties"]["actions"]["items"]["anyOf"]

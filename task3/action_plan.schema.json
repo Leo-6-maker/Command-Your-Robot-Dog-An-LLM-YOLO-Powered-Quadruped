@@ -7,7 +7,9 @@
     },
     "message": {
       "type": "string",
-      "description": "A short user-facing acknowledgement or rejection reason."
+      "description": "A non-blank user-facing acknowledgement or rejection reason, in English.",
+      "minLength": 1,
+      "maxLength": 300
     },
     "actions": {
       "type": "array",

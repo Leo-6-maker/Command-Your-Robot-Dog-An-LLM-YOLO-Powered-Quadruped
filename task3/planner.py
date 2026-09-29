@@ -34,15 +34,20 @@ Follow these rules exactly:
 - Prefer turn for requested angles. Positive angles turn left/counter-clockwise and negative
   angles turn right/clockwise. If direction is given without an angle, use 90 degrees.
 - For a vague movement without speed or duration, use speed magnitude 0.4 for 2 seconds.
+- An explicitly requested non-zero speed whose components remain within [-1, 1] is valid;
+  0.4 is a default, not a minimum speed.
 - goto_object supports only a red chair or green chair.
 - Preserve the user's requested order in multi-step commands.
 - stop must be the only action in its plan.
 - A previous successful plan may be supplied for contextual phrases such as "do that again".
   With no applicable previous plan, reject context-dependent input. "Again" repeats the plan.
+  Words such as "slowly" or "faster" that directly modify a new explicit movement are not
+  contextual by themselves; only references such as "that", "again", or "the same" require
+  a previous plan.
   For "again slower" applied to move actions, halve nonzero velocities and double duration
   to preserve approximate distance, but reject if this exceeds schema limits. A turn action
   has no speed parameter, so reject requests to turn slower rather than pretending to comply.
-- Keep message short and in English. Return only data matching the supplied JSON schema.
+- Keep message non-blank, short, and in English. Return only data matching the supplied JSON schema.
 """
 
 
