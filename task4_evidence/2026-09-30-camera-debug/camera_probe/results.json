@@ -1,0 +1,325 @@
+[
+  {
+    "distance": 3.0,
+    "fovy": 80,
+    "level": false,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.7698037028312683,
+        "bbox": [
+          280,
+          106,
+          353,
+          226
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.7508019208908081,
+        "bbox": [
+          493,
+          107,
+          576,
+          226
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.6792569160461426,
+        "bbox": [
+          423,
+          188,
+          468,
+          231
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 3.0,
+    "fovy": 100,
+    "level": false,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.49308207631111145,
+        "bbox": [
+          441,
+          145,
+          500,
+          229
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.3072117269039154,
+        "bbox": [
+          291,
+          145,
+          344,
+          230
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 3.0,
+    "fovy": 110,
+    "level": true,
+    "detections": []
+  },
+  {
+    "distance": 3.0,
+    "fovy": 120,
+    "level": true,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.43079742789268494,
+        "bbox": [
+          403,
+          213,
+          440,
+          268
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "airplane",
+        "color": "unknown",
+        "confidence": 0.40217623114585876,
+        "bbox": [
+          2,
+          245,
+          640,
+          479
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 3.0,
+    "fovy": 100,
+    "level": true,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.39227360486984253,
+        "bbox": [
+          292,
+          201,
+          343,
+          279
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.36028945446014404,
+        "bbox": [
+          441,
+          201,
+          495,
+          280
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 1.0,
+    "fovy": 80,
+    "level": false,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.39112618565559387,
+        "bbox": [
+          159,
+          3,
+          455,
+          444
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 1.0,
+    "fovy": 100,
+    "level": false,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.8087744116783142,
+        "bbox": [
+          207,
+          15,
+          415,
+          377
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 1.0,
+    "fovy": 110,
+    "level": true,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.49869129061698914,
+        "bbox": [
+          228,
+          127,
+          385,
+          429
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 1.0,
+    "fovy": 120,
+    "level": true,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.5320630669593811,
+        "bbox": [
+          245,
+          146,
+          374,
+          395
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 1.0,
+    "fovy": 100,
+    "level": true,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.7806615233421326,
+        "bbox": [
+          210,
+          105,
+          398,
+          467
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 0.75,
+    "fovy": 80,
+    "level": false,
+    "detections": []
+  },
+  {
+    "distance": 0.75,
+    "fovy": 100,
+    "level": false,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.6902458071708679,
+        "bbox": [
+          134,
+          1,
+          473,
+          477
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 0.75,
+    "fovy": 110,
+    "level": true,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.5015366673469543,
+        "bbox": [
+          169,
+          74,
+          437,
+          471
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 0.75,
+    "fovy": 120,
+    "level": true,
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.6323676109313965,
+        "bbox": [
+          195,
+          104,
+          418,
+          476
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  {
+    "distance": 0.75,
+    "fovy": 100,
+    "level": true,
+    "detections": []
+  }
+]

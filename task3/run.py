@@ -10,6 +10,7 @@ import threading
 import time
 from typing import Callable, Protocol
 
+from task4 import CAMERA_FOVY_DEG
 from .chat_loop import (
     TerminalChatLoop,
     build_ollama_chat_loop,
@@ -141,6 +142,8 @@ def main(argv: list[str] | None = None) -> int:
     task4: Task4Integration | None = None
     chat: TerminalChatLoop | None = None
     try:
+        with platform.runtime.model_lock:
+            platform.model.camera("dog_front_camera").fovy[0] = CAMERA_FOVY_DEG
         motion = Task2MotionAdapter(platform)
         task4 = Task4Integration(
             platform,

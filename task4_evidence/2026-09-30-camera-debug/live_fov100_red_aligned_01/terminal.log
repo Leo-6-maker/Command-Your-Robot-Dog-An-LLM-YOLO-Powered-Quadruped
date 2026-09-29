@@ -1,0 +1,233 @@
+[KEYBOARD] evdev not installed; browser keyboard control is available
+[UI] live tuning panel: http://127.0.0.1:8765
+[MAP] switched to object_lab
+[DETECT] class=chair color=red conf=0.75 bbox=[276,121,357,256]
+[DETECT] class=chair color=green conf=0.55 bbox=[17,120,133,258]
+[DETECT] class=sports ball color=red conf=0.38 bbox=[123,216,190,270]
+[DETECT] class=orange color=red conf=0.37 bbox=[123,216,190,270]
+[VIEW] http://localhost:8765 -- select dog_front_camera for robot vision
+[TRIAL] class=chair color=red source=explicit_target start=[1.0, -1.0, 0.0]
+[DETECT] class=chair color=red conf=0.72 bbox=[276,121,357,256]
+[DETECT] class=chair color=green conf=0.49 bbox=[18,120,134,258]
+[DETECT] class=sports ball color=red conf=0.45 bbox=[123,216,190,270]
+[DETECT] class=orange color=red conf=0.42 bbox=[124,216,190,270]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=7.22
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.83 bbox=[274,102,358,246]
+[DETECT] class=orange color=red conf=0.57 bbox=[118,208,188,263]
+[DETECT] class=airplane color=unknown conf=0.53 bbox=[6,108,284,256]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=7.64
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.44 bbox=[272,109,359,252]
+[DETECT] class=orange color=red conf=0.41 bbox=[108,211,182,267]
+[DETECT] class=airplane color=unknown conf=0.37 bbox=[1,109,280,257]
+[DETECT] class=airplane color=unknown conf=0.37 bbox=[0,109,281,329]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=8.10
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.85 bbox=[269,98,358,250]
+[DETECT] class=airplane color=unknown conf=0.61 bbox=[1,104,282,325]
+[DETECT] class=sports ball color=red conf=0.42 bbox=[95,210,174,271]
+[DETECT] class=orange color=red conf=0.29 bbox=[95,210,174,271]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=8.54
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.45 bbox=[266,104,358,258]
+[DETECT] class=sports ball color=red conf=0.40 bbox=[79,212,165,276]
+[DETECT] class=airplane color=unknown conf=0.33 bbox=[0,99,280,273]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=9.02
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.54 bbox=[61,213,156,280]
+[DETECT] class=airplane color=unknown conf=0.36 bbox=[0,96,276,335]
+[DETECT] class=chair color=red conf=0.32 bbox=[261,93,357,256]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=9.42
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.68 bbox=[38,214,143,286]
+[DETECT] class=airplane color=unknown conf=0.47 bbox=[0,91,271,348]
+[DETECT] class=sports ball color=red conf=0.50 bbox=[35,216,142,288]
+[DETECT] class=airplane color=unknown conf=0.42 bbox=[0,90,274,348]
+[DETECT] class=sports ball color=red conf=0.47 bbox=[37,221,142,293]
+[DETECT] class=airplane color=unknown conf=0.30 bbox=[1,96,273,355]
+[DETECT] class=chair color=red conf=0.29 bbox=[256,100,355,269]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=10.04
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.64 bbox=[17,218,133,294]
+[DETECT] class=airplane color=unknown conf=0.33 bbox=[0,87,271,360]
+[DETECT] class=chair color=red conf=0.29 bbox=[253,86,356,265]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=10.42
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.66 bbox=[0,218,117,300]
+[DETECT] class=airplane color=unknown conf=0.48 bbox=[0,81,261,369]
+[DETECT] class=sports ball color=red conf=0.51 bbox=[0,219,115,301]
+[DETECT] class=airplane color=unknown conf=0.27 bbox=[0,81,264,369]
+[DETECT] class=sports ball color=red conf=0.73 bbox=[0,225,116,308]
+[DETECT] class=chair color=red conf=0.65 bbox=[245,92,354,273]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=11.10
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.53 bbox=[0,222,101,312]
+[DETECT] class=chair color=red conf=0.41 bbox=[240,77,354,270]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=11.54
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.43 bbox=[236,81,354,277]
+[DETECT] class=sports ball color=red conf=0.33 bbox=[0,224,86,320]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=11.92
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.49 bbox=[0,229,67,328]
+[DETECT] class=chair color=red conf=0.47 bbox=[227,69,352,278]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=12.32
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.73 bbox=[221,68,353,287]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=12.72
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.94 bbox=[212,71,348,300]
+[DETECT] class=person color=red conf=0.26 bbox=[0,274,16,330]
+[SKILL] turn values=(11.23419385549561,) t=13.16
+[TURN] target=11.2 deg final_error=1.97 deg status=SUCCESS
+[DETECT] class=chair color=red conf=0.84 bbox=[261,74,409,318]
+[DETECT] class=sports ball color=red conf=0.33 bbox=[0,243,98,350]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=14.22
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.40 bbox=[0,239,76,347]
+[DETECT] class=chair color=red conf=0.30 bbox=[250,34,403,302]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=14.64
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.81 bbox=[247,44,406,313]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=15.04
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.68 bbox=[238,22,409,317]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=15.46
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.72 bbox=[228,14,416,334]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=15.96
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.70 bbox=[217,0,420,348]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=16.56
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.86 bbox=[202,0,428,376]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=17.14
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.84 bbox=[185,0,434,415]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=17.62
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.82 bbox=[170,0,442,443]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=18.12
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.80 bbox=[140,0,451,473]
+[DETECT] class=chair color=red conf=0.72 bbox=[146,0,444,479]
+[MISSION] status=FAIL reason=visual_stop_outside_0.80m distance_m=0.80
+[DETECT] class=chair color=red conf=0.73 bbox=[146,0,444,479]
+[TRIAL] result=runs\live_fov100_red_aligned_01\result.json success=False
+[VIEW] Trial finished; standing for 900s. Close Page exits.
+.\.venv\Scripts\python.exe : ----------------------------------------
+At line:2 char:1
++ .\.venv\Scripts\python.exe -u run_task4_trial.py --task2-root ..\task ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (----------------------------------------:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Exception occurred during processing of request from ('127.0.0.1', 51297)
+Traceback (most recent call last):
+  File "D:\Users\anaconda\Lib\socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 761, in __init__
+    self.handle()
+  File "D:\Users\anaconda\Lib\http\server.py", line 436, in handle
+    self.handle_one_request()
+  File "D:\Users\anaconda\Lib\http\server.py", line 424, in handle_one_request
+    method()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 305, in do_GET
+    self._stream_frames()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 354, in _stream_fra
+mes
+    self.wfile.write(
+  File "D:\Users\anaconda\Lib\socketserver.py", line 840, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 62606)
+Traceback (most recent call last):
+  File "D:\Users\anaconda\Lib\socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 761, in __init__
+    self.handle()
+  File "D:\Users\anaconda\Lib\http\server.py", line 436, in handle
+    self.handle_one_request()
+  File "D:\Users\anaconda\Lib\http\server.py", line 424, in handle_one_request
+    method()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 305, in do_GET
+    self._stream_frames()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 354, in _stream_fra
+mes
+    self.wfile.write(
+  File "D:\Users\anaconda\Lib\socketserver.py", line 840, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 50694)
+Traceback (most recent call last):
+----------------------------------------  File "D:\Users\anaconda\Lib\socketserver.py", line 692, in process_request_th
+read
+    self.finish_request(request, client_address)
+
+  File "D:\Users\anaconda\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 761, in __init__
+    self.handle()
+Exception occurred during processing of request from  File "D:\Users\anaconda\Lib\http\server.py", line 436, in handle
+    self.handle_one_request()
+  File "D:\Users\anaconda\Lib\http\server.py", line 424, in handle_one_request
+    method()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 384, in do_POST
+    self.reply_json({"ok": True})
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 282, in reply_json
+    self.wfile.write(body)
+ ('127.0.0.1', 50695)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 840, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+----------------------------------------
+Traceback (most recent call last):
+  File "D:\Users\anaconda\Lib\socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 761, in __init__
+    self.handle()
+  File "D:\Users\anaconda\Lib\http\server.py", line 436, in handle
+    self.handle_one_request()
+  File "D:\Users\anaconda\Lib\http\server.py", line 424, in handle_one_request
+    method()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 384, in do_POST
+    self.reply_json({"ok": True})
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 282, in reply_json
+    self.wfile.write(body)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 840, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+----------------------------------------
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 62146)
+Traceback (most recent call last):
+  File "D:\Users\anaconda\Lib\socketserver.py", line 692, in process_request_thread
+    self.finish_request(request, client_address)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "D:\Users\anaconda\Lib\socketserver.py", line 761, in __init__
+    self.handle()
+  File "D:\Users\anaconda\Lib\http\server.py", line 436, in handle
+    self.handle_one_request()
+  File "D:\Users\anaconda\Lib\http\server.py", line 424, in handle_one_request
+    method()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 305, in do_GET
+    self._stream_frames()
+  File "D:\Users\NUS-courses\EE5112_minilab\task2_runtime\task2\src\runtime_control\panel.py", line 354, in _stream_fra
+mes
+    self.wfile.write(
+  File "D:\Users\anaconda\Lib\socketserver.py", line 840, in write
+    self._sock.sendall(b)
+ConnectionAbortedError: [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+----------------------------------------

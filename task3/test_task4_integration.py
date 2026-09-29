@@ -67,8 +67,8 @@ class FakeDetector:
                 class_name="chair",
                 color="green",
                 confidence=0.7,
-                # Height 440/480 exceeds the calibrated 0.88 visual stop ratio.
-                bbox=(100, 20, 540, 460),
+                # Height 478/480 exceeds the candidate 0.97 visual stop ratio.
+                bbox=(100, 1, 540, 479),
                 frame_width=width,
                 frame_height=height,
             )
@@ -214,7 +214,7 @@ def test_real_task4_mission_runs_through_bridge_to_success():
     assert not worker.is_alive()
     assert results == [True]
     assert motion.calls == [
-        *(("move", 0.2, 0.0, 0.0, 0.25),) * 7,
+        *(("move", 0.2, 0.0, 0.0, 0.25),) * 4,
         ("stop",),
         ("stop",),
     ]  # fixed visual-terminal approach + visual stop + finally safety stop
@@ -248,7 +248,7 @@ def test_found_requires_live_matching_detection_at_stop(final_color, capsys):
     def detect(_frame):
         color = "green" if index == 1 else final_color
         return [] if color is None else [
-            Detection("chair", color, 0.9, (100, 20, 540, 460), 640, 480),
+            Detection("chair", color, 0.9, (100, 1, 540, 479), 640, 480),
             # Larger duplicate with background must not force an off-target turn.
             Detection("chair", color, 0.4, (0, 0, 480, 480), 640, 480),
         ]
@@ -268,6 +268,53 @@ def test_found_requires_live_matching_detection_at_stop(final_color, capsys):
     assert ("distance" in calls) is result
     assert calls[-1] == "stop"
     assert "turn" not in calls
+
+
+def test_turn_requires_new_box_before_deciding_to_stop():
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    boxes = iter([(340, 0, 640, 480), (260, 150, 380, 300),
+                  (100, 0, 540, 480), (100, 0, 540, 480)])
+    calls = []
+    detector = SimpleNamespace(detect=lambda _: [
+        Detection("chair", "green", 0.9, next(boxes), 640, 480)
+    ])
+    def distance(*_):
+        calls.append("distance")
+        return 0.7
+
+    assert goto_object(
+        "chair", "green", detector,
+        lambda after: CameraObservation(frame, (2.3, 1), (after or 0) + 1),
+        lambda *_: calls.append("move"), lambda *_: calls.append("turn"),
+        lambda: calls.append("stop"), distance, final_approach_steps=0,
+    )
+    assert calls == ["turn", "move", "stop", "distance", "stop"]
+
+
+def test_stopped_detection_can_recover_on_a_fresh_frame():
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    target = Detection("chair", "green", 0.9, (100, 0, 540, 480), 640, 480)
+    detections = iter([[target], [], [target]])
+    distances = []
+    def distance(xy, *_):
+        distances.append(xy)
+        return 0.7
+
+    def observe(after):
+        timestamp = (after or 0) + 1
+        return CameraObservation(frame, (timestamp, 1), timestamp)
+
+    assert goto_object(
+        "chair", "green", SimpleNamespace(detect=lambda _: next(detections)),
+        observe, lambda *_: pytest.fail("unexpected move"),
+        lambda *_: pytest.fail("unexpected turn"), lambda: None,
+        distance, final_approach_steps=0,
+    )
+    assert distances == [(3, 1)]  # C2 uses the same new snapshot that passed C1.
 
 
 def _capture_exception(target, function, *args):

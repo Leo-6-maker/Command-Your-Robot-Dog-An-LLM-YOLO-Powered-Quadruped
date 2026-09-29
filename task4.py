@@ -15,6 +15,12 @@ import numpy as np
 from PIL import Image
 
 
+# Candidate calibration shared by both entry points; formal multi-pose trials pending.
+CAMERA_FOVY_DEG = 100.0
+STOP_BOX_HEIGHT = 0.97
+FINAL_APPROACH_STEPS = 4
+
+
 @dataclass(frozen=True)
 class Detection:
     class_name: str
@@ -170,10 +176,10 @@ def goto_object(
     timeout_s: float = 60.0,
     scan_step_deg: float = 30.0,
     misses_before_search: int = 3,
-    stop_box_height: float = 0.88,
-    final_approach_steps: int = 7,
+    stop_box_height: float = STOP_BOX_HEIGHT,
+    final_approach_steps: int = FINAL_APPROACH_STEPS,
     center_tolerance: float = 0.06,
-    camera_fovy_deg: float = 80.0,
+    camera_fovy_deg: float = CAMERA_FOVY_DEG,
 ) -> bool:
     """Search, align and approach using injected Task 2 inputs.
 
@@ -239,24 +245,31 @@ def goto_object(
             focal_px = target.frame_height / (
                 2 * math.tan(math.radians(camera_fovy_deg) / 2)
             )
+            if abs(offset_x) > center_tolerance * target.frame_width:
+                turn(-math.degrees(math.atan2(offset_x, focal_px)))
+                # Turning changes the box size: judge stopping from a new frame.
+                continue
             # ponytail: the terminal steps retain the teammate's scene calibration;
             # success still requires a fresh class/color detection after stopping.
             height_share = (y2 - y1) / target.frame_height
             if height_share >= stop_box_height:
-                if abs(offset_x) > center_tolerance * target.frame_width:
-                    turn(-math.degrees(math.atan2(offset_x, focal_px)))
                 if final_approach_steps:
                     print(f"[APPROACH] final_visual_steps={final_approach_steps}")
                 for _ in range(final_approach_steps):
                     move(0.20, 0.0, 0.0, 0.25)
 
                 stop()
-                final_observation = get_observation(last_sim_time)
-                last_sim_time = final_observation.sim_time
-                final_targets = [
-                    d for d in detector.detect(final_observation.rgb_frame)
-                    if d.matches(target_class, target_color)
-                ]
+                # The first stopped frame can still catch body pitch settling.
+                # Stay stopped and require a live match within three fresh frames.
+                for _ in range(3):
+                    final_observation = get_observation(last_sim_time)
+                    last_sim_time = final_observation.sim_time
+                    final_targets = [
+                        d for d in detector.detect(final_observation.rgb_frame)
+                        if d.matches(target_class, target_color)
+                    ]
+                    if final_targets:
+                        break
                 if not final_targets:
                     return fail("target_not_visible_at_stop")
                 distance = planar_distance_m(
@@ -266,7 +279,7 @@ def goto_object(
                     return fail("distance_unavailable")
                 if distance > 0.80:
                     return fail(
-                        f"visual_stop_outside_0.80m distance_m={distance:.2f}"
+                        f"visual_stop_outside_0.80m distance_m={distance:.4f}"
                     )
 
                 elapsed = final_observation.sim_time - start_sim_time
@@ -277,9 +290,6 @@ def goto_object(
                 print("[MISSION] status=SUCCESS")
                 return True
 
-            if abs(offset_x) > center_tolerance * target.frame_width:
-                turn(-math.degrees(math.atan2(offset_x, focal_px)))
-                continue
             move(0.25, 0.0, 0.0, 0.25)
 
         return fail("timeout")
