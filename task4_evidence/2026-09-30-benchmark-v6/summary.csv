@@ -1,0 +1,11 @@
+trial,color,start_pose,initially_detected,stopped,c1_target_detected,grounded,found_logged,success,final_distance_m,object_contacts,failure
+01_green_aligned,green,"[1, 1, 0]",True,True,True,True,True,True,0.7466404224018509,0,
+02_red_aligned,red,"[1, -1, 0]",True,True,True,True,True,True,0.7940888181631295,0,
+03_green_offset,green,"[0.5, 1, 0]",True,True,True,True,True,True,0.7379798873577754,0,
+04_red_offset,red,"[0.5, -1, 0]",True,True,True,True,True,True,0.7327191404743598,0,
+05_green_center,green,"[0, 0, 0]",False,True,True,True,True,True,0.7604336518514238,0,
+06_red_center,red,"[0, 0, 0]",True,True,True,True,True,True,0.7911776180981849,0,
+07_green_hidden,green,"[1, 1, 180]",False,True,True,True,False,False,0.8019030699149508,0,visual_stop_outside_0.80m distance_m=0.8108
+08_red_hidden,red,"[1, -1, 180]",False,True,True,True,True,True,0.7711572653518572,0,
+09_green_angled,green,"[1, 0, 30]",False,True,True,True,False,False,0.8104582053547491,0,visual_stop_outside_0.80m distance_m=0.8032
+10_red_angled,red,"[1, 0, -30]",False,True,True,True,False,False,0.8105404823877566,0,visual_stop_outside_0.80m distance_m=0.8099

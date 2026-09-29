@@ -1,0 +1,97 @@
+{
+  "target_class": "chair",
+  "target_color": "green",
+  "start_pose": [
+    1.0,
+    0.0,
+    30.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": false,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.9919289991315136,
+      -0.008496480104539088
+    ],
+    "detections": [
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.3392183780670166,
+        "bbox": [
+          423,
+          221,
+          498,
+          283
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "orange",
+        "color": "red",
+        "confidence": 0.27113717794418335,
+        "bbox": [
+          423,
+          220,
+          498,
+          283
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": false,
+  "elapsed_wall_s": 20.312000000005355,
+  "elapsed_sim_s": 32.40499999999917,
+  "last_controller_snapshot": {
+    "sim_time": 34.204999999999046,
+    "base_xy": [
+      2.3357544589088386,
+      0.5484702686768217
+    ]
+  },
+  "final": {
+    "sim_time": 34.5049999999992,
+    "base_xy": [
+      2.3278301495850586,
+      0.5471973997203683
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.44852110743522644,
+        "bbox": [
+          48,
+          2,
+          557,
+          479
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.3469139039516449,
+        "bbox": [
+          48,
+          1,
+          389,
+          478
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.8104582053547491,
+  "object_contacts": []
+}
