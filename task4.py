@@ -231,25 +231,16 @@ def goto_object(
 
             scanned_deg = 0.0
             misses = 0
-            # Near the object YOLO can emit overlapping boxes for the same
-            # chair.  Use the largest matching box for visual ranging instead
-            # of a smaller duplicate that happens to have higher confidence.
-            target = max(
-                targets,
-                key=lambda detection: (
-                    (detection.bbox[2] - detection.bbox[0])
-                    * (detection.bbox[3] - detection.bbox[1])
-                ),
-            )
+            # A larger low-confidence duplicate can include background and send
+            # the final turn away from the chair. Prefer the detector's confidence.
+            target = max(targets, key=lambda detection: detection.confidence)
             x1, y1, x2, y2 = target.bbox
             offset_x = target.center_x - target.frame_width / 2
             focal_px = target.frame_height / (
                 2 * math.tan(math.radians(camera_fovy_deg) / 2)
             )
-            # The low-mounted camera loses the chair once it fills the frame.
-            # Once it is close, align once from this last reliable frame and
-            # enter a short fixed terminal approach without requiring another
-            # classification from a heavily cropped view.
+            # ponytail: the terminal steps retain the teammate's scene calibration;
+            # success still requires a fresh class/color detection after stopping.
             height_share = (y2 - y1) / target.frame_height
             if height_share >= stop_box_height:
                 if abs(offset_x) > center_tolerance * target.frame_width:
@@ -262,10 +253,16 @@ def goto_object(
                 stop()
                 final_observation = get_observation(last_sim_time)
                 last_sim_time = final_observation.sim_time
+                final_targets = [
+                    d for d in detector.detect(final_observation.rgb_frame)
+                    if d.matches(target_class, target_color)
+                ]
+                if not final_targets:
+                    return fail("target_not_visible_at_stop")
                 distance = planar_distance_m(
                     final_observation.base_xy, target_class, target_color
                 )
-                if not math.isfinite(distance):
+                if not math.isfinite(distance) or distance < 0:
                     return fail("distance_unavailable")
                 if distance > 0.80:
                     return fail(

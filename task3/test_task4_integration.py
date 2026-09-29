@@ -58,7 +58,7 @@ class FakeDetector:
             Detection(
                 class_name="chair",
                 color="green",
-                confidence=0.99,
+                confidence=0.6,
                 bbox=(200, 100, 440, 380),
                 frame_width=width,
                 frame_height=height,
@@ -218,6 +218,56 @@ def test_real_task4_mission_runs_through_bridge_to_success():
         ("stop",),
         ("stop",),
     ]  # fixed visual-terminal approach + visual stop + finally safety stop
+
+
+def test_frame_captured_during_motion_is_not_reused_after_stop():
+    integration, platform, _motion = make_integration(camera_wait_timeout_s=0.01)
+    publish(integration, platform, sequence=1, sim_time=1.0)
+    publish(integration, platform, sequence=2, sim_time=1.5)
+    integration.stop()
+    # 1.5 is newer than the controller's previous frame, but predates stop.
+    with pytest.raises(CameraFrameTimeoutError):
+        integration.get_observation(1.0)
+    publish(integration, platform, sequence=3, sim_time=1.6)
+    assert integration.get_observation(1.0).sim_time == 1.6
+
+
+@pytest.mark.parametrize("final_color", [None, "red", "green"])
+def test_found_requires_live_matching_detection_at_stop(final_color, capsys):
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    calls = []
+    index = 0
+
+    def observe(after):
+        nonlocal index
+        index += 1
+        return CameraObservation(frame, (2.5, 1.0), float(index))
+
+    def detect(_frame):
+        color = "green" if index == 1 else final_color
+        return [] if color is None else [
+            Detection("chair", color, 0.9, (100, 20, 540, 460), 640, 480),
+            # Larger duplicate with background must not force an off-target turn.
+            Detection("chair", color, 0.4, (0, 0, 480, 480), 640, 480),
+        ]
+
+    def distance(*_args):
+        calls.append("distance")
+        return 0.5
+
+    result = goto_object(
+        "chair", "green", SimpleNamespace(detect=detect), observe,
+        lambda *_: None, lambda *_: calls.append("turn"), lambda: calls.append("stop"),
+        distance, final_approach_steps=0,
+    )
+    output = capsys.readouterr().out
+    assert result is (final_color == "green")
+    assert ("[FOUND]" in output) is result
+    assert ("distance" in calls) is result
+    assert calls[-1] == "stop"
+    assert "turn" not in calls
 
 
 def _capture_exception(target, function, *args):

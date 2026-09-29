@@ -25,6 +25,11 @@ both providers.
 
 ## Task 4 core
 
+Latest local handoff, real trial failures, and Windows run commands:
+[`TASK4_HANDOFF.md`](TASK4_HANDOFF.md). Task 4 is integrated but has **not** passed
+the full C1-C3 navigation acceptance criteria. Historical Task 3 integration logs
+do not establish live class/color detection at the moment of stopping.
+
 `task4.py` contains CPU YOLO class detection, red/green color grounding, annotated frames, and a
 callback-driven `goto_object` controller. It assumes a fresh `CameraObservation` with the RGB
 frame, trunk XY and simulation time from one snapshot. Motion callbacks must finish each action

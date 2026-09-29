@@ -87,6 +87,7 @@ class Task4Integration:
         self._condition = threading.Condition()
         self._latest: CameraObservation | None = None
         self._latest_sequence = -1
+        self._motion_frame_sequence = -1
         self._closed = False
 
     def capture_after_step(self, fresh_camera_frame: bool) -> bool:
@@ -132,8 +133,10 @@ class Task4Integration:
                 if self._closed:
                     raise Task4IntegrationClosedError("Task 4 integration is closed")
                 observation = self._latest
-                if observation is not None and (
-                    after_sim_time is None or observation.sim_time > after_sim_time + 1e-9
+                if (
+                    observation is not None
+                    and self._latest_sequence > self._motion_frame_sequence
+                    and (after_sim_time is None or observation.sim_time > after_sim_time + 1e-9)
                 ):
                     return observation
                 remaining = deadline - self._monotonic()
@@ -164,12 +167,30 @@ class Task4Integration:
             color,
             self.detector,
             self.get_observation,
-            self.motion.move,
-            self.motion.turn,
-            self.motion.stop,
+            self.move,
+            self.turn,
+            self.stop,
             self.planar_distance_m,
             timeout_s=self.mission_timeout_s,
         )
+
+    def _discard_motion_frame(self) -> None:
+        # A frame newer than the previous detection can still predate this action's
+        # completion. Wait for the simulation owner to publish another snapshot.
+        with self._condition:
+            self._motion_frame_sequence = self._latest_sequence
+
+    def move(self, vx: float, vy: float, wz: float, duration: float) -> None:
+        self.motion.move(vx, vy, wz, duration)
+        self._discard_motion_frame()
+
+    def turn(self, angle_deg: float) -> None:
+        self.motion.turn(angle_deg)
+        self._discard_motion_frame()
+
+    def stop(self) -> None:
+        self.motion.stop()
+        self._discard_motion_frame()
 
     def close(self) -> None:
         """Wake camera waiters and stop any motion during simulator shutdown."""
