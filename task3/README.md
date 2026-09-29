@@ -120,6 +120,22 @@ threading.Thread(target=chat.run, daemon=True).start()
 
 ## 本地 Qwen（Ollama）
 
+本机 Windows 没有队友 Linux 上的 Ollama 服务时，也可用已有的
+`DEEPSEEK_API_KEY` 调用真实文本 LLM。新增 `--provider deepseek` 走
+OpenAI 兼容 Chat Completions 的 JSON 模式，沿用本目录同一份 prompt、
+`parse_and_validate`、`PlanExecutor` 和 Task 4 回调；密钥仅从环境变量读取。
+红椅初始不可见演示入口：
+
+```powershell
+.\run_task4_demo.ps1 -Color red
+```
+
+绿椅演示：`.\run_task4_demo.ps1 -Color green`。在提示符输入英文
+`Go to the red chair.` / `Go to the green chair.`。从仓库根目录运行。
+阿里云百炼可用 `--provider dashscope --model qwen-plus`，但该机器现有
+百炼账户返回 `Arrearage`，不能用于本机最终视频。队友此前在 Linux
+运行的本地 Ollama 记录仍见下文。
+
 第二个 LLM 使用 `qwen2.5:7b`，通过本机 Ollama 的 `http://127.0.0.1:11434/api/chat` 接口运行。Ollama 负责加载模型和使用 GPU 推理；Task 3 仍负责 prompt、JSON Schema、本地 validator、上下文和动作执行。两种 LLM 共用同一套安全边界。
 
 本项目的用户本地安装位置为 `$HOME/.local/ollama`，可执行文件为 `$HOME/.local/bin/ollama`。重启电脑后先在一个终端启动本地服务：

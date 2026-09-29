@@ -246,13 +246,16 @@ def goto_object(
             focal_px = target.frame_height / (
                 2 * math.tan(math.radians(camera_fovy_deg) / 2)
             )
+            height_share = (y2 - y1) / target.frame_height
             if abs(offset_x) > center_tolerance * target.frame_width:
-                turn(-math.degrees(math.atan2(offset_x, focal_px)))
+                angle = -math.degrees(math.atan2(offset_x, focal_px))
+                if height_share >= 0.75:
+                    angle = max(-12.0, min(12.0, angle))
+                turn(angle)
                 # Turning changes the box size: judge stopping from a new frame.
                 continue
             # ponytail: the terminal steps retain the teammate's scene calibration;
             # success still requires a fresh class/color detection after stopping.
-            height_share = (y2 - y1) / target.frame_height
             if height_share >= stop_box_height:
                 width_share = (x2 - x1) / target.frame_width
                 # Height saturates when the chair meets the image borders. Width
@@ -266,7 +269,7 @@ def goto_object(
                     continue
                 terminal_steps = min(final_approach_steps,
                                      0 if width_share > 0.58 else
-                                     2 if width_share > 0.48 else final_approach_steps)
+                                     2 if width_share > 0.44 else final_approach_steps)
                 if terminal_steps:
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
                 for _ in range(terminal_steps):

@@ -1,0 +1,110 @@
+{
+  "target_class": "chair",
+  "target_color": "red",
+  "start_pose": [
+    1.0,
+    -1.0,
+    0.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": true,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.9883340188891738,
+      -1.0029400702544753
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.7495006322860718,
+        "bbox": [
+          276,
+          121,
+          357,
+          256
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.5461956262588501,
+        "bbox": [
+          17,
+          120,
+          133,
+          258
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.379108726978302,
+        "bbox": [
+          123,
+          216,
+          190,
+          270
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "orange",
+        "color": "red",
+        "confidence": 0.3666064441204071,
+        "bbox": [
+          123,
+          216,
+          190,
+          270
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": true,
+  "elapsed_wall_s": 13.5,
+  "elapsed_sim_s": 22.20499999999949,
+  "last_controller_snapshot": {
+    "sim_time": 24.00499999999951,
+    "base_xy": [
+      2.2581430392751285,
+      -0.994860850169752
+    ]
+  },
+  "final": {
+    "sim_time": 24.30499999999945,
+    "base_xy": [
+      2.24638485486075,
+      -0.9932714350652758
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.7641626000404358,
+        "bbox": [
+          132,
+          1,
+          486,
+          479
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.7536451821443122,
+  "object_contacts": []
+}

@@ -274,6 +274,7 @@ def test_turn_requires_new_box_before_deciding_to_stop():
     boxes = iter([(340, 0, 640, 480), (260, 150, 380, 300),
                   (100, 0, 540, 480), (100, 0, 540, 480)])
     calls = []
+    angles = []
     detector = SimpleNamespace(detect=lambda _: [
         Detection("chair", "green", 0.9, next(boxes), 640, 480)
     ])
@@ -284,10 +285,12 @@ def test_turn_requires_new_box_before_deciding_to_stop():
     assert goto_object(
         "chair", "green", detector,
         lambda after: CameraObservation(frame, (2.3, 1), (after or 0) + 1),
-        lambda *_: calls.append("move"), lambda *_: calls.append("turn"),
+        lambda *_: calls.append("move"),
+        lambda angle: (calls.append("turn"), angles.append(angle)),
         lambda: calls.append("stop"), distance, final_approach_steps=0,
     )
     assert calls == ["turn", "move", "stop", "distance", "stop"]
+    assert abs(angles[0]) <= 12  # A large nearby box must not trigger a 40° swing.
 
 
 def test_stopped_detection_can_recover_on_a_fresh_frame():
@@ -329,7 +332,7 @@ def test_narrow_near_box_approaches_and_reobserves():
         lambda *_: moves.append(1), lambda *_: pytest.fail("unexpected turn"),
         lambda: None, lambda *_: 0.7,
     )
-    assert len(moves) == 5  # One observed extra step, then four terminal steps.
+    assert len(moves) == 3  # One observed extra step, then two terminal steps.
 
 
 def _capture_exception(target, function, *args):
