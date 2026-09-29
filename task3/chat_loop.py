@@ -4,9 +4,10 @@ from collections.abc import Callable
 import threading
 from typing import Protocol
 
+from .command_policy import local_rejection_reason
 from .executor import ExecutionResult, PlanExecutor
 from .planner import OpenAIPlanner, PlanningResult
-from .validator import CommandPlan
+from .validator import CommandPlan, validate_plan
 
 
 class PlannerLike(Protocol):
@@ -69,7 +70,7 @@ class TerminalChatLoop:
         """Start one LLM→validator→executor job; return False when already busy."""
         command = command.strip()
         if not command:
-            self.log("[CHAT] ignored empty command")
+            self.log("[DONE] status=REJECTED stage=input reason=empty_command")
             return False
         with self._lock:
             if self._worker is not None and self._worker.is_alive():
@@ -142,6 +143,17 @@ class TerminalChatLoop:
     def _process_command(self, command: str) -> None:
         stage = "planning"
         try:
+            local_reason = local_rejection_reason(command)
+            if local_reason is not None:
+                plan = validate_plan(
+                    {"accepted": False, "message": local_reason, "actions": []}
+                )
+                self.log(
+                    "[LLM] provider=local model=command-policy latency_s=0.000 "
+                    "accepted=false actions=0"
+                )
+                self.executor.execute(plan)
+                return
             with self._lock:
                 previous_plan = self._previous_successful_plan
             planning = self.planner.plan(command, previous_plan)
@@ -156,7 +168,7 @@ class TerminalChatLoop:
                 return
             stage = "execution"
             result = self.executor.execute(plan)
-            if result.status == "SUCCESS":
+            if result.status == "SUCCESS" and plan.accepted:
                 with self._lock:
                     self._previous_successful_plan = plan
         except Exception as exc:

@@ -91,6 +91,12 @@ terminal → OpenAIPlanner → local validator → PlanExecutor → Task 2
 export OPENAI_API_KEY="your-key-here"
 ```
 
+如果密钥已保存在仓库外的本机配置文件，可以在启动前加载：
+
+```bash
+source "$HOME/.config/ee5112/task3.env"
+```
+
 然后在未来的仿真入口中创建 chat loop：
 
 ```python
@@ -111,6 +117,21 @@ threading.Thread(target=chat.run, daemon=True).start()
 - `/quit`：停止并退出终端循环。
 
 只有执行成功的计划会成为下一句的上下文，因此 `Do that again slower` 可以引用上一次成功动作。OpenAI 请求记录延迟和 token 数，后续可直接用于两种 LLM 的实验对比。
+
+## 拒绝与上下文策略
+
+输入先经过供应商无关的本地策略，再交给 LLM：
+
+- 空白输入立即输出 `status=REJECTED`；
+- 含非 ASCII 字母的明显非英文输入在本地拒绝；
+- `attack`、`crash`、`damage`、`run over` 等明显危险请求在本地拒绝；
+- 其余模糊、无关或不支持的英文请求由 LLM 按 JSON 协议拒绝，随后仍经过本地 validator。
+
+本地拒绝不会调用付费 API。上下文只保存最近一份 `accepted=true` 且执行结果为
+`SUCCESS` 的不可变计划；被拒绝、失败或取消的请求都不能覆盖它。发送给模型的上下文只包含
+这一份已经验证的动作 JSON，API 请求使用 `store=False`。例如，上一次成功计划是
+`move(vx=0.4, duration_s=2)` 时，`Do that again, but slower` 会生成
+`move(vx=0.2, duration_s=4)`，以大致保持移动距离。
 
 ## Task 4 对接
 

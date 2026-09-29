@@ -48,6 +48,15 @@ Follow these rules exactly:
   to preserve approximate distance, but reject if this exceeds schema limits. A turn action
   has no speed parameter, so reject requests to turn slower rather than pretending to comply.
 - Keep message non-blank, short, and in English. Return only data matching the supplied JSON schema.
+
+Interpretation examples:
+- "Move forward slowly for two seconds." with previous plan null is a complete new command:
+  accept move(vx=0.2, vy=0, wz=0, duration_s=2).
+- "Move forward at speed 0.3 for two seconds." is valid: accept move with vx=0.3.
+- "Do that again, but slower." with a previous move(vx=0.4, duration_s=2) means
+  move(vx=0.2, duration_s=4); preserve other velocity signs and halve magnitudes.
+- "Do that again." with previous plan null is contextual and must be rejected.
+- Requests to write, answer questions, attack, collide with, or damage something must be rejected.
 """
 
 

@@ -1,6 +1,7 @@
 """Task 3 natural-language command planning and execution."""
 
 from .chat_loop import TerminalChatLoop, build_openai_chat_loop
+from .command_policy import local_rejection_reason
 from .executor import (
     ExecutionResult,
     GotoObjectMissionFailedError,
@@ -75,6 +76,7 @@ __all__ = [
     "UnknownSceneObjectError",
     "build_openai_chat_loop",
     "load_object_positions",
+    "local_rejection_reason",
     "parse_and_validate",
     "validate_plan",
 ]

@@ -103,6 +103,7 @@ def test_previous_validated_plan_is_sent_as_context():
 
     content = client.responses.calls[0]["input"][0]["content"]
     assert json.dumps(plan_to_dict(previous), separators=(",", ":")) in content
+    assert client.responses.calls[0]["store"] is False
 
 
 def test_invalid_provider_json_is_still_rejected_locally():
