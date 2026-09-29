@@ -29,6 +29,28 @@ class ViewerLike(Protocol):
     def sync(self) -> None: ...
 
 
+class _TeeOutput:
+    """Mirror live terminal output without redirecting interactive stdin."""
+
+    def __init__(self, terminal, log_file):
+        self.terminal, self.log_file = terminal, log_file
+
+    def write(self, text):
+        self.terminal.write(text)
+        self.log_file.write(text)
+        return len(text)
+
+    def flush(self):
+        self.terminal.flush()
+        self.log_file.flush()
+
+    def isatty(self):
+        return self.terminal.isatty()
+
+    def fileno(self):
+        return self.terminal.fileno()
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the integrated EE5112 Task 3 command interface"
@@ -43,6 +65,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="maximum simulation seconds (default: 120)",
     )
     parser.add_argument("--port", type=int, default=8765, help="Task 2 browser port")
+    parser.add_argument("--log-file", type=Path,
+                        help="write the same runtime log lines to a new UTF-8 file")
     parser.add_argument("--mission-timeout", type=float, default=120,
                         help="Task 4 mission wall-clock timeout in seconds")
     parser.add_argument("--start", type=float, nargs=3, default=(0, 0, 0),
@@ -142,6 +166,10 @@ def main(argv: list[str] | None = None) -> int:
     from task2.platform import Platform
 
     log_lock = threading.Lock()
+    log_file = args.log_file.open("x", encoding="utf-8", buffering=1) if args.log_file else None
+    terminal_stdout = sys.stdout
+    if log_file is not None:
+        sys.stdout = _TeeOutput(terminal_stdout, log_file)
 
     def log(message: str) -> None:
         # Chat and simulator events originate on different threads. Keep each
@@ -223,6 +251,9 @@ def main(argv: list[str] | None = None) -> int:
         if task4 is not None:
             task4.close()
         platform.close()
+        if log_file is not None:
+            sys.stdout = terminal_stdout
+            log_file.close()
 
 
 def _import_task2(task2_root: Path | None):

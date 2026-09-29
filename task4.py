@@ -273,8 +273,8 @@ def goto_object(
                     near_steps += 1
                     continue
                 terminal_steps = min(final_approach_steps,
-                                     0 if width_share > 0.58 else
-                                     2 if width_share > 0.44 else final_approach_steps)
+                                     1 if width_share > 0.48 else
+                                     3 if width_share > 0.44 else final_approach_steps)
                 if terminal_steps:
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
                 for _ in range(terminal_steps):

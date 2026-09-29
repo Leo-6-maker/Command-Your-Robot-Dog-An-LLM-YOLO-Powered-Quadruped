@@ -213,8 +213,8 @@ def test_real_task4_mission_runs_through_bridge_to_success():
 
     assert not worker.is_alive()
     assert results == [True]
-    assert motion.calls == [("stop",), ("stop",)]
-    # The large live box already indicates near range; do not blindly move closer.
+    assert motion.calls == [("move", 0.2, 0.0, 0.0, 0.25), ("stop",), ("stop",)]
+    # One calibrated short step, then a fresh stopped-frame check.
 
 
 def test_frame_captured_during_motion_is_not_reused_after_stop():
@@ -332,7 +332,7 @@ def test_narrow_near_box_approaches_and_reobserves():
         lambda *_: moves.append(1), lambda *_: pytest.fail("unexpected turn"),
         lambda: None, lambda *_: 0.7,
     )
-    assert len(moves) == 3  # One observed extra step, then two terminal steps.
+    assert len(moves) == 4  # One observed extra step, then three terminal steps.
 
 
 def test_close_chair_does_not_oscillate_over_small_center_offsets():
@@ -366,13 +366,15 @@ def test_wide_chair_stops_when_pitch_shrinks_box_height():
 
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
     detection = Detection("chair", "green", 0.8, (41, 1, 425, 432), 640, 480)
+    moves = []
     assert goto_object(
         "chair", "green", SimpleNamespace(detect=lambda _: [detection]),
         lambda after: CameraObservation(frame, (2.3, 1), (after or 0) + 1),
-        lambda *_: pytest.fail("wide chair must not advance"),
+        lambda *_: moves.append(1),
         lambda *_: pytest.fail("wide chair must not trigger turn"),
         lambda: None, lambda *_: 0.7,
     )
+    assert len(moves) == 1
 
 
 def _capture_exception(target, function, *args):

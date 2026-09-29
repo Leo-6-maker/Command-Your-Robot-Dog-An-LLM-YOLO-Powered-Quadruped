@@ -22,10 +22,10 @@ if args.output.exists():
 if args.stop_file.exists():
     parser.error('stop file already exists')
 
-size = (2560, 1440)
+size = ImageGrab.grab().size
 fps = 8
 command = [imageio_ffmpeg.get_ffmpeg_exe(), '-hide_banner', '-loglevel', 'error',
-           '-y', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-s', '2560x1440',
+           '-y', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-s', f'{size[0]}x{size[1]}',
            '-r', str(fps), '-i', '-', '-an', '-c:v', 'libx264', '-preset', 'ultrafast',
            '-crf', '24', '-pix_fmt', 'yuv420p', str(args.output)]
 encoder = subprocess.Popen(command, stdin=subprocess.PIPE)
