@@ -156,6 +156,11 @@ python -m task3.run \
 - `attack`、`crash`、`damage`、`run over` 等明显危险请求在本地拒绝；
 - 其余模糊、无关或不支持的英文请求由 LLM 按 JSON 协议拒绝，随后仍经过本地 validator。
 
+模型输出通过 JSON validator 后还会经过显式方向一致性检查。对于单动作命令，`forward`、
+`backward`、`left`、`right` 以及左右转必须与 `vx`、`vy`、`angle_deg` 的符号一致；若文字和
+数值方向冲突，程序打印 `[GUARD] status=REJECTED` 并且绝不执行该动作。这一层用于拦截
+“文字说向右、JSON 却给出正 `vy`”一类 schema 合法但语义错误的模型输出。
+
 本地拒绝不会调用付费 API。上下文只保存最近一份 `accepted=true` 且执行结果为
 `SUCCESS` 的不可变计划；被拒绝、失败或取消的请求都不能覆盖它。发送给模型的上下文只包含
 这一份已经验证的动作 JSON，API 请求使用 `store=False`。例如，上一次成功计划是
@@ -219,7 +224,7 @@ python -m task3.run \
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-测试覆盖 JSON/schema 边界、本地拒绝、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。当前结果为 `98 passed`。
+测试覆盖 JSON/schema 边界、本地拒绝、方向语义一致性、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。当前结果为 `102 passed`。
 
 ## 终端日志协议
 
@@ -277,3 +282,9 @@ python -m task3.benchmark \
 
 第 14 步的自动测试范围、日志协议和验证结果见
 [`evidence/step14_tests_logs.md`](evidence/step14_tests_logs.md)。
+
+最终录屏命令、MP4 参数和文件校验值见
+[`evidence/step15_video_script.md`](evidence/step15_video_script.md)。
+
+完整提交摘要、架构、复现命令、两模型比较和限制分析见
+[`Task3_Report.md`](Task3_Report.md)。

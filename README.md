@@ -7,6 +7,22 @@ The inspected upstream snapshot is commit `dd40180f1121a66373d261e64a9a09eb69b1b
 The example creates the onboard `dog_front_camera`; the course brief requires Task 3 and Task 4
 to use the Task 2 platform and scene.
 
+## Task 3 — completed LLM command interface
+
+Task 3 is implemented in [`task3/`](task3/README.md). It provides:
+
+- a four-action JSON contract (`move`, `turn`, `goto_object`, and `stop`);
+- OpenAI Structured Outputs and local Ollama/Qwen planners;
+- independent schema, numeric safety, and explicit-direction consistency checks;
+- a non-blocking terminal chat loop and sequential Task 2 action adapter;
+- integration with `task4.py` for camera-only `goto_object` navigation;
+- 102 automated tests and a fixed 20-command two-model benchmark.
+
+The final Task 3 report is [`task3/Task3_Report.md`](task3/Task3_Report.md). The recorded
+desktop demonstration uses local `qwen2.5:7b`; OpenAI and Qwen are compared separately with the
+same benchmark cases, so the video does not need to duplicate the complete demonstration for
+both providers.
+
 ## Task 4 core
 
 `task4.py` contains CPU YOLO class detection, red/green color grounding, annotated frames, and a
@@ -14,9 +30,9 @@ callback-driven `goto_object` controller. It assumes a fresh `CameraObservation`
 frame, trunk XY and simulation time from one snapshot. Motion callbacks must finish each action
 before returning. Scene truth is used only after stopping to compute the planar distance for C2.
 
-This core is prepared but is not yet connected to the simulator camera, Task 2 motion queue, or
-Task 3 parser. The initial box-height stop threshold and color thresholds need calibration with
-the final scene.
+The Task 4 core is connected to the simulator camera, Task 2 motion adapter and Task 3 executor
+through `task3/task4_integration.py`. The integrated controller uses onboard images for steering;
+scene truth is consulted only after stopping to calculate the final C2 distance.
 
 ## Assumed Task 2 / Task 3 interface
 
@@ -31,10 +47,8 @@ worker. Inject these Task 2 callbacks:
   Task 2 scene config. The controller calls it only after stopping and visually re-detecting the
   target; it must not use that position to steer.
 
-The module currently grounds red and green. Before calling the mission complete, calibrate the
-visual stop threshold against C2 and evaluate at least 10 trials, including an initially hidden
-target and same-class color disambiguation. Camera/motion integration, Task 3 dispatch, trial
-results, and demo evidence are still open.
+The module currently grounds red and green chairs. Integration behavior and the camera-only smoke
+test are recorded in [`task3/evidence/step11_task4_integration.md`](task3/evidence/step11_task4_integration.md).
 
 Install `ultralytics` alongside the simulator dependencies before running YOLO. The default
 weights are `yolo11n.pt`; Ultralytics downloads them on first model load if absent.

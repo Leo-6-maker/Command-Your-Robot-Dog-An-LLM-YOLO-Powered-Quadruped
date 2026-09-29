@@ -116,6 +116,11 @@ The total score must be read together with the category scores. OpenAI was more 
 
 For two Qwen limit failures, the model emitted illegal values and the independent local validator stopped them before execution. For `invalid_01`, Qwen silently changed requested speed 1.5 to 1.0; that output was schema-valid, so this is a real semantic safety failure that cannot be detected by output validation alone.
 
+The formal numbers above intentionally remain the raw planner benchmark. After the benchmark, the
+desktop-video dry run reproduced Qwen's reversed lateral sign. A provider-neutral runtime guard
+was therefore added for explicit one-action directions. It rejects text/JSON sign conflicts before
+execution, while leaving these original model scores unchanged for a fair comparison.
+
 ## Cost method
 
 OpenAI cost is estimated from returned input, cached-input and output token counts. The rates used for `gpt-4o-mini` are $0.15, $0.075 and $0.60 per one million tokens respectively. Local Qwen has no API fee; electricity is not measured.

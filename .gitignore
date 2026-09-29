@@ -6,3 +6,5 @@ __pycache__/
 .pytest_cache/
 *.pt
 runs/
+MUJOCO_LOG.TXT
+task3/evidence/*_live.log
