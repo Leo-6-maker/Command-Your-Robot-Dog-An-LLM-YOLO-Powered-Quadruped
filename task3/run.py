@@ -129,8 +129,13 @@ def main(argv: list[str] | None = None) -> int:
 
     from task2.platform import Platform
 
+    log_lock = threading.Lock()
+
     def log(message: str) -> None:
-        print(message, flush=True)
+        # Chat and simulator events originate on different threads. Keep each
+        # evidence line atomic so two valid records cannot be joined together.
+        with log_lock:
+            print(message, flush=True)
 
     platform = Platform(gui=args.gui, camera=True, logger=log, port=args.port)
     task4: Task4Integration | None = None
@@ -154,11 +159,6 @@ def main(argv: list[str] | None = None) -> int:
                 )
             else:
                 chat = build_openai_chat_loop(executor, model=args.model, logger=log)
-            threading.Thread(
-                target=chat.run,
-                name="task3-terminal",
-                daemon=True,
-            ).start()
         else:
             log("[CHAT] status=DISABLED reason=no_chat")
 
@@ -170,6 +170,12 @@ def main(argv: list[str] | None = None) -> int:
                 f"[RUNTIME] event=START mode={_mode_name(args)} "
                 f"duration_s={args.duration:.1f}"
             )
+            if chat is not None:
+                threading.Thread(
+                    target=chat.run,
+                    name="task3-terminal",
+                    daemon=True,
+                ).start()
             steps = run_simulation_loop(
                 platform,
                 task4,
