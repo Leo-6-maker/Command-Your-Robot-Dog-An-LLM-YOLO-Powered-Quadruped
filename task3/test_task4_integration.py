@@ -271,7 +271,7 @@ def test_turn_requires_new_box_before_deciding_to_stop():
     from task4 import CameraObservation, goto_object
 
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
-    boxes = iter([(340, 0, 640, 480), (260, 150, 380, 300),
+    boxes = iter([(340, 1, 640, 460), (260, 150, 380, 300),
                   (100, 0, 540, 480), (100, 0, 540, 480)])
     calls = []
     angles = []
@@ -344,6 +344,19 @@ def test_close_chair_does_not_oscillate_over_small_center_offsets():
         "chair", "green", SimpleNamespace(detect=lambda _: [detection]),
         lambda after: CameraObservation(frame, (2.3, 1), (after or 0) + 1),
         lambda *_: None, lambda *_: pytest.fail("near-box turn would oscillate"),
+        lambda: None, lambda *_: 0.7, final_approach_steps=0,
+    )
+
+
+def test_large_edge_box_stops_without_turning_away():
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    detection = Detection("chair", "red", 0.8, (282, 2, 640, 474), 640, 480)
+    assert goto_object(
+        "chair", "red", SimpleNamespace(detect=lambda _: [detection]),
+        lambda after: CameraObservation(frame, (2.3, -1), (after or 0) + 1),
+        lambda *_: None, lambda *_: pytest.fail("edge-box turn would lose target"),
         lambda: None, lambda *_: 0.7, final_approach_steps=0,
     )
 
