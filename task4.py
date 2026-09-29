@@ -170,7 +170,8 @@ def goto_object(
     timeout_s: float = 60.0,
     scan_step_deg: float = 30.0,
     misses_before_search: int = 3,
-    stop_box_height: float = 0.60,
+    stop_box_height: float = 0.88,
+    final_approach_steps: int = 7,
     center_tolerance: float = 0.06,
     camera_fovy_deg: float = 80.0,
 ) -> bool:
@@ -184,8 +185,15 @@ def goto_object(
     """
     if timeout_s <= 0 or not 0 < scan_step_deg <= 360 or misses_before_search < 1:
         raise ValueError("timeout_s, scan_step_deg or misses_before_search is invalid")
-    if not 0 < stop_box_height < 1 or not 0 < center_tolerance < 0.5:
-        raise ValueError("stop_box_height and center_tolerance must be fractions in (0, 1)")
+    if (
+        not 0 < stop_box_height < 1
+        or not 0 < center_tolerance < 0.5
+    ):
+        raise ValueError(
+            "stop_box_height and center_tolerance must be fractions in (0, 1)"
+        )
+    if not isinstance(final_approach_steps, int) or not 0 <= final_approach_steps <= 20:
+        raise ValueError("final_approach_steps must be an integer in [0, 20]")
     if not 0 < camera_fovy_deg < 180:
         raise ValueError("camera_fovy_deg must be in (0, 180)")
 
@@ -223,47 +231,59 @@ def goto_object(
 
             scanned_deg = 0.0
             misses = 0
-            target = max(targets, key=lambda detection: detection.confidence)
+            # Near the object YOLO can emit overlapping boxes for the same
+            # chair.  Use the largest matching box for visual ranging instead
+            # of a smaller duplicate that happens to have higher confidence.
+            target = max(
+                targets,
+                key=lambda detection: (
+                    (detection.bbox[2] - detection.bbox[0])
+                    * (detection.bbox[3] - detection.bbox[1])
+                ),
+            )
             x1, y1, x2, y2 = target.bbox
             offset_x = target.center_x - target.frame_width / 2
             focal_px = target.frame_height / (
                 2 * math.tan(math.radians(camera_fovy_deg) / 2)
             )
+            # The low-mounted camera loses the chair once it fills the frame.
+            # Once it is close, align once from this last reliable frame and
+            # enter a short fixed terminal approach without requiring another
+            # classification from a heavily cropped view.
+            height_share = (y2 - y1) / target.frame_height
+            if height_share >= stop_box_height:
+                if abs(offset_x) > center_tolerance * target.frame_width:
+                    turn(-math.degrees(math.atan2(offset_x, focal_px)))
+                if final_approach_steps:
+                    print(f"[APPROACH] final_visual_steps={final_approach_steps}")
+                for _ in range(final_approach_steps):
+                    move(0.20, 0.0, 0.0, 0.25)
+
+                stop()
+                final_observation = get_observation(last_sim_time)
+                last_sim_time = final_observation.sim_time
+                distance = planar_distance_m(
+                    final_observation.base_xy, target_class, target_color
+                )
+                if not math.isfinite(distance):
+                    return fail("distance_unavailable")
+                if distance > 0.80:
+                    return fail(
+                        f"visual_stop_outside_0.80m distance_m={distance:.2f}"
+                    )
+
+                elapsed = final_observation.sim_time - start_sim_time
+                print(
+                    f"[FOUND] class={target_class} color={target_color} "
+                    f"t={elapsed:.1f} s d={distance:.2f} m"
+                )
+                print("[MISSION] status=SUCCESS")
+                return True
+
             if abs(offset_x) > center_tolerance * target.frame_width:
                 turn(-math.degrees(math.atan2(offset_x, focal_px)))
                 continue
-
-            # ponytail: bbox height is the stop proxy; calibrate for this scene,
-            # then add depth estimation only if it cannot reliably meet the 0.80 m bound.
-            if (y2 - y1) / target.frame_height < stop_box_height:
-                move(0.25, 0.0, 0.0, 0.25)
-                continue
-
-            stop()
-            final_observation = get_observation(last_sim_time)
-            last_sim_time = final_observation.sim_time
-            final_targets = [
-                d for d in detector.detect(final_observation.rgb_frame)
-                if d.matches(target_class, target_color)
-            ]
-            if not final_targets:
-                continue
-
-            distance = planar_distance_m(
-                final_observation.base_xy, target_class, target_color
-            )
-            if not math.isfinite(distance):
-                return fail("distance_unavailable")
-            if distance > 0.80:
-                return fail("visual_stop_outside_0.80m")
-
-            elapsed = final_observation.sim_time - start_sim_time
-            print(
-                f"[FOUND] class={target_class} color={target_color} "
-                f"t={elapsed:.1f} s d={distance:.2f} m"
-            )
-            print("[MISSION] status=SUCCESS")
-            return True
+            move(0.25, 0.0, 0.0, 0.25)
 
         return fail("timeout")
     finally:

@@ -71,7 +71,7 @@ result = executor.execute(validated_plan)  # 在 Task 3 工作线程调用
 
 每一步开始和结束都会打印 `[EXEC]`；整份计划最终打印一次 `[DONE]`。任意一步失败都会立即调用 `stop()`、跳过剩余动作并返回 `ExecutionResult(status="FAIL", ...)`。另一个线程可以调用 `executor.cancel()` 中断当前计划。
 
-`goto_object` 通过构造函数注入，当前尚未连接 Task 4：
+`goto_object` 通过构造函数注入；完整运行入口会连接现有 Task 4：
 
 ```python
 executor = PlanExecutor(adapter, goto_object=task4_callback)
@@ -156,6 +156,8 @@ task4.capture_after_step(fresh_camera_frame)
 ```
 
 `capture_after_step()` 必须紧接 `platform.step()` 并在仿真主线程中调用。`goto_object()` 仍在 Task 3 工作线程运行并等待新快照，因此 YOLO、LLM 和导航任务都不会接管 MuJoCo。场景中的目标坐标只在视觉停止后计算最终距离，用于课程 C2 验证，不参与转向或前进决策。
+
+近距离时椅子会被低位相机裁切，YOLO 也可能为同一目标输出重叠框。导航会选面积最大的匹配框做视觉距离判断；框高达到标定阈值后，基于最后一个可靠画面完成一次对准和固定的低速末端接近，再停车验收。末端动作不读取物体真值坐标。
 
 ## 完整运行入口
 

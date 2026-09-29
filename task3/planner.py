@@ -38,7 +38,8 @@ Follow these rules exactly:
 - For a vague movement without speed or duration, use speed magnitude 0.4 for 2 seconds.
 - An explicitly requested non-zero speed whose components remain within [-1, 1] is valid;
   0.4 is a default, not a minimum speed.
-- goto_object supports only a red chair or green chair.
+- goto_object supports exactly two scene targets: red chair AND green chair. Both colors are
+  valid and equally supported. Never reject a request merely because its target is green.
 - Preserve the user's requested order in multi-step commands.
 - stop must be the only action in its plan.
 - A previous successful plan may be supplied for contextual phrases such as "do that again".
@@ -61,6 +62,8 @@ Interpretation examples:
 - "Do that again, but slower." with a previous move(vx=0.4, duration_s=2) means
   move(vx=0.2, duration_s=4); preserve other velocity signs and halve magnitudes.
 - "Do that again." with previous plan null is contextual and must be rejected.
+- "Go to the green chair." is valid: accept goto_object(class="chair", color="green").
+- "Go to the red chair." is valid: accept goto_object(class="chair", color="red").
 - Requests to write, answer questions, attack, collide with, or damage something must be rejected.
 """
 

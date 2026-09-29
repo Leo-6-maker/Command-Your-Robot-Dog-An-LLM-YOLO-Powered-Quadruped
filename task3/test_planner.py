@@ -77,6 +77,12 @@ def test_system_prompt_defines_lateral_direction_signs_unambiguously():
     assert "vy=-0.2" in SYSTEM_PROMPT
 
 
+def test_system_prompt_explicitly_accepts_both_scene_chairs():
+    assert 'goto_object(class="chair", color="green")' in SYSTEM_PROMPT
+    assert 'goto_object(class="chair", color="red")' in SYSTEM_PROMPT
+    assert "Never reject a request merely because its target is green" in SYSTEM_PROMPT
+
+
 def test_previous_validated_plan_is_sent_as_context():
     previous = validate_plan(
         {

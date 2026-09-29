@@ -58,8 +58,17 @@ class FakeDetector:
             Detection(
                 class_name="chair",
                 color="green",
-                confidence=0.9,
-                bbox=(100, 50, 540, 450),
+                confidence=0.99,
+                bbox=(200, 100, 440, 380),
+                frame_width=width,
+                frame_height=height,
+            ),
+            Detection(
+                class_name="chair",
+                color="green",
+                confidence=0.7,
+                # Height 440/480 exceeds the calibrated 0.88 visual stop ratio.
+                bbox=(100, 20, 540, 460),
                 frame_width=width,
                 frame_height=height,
             )
@@ -204,7 +213,11 @@ def test_real_task4_mission_runs_through_bridge_to_success():
 
     assert not worker.is_alive()
     assert results == [True]
-    assert motion.calls == [("stop",), ("stop",)]  # visual stop + finally safety stop
+    assert motion.calls == [
+        *(("move", 0.2, 0.0, 0.0, 0.25),) * 7,
+        ("stop",),
+        ("stop",),
+    ]  # fixed visual-terminal approach + visual stop + finally safety stop
 
 
 def _capture_exception(target, function, *args):
