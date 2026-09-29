@@ -219,8 +219,30 @@ python -m task3.run \
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
+## 20 条 LLM benchmark
+
+`benchmark_cases.json` 固定了 10 条基础命令、5 条同义改写和 5 条无效/越界命令。每条都使用独立上下文，只测试 LLM 规划和本地 validator，不会调用动作执行器或 MuJoCo。
+
+```bash
+source "$HOME/.config/ee5112/task3.env"
+$HOME/.local/bin/ollama serve  # 如果 Ollama 还没启动
+
+python -m task3.benchmark \
+  --provider both \
+  --openai-model gpt-4o-mini \
+  --ollama-model qwen2.5:7b \
+  --output-json task3/evidence/step13_benchmark_results.json \
+  --output-markdown task3/evidence/step13_benchmark.md
+```
+
+正式结果为 OpenAI `15/20 (75%)`、本地 Qwen `16/20 (80%)`。OpenAI 对 5 条无效/越界请求全部正确拒绝；Qwen 的基础命令和同义改写得分更高，但对数值边界不够安全。详细 JSON、逐条延迟、token、成本和失败分析见下方 Step 13 记录。
+
 真实浏览器纯运动演示的命令、结果和失败修正记录见
 [`evidence/step10_pure_motion.md`](evidence/step10_pure_motion.md)。
 
 本地 Qwen 接入、选型和真实执行记录见
 [`evidence/step12_local_qwen.md`](evidence/step12_local_qwen.md)。
+
+20 条双模型 benchmark 的可读报告和原始结果分别见
+[`evidence/step13_benchmark.md`](evidence/step13_benchmark.md) 和
+[`evidence/step13_benchmark_results.json`](evidence/step13_benchmark_results.json)。

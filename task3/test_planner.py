@@ -69,6 +69,7 @@ def test_openai_planner_uses_strict_schema_and_local_validation():
     assert call["text"]["format"]["type"] == "json_schema"
     assert call["text"]["format"]["strict"] is True
     assert call["max_output_tokens"] == 1_000
+    assert call["temperature"] == 0
     assert call["store"] is False
 
 

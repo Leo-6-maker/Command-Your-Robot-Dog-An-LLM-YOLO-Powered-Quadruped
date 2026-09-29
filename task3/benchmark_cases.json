@@ -1,0 +1,122 @@
+[
+  {
+    "id": "basic_01",
+    "group": "basic",
+    "prompt": "Move forward at speed 0.4 for two seconds.",
+    "expected": {"accepted": true, "actions": [{"type": "move", "vx": 0.4, "vy": 0.0, "wz": 0.0, "duration_s": 2.0}]}
+  },
+  {
+    "id": "basic_02",
+    "group": "basic",
+    "prompt": "Move backward at speed 0.3 for one second.",
+    "expected": {"accepted": true, "actions": [{"type": "move", "vx": -0.3, "vy": 0.0, "wz": 0.0, "duration_s": 1.0}]}
+  },
+  {
+    "id": "basic_03",
+    "group": "basic",
+    "prompt": "Move left at speed 0.25 for three seconds.",
+    "expected": {"accepted": true, "actions": [{"type": "move", "vx": 0.0, "vy": 0.25, "wz": 0.0, "duration_s": 3.0}]}
+  },
+  {
+    "id": "basic_04",
+    "group": "basic",
+    "prompt": "Move right at speed 0.2 for one second.",
+    "expected": {"accepted": true, "actions": [{"type": "move", "vx": 0.0, "vy": -0.2, "wz": 0.0, "duration_s": 1.0}]}
+  },
+  {
+    "id": "basic_05",
+    "group": "basic",
+    "prompt": "Turn left 90 degrees.",
+    "expected": {"accepted": true, "actions": [{"type": "turn", "angle_deg": 90.0}]}
+  },
+  {
+    "id": "basic_06",
+    "group": "basic",
+    "prompt": "Turn right 45 degrees.",
+    "expected": {"accepted": true, "actions": [{"type": "turn", "angle_deg": -45.0}]}
+  },
+  {
+    "id": "basic_07",
+    "group": "basic",
+    "prompt": "Go to the green chair.",
+    "expected": {"accepted": true, "actions": [{"type": "goto_object", "class": "chair", "color": "green"}]}
+  },
+  {
+    "id": "basic_08",
+    "group": "basic",
+    "prompt": "Go to the red chair.",
+    "expected": {"accepted": true, "actions": [{"type": "goto_object", "class": "chair", "color": "red"}]}
+  },
+  {
+    "id": "basic_09",
+    "group": "basic",
+    "prompt": "Move forward at speed 0.3 for two seconds, then turn left 90 degrees.",
+    "expected": {"accepted": true, "actions": [{"type": "move", "vx": 0.3, "vy": 0.0, "wz": 0.0, "duration_s": 2.0}, {"type": "turn", "angle_deg": 90.0}]}
+  },
+  {
+    "id": "basic_10",
+    "group": "basic",
+    "prompt": "Stop now.",
+    "expected": {"accepted": true, "actions": [{"type": "stop"}]}
+  },
+  {
+    "id": "paraphrase_01",
+    "group": "paraphrase",
+    "prompt": "Advance straight ahead at 0.4 speed for two seconds.",
+    "expected": {"accepted": true, "actions": [{"type": "move", "vx": 0.4, "vy": 0.0, "wz": 0.0, "duration_s": 2.0}]}
+  },
+  {
+    "id": "paraphrase_02",
+    "group": "paraphrase",
+    "prompt": "Slide toward your right at speed 0.2 for one second.",
+    "expected": {"accepted": true, "actions": [{"type": "move", "vx": 0.0, "vy": -0.2, "wz": 0.0, "duration_s": 1.0}]}
+  },
+  {
+    "id": "paraphrase_03",
+    "group": "paraphrase",
+    "prompt": "Make a quarter-turn counter-clockwise.",
+    "expected": {"accepted": true, "actions": [{"type": "turn", "angle_deg": 90.0}]}
+  },
+  {
+    "id": "paraphrase_04",
+    "group": "paraphrase",
+    "prompt": "Head over to the emerald-colored chair.",
+    "expected": {"accepted": true, "actions": [{"type": "goto_object", "class": "chair", "color": "green"}]}
+  },
+  {
+    "id": "paraphrase_05",
+    "group": "paraphrase",
+    "prompt": "Freeze in place immediately.",
+    "expected": {"accepted": true, "actions": [{"type": "stop"}]}
+  },
+  {
+    "id": "invalid_01",
+    "group": "invalid",
+    "prompt": "Move forward at speed 1.5 for two seconds.",
+    "expected": {"accepted": false, "actions": []}
+  },
+  {
+    "id": "invalid_02",
+    "group": "invalid",
+    "prompt": "Move left for 75 seconds.",
+    "expected": {"accepted": false, "actions": []}
+  },
+  {
+    "id": "invalid_03",
+    "group": "invalid",
+    "prompt": "Turn right 900 degrees.",
+    "expected": {"accepted": false, "actions": []}
+  },
+  {
+    "id": "invalid_04",
+    "group": "invalid",
+    "prompt": "Go to the blue chair.",
+    "expected": {"accepted": false, "actions": []}
+  },
+  {
+    "id": "invalid_05",
+    "group": "invalid",
+    "prompt": "Write a poem about robot dogs.",
+    "expected": {"accepted": false, "actions": []}
+  }
+]

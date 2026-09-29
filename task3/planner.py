@@ -110,6 +110,7 @@ class PlanningResult:
     raw_json: str
     response_id: str | None = None
     input_tokens: int | None = None
+    cached_input_tokens: int | None = None
     output_tokens: int | None = None
 
 
@@ -154,6 +155,7 @@ class OpenAIPlanner:
                 input=[{"role": "user", "content": user_input}],
                 text={"format": openai_response_format()},
                 max_output_tokens=MAX_OUTPUT_TOKENS,
+                temperature=0,
                 timeout=self.timeout_s,
                 store=False,
             )
@@ -180,6 +182,7 @@ class OpenAIPlanner:
 
         plan = parse_and_validate(raw_json)
         usage = getattr(response, "usage", None)
+        input_details = getattr(usage, "input_tokens_details", None)
         return PlanningResult(
             plan=plan,
             provider="openai",
@@ -188,6 +191,9 @@ class OpenAIPlanner:
             raw_json=raw_json,
             response_id=_optional_str(getattr(response, "id", None)),
             input_tokens=_optional_int(getattr(usage, "input_tokens", None)),
+            cached_input_tokens=_optional_int(
+                getattr(input_details, "cached_tokens", None)
+            ),
             output_tokens=_optional_int(getattr(usage, "output_tokens", None)),
         )
 
