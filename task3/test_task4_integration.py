@@ -213,11 +213,8 @@ def test_real_task4_mission_runs_through_bridge_to_success():
 
     assert not worker.is_alive()
     assert results == [True]
-    assert motion.calls == [
-        *(("move", 0.2, 0.0, 0.0, 0.25),) * 4,
-        ("stop",),
-        ("stop",),
-    ]  # fixed visual-terminal approach + visual stop + finally safety stop
+    assert motion.calls == [("stop",), ("stop",)]
+    # The large live box already indicates near range; do not blindly move closer.
 
 
 def test_frame_captured_during_motion_is_not_reused_after_stop():
@@ -315,6 +312,24 @@ def test_stopped_detection_can_recover_on_a_fresh_frame():
         distance, final_approach_steps=0,
     )
     assert distances == [(3, 1)]  # C2 uses the same new snapshot that passed C1.
+
+
+def test_narrow_near_box_approaches_and_reobserves():
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    boxes = iter([(200, 1, 400, 479), (170, 1, 470, 479),
+                  (170, 1, 470, 479)])
+    moves = []
+    assert goto_object(
+        "chair", "green",
+        SimpleNamespace(detect=lambda _: [Detection("chair", "green", 0.9,
+                                                    next(boxes), 640, 480)]),
+        lambda after: CameraObservation(frame, (2.3, 1), (after or 0) + 1),
+        lambda *_: moves.append(1), lambda *_: pytest.fail("unexpected turn"),
+        lambda: None, lambda *_: 0.7,
+    )
+    assert len(moves) == 5  # One observed extra step, then four terminal steps.
 
 
 def _capture_exception(target, function, *args):

@@ -289,6 +289,69 @@ class OllamaPlanner:
         )
 
 
+class CompatibleChatPlanner:
+    """Use a chat-completions JSON endpoint with the existing local validator."""
+
+    def __init__(self, *, model: str = "qwen-plus", host: str | None = None,
+                 provider: str = "dashscope", credential_env: str = "DASHSCOPE_API_KEY",
+                 timeout_s: float = 30.0, requester=None,
+                 monotonic: Callable[[], float] = time.monotonic):
+        self.model = model
+        self.provider = provider
+        self.credential_env = credential_env
+        self.host = (host or os.getenv(
+            "DASHSCOPE_BASE_URL", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+        )).rstrip("/")
+        if not self.host.startswith("https://") or timeout_s <= 0:
+            raise ValueError("chat endpoint must be HTTPS and timeout positive")
+        self.timeout_s = timeout_s
+        self._requester = requester or _post_chat_json
+        self._monotonic = monotonic
+
+    def plan(self, command: str, previous_plan: CommandPlan | None = None) -> PlanningResult:
+        if not isinstance(command, str):
+            raise TypeError("command must be text")
+        command = command.strip()
+        if not command or len(command) > MAX_COMMAND_LENGTH:
+            raise ValueError("command must be nonblank and at most 1000 characters")
+        key = os.getenv(self.credential_env)
+        if not key:
+            raise MissingAPIKeyError(f"{self.credential_env} is not set")
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": _planner_user_input(command, previous_plan)},
+            ],
+            "response_format": {"type": "json_object"},
+            "temperature": 0,
+            "max_tokens": MAX_OUTPUT_TOKENS,
+        }
+        started = self._monotonic()
+        try:
+            response = self._requester(self.host + "/chat/completions", payload,
+                                       key, self.timeout_s)
+        except Exception as exc:
+            raise PlannerAPIError(f"{self.provider} request failed ({type(exc).__name__}): {exc}") from exc
+        choices = response.get("choices")
+        first = choices[0] if isinstance(choices, list) and choices else {}
+        if first.get("finish_reason") != "stop":
+            raise IncompleteModelResponseError(f"{self.provider} response was incomplete")
+        message = first.get("message") or {}
+        raw_json = message.get("content")
+        if not isinstance(raw_json, str) or not raw_json.strip():
+            raise IncompleteModelResponseError(f"{self.provider} returned no JSON text")
+        plan = parse_and_validate(raw_json)
+        usage = response.get("usage") or {}
+        return PlanningResult(
+            plan=plan, provider=self.provider, model=self.model,
+            latency_s=self._monotonic() - started, raw_json=raw_json,
+            response_id=_optional_str(response.get("id")),
+            input_tokens=_optional_int(usage.get("prompt_tokens")),
+            output_tokens=_optional_int(usage.get("completion_tokens")),
+        )
+
+
 def plan_to_dict(plan: CommandPlan) -> dict[str, Any]:
     """Serialize only trusted typed plans for provider-neutral conversation context."""
     actions: list[dict[str, Any]] = []
@@ -362,6 +425,18 @@ def _ollama_post_json(
         body = json.load(response)
     if not isinstance(body, dict):
         raise TypeError("Ollama response body must be a JSON object")
+    return body
+
+
+def _post_chat_json(url: str, payload: dict[str, Any], key: str,
+                    timeout_s: float) -> dict[str, Any]:
+    request = Request(url, data=json.dumps(payload).encode("utf-8"),
+                      headers={"Authorization": f"Bearer {key}",
+                               "Content-Type": "application/json"}, method="POST")
+    with urlopen(request, timeout=timeout_s) as response:
+        body = json.load(response)
+    if not isinstance(body, dict):
+        raise TypeError("chat response body must be a JSON object")
     return body
 
 

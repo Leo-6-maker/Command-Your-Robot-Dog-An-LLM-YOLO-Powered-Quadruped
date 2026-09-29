@@ -15,6 +15,8 @@ from .chat_loop import (
     TerminalChatLoop,
     build_ollama_chat_loop,
     build_openai_chat_loop,
+    build_qwen_cloud_chat_loop,
+    build_deepseek_chat_loop,
 )
 from .executor import PlanExecutor
 from .task2_adapter import Task2MotionAdapter
@@ -41,6 +43,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="maximum simulation seconds (default: 120)",
     )
     parser.add_argument("--port", type=int, default=8765, help="Task 2 browser port")
+    parser.add_argument("--start", type=float, nargs=3, default=(0, 0, 0),
+                        metavar=("X", "Y", "YAW_DEG"),
+                        help="robot start pose for the shared Task 2 scene")
     parser.add_argument(
         "--task2-root",
         type=Path,
@@ -54,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=("openai", "ollama"),
+        choices=("openai", "ollama", "dashscope", "deepseek"),
         default=os.getenv("TASK3_PROVIDER", "openai"),
         help="LLM provider (default: TASK3_PROVIDER or openai)",
     )
@@ -111,6 +116,8 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if not math.isfinite(args.duration) or args.duration <= 0:
         raise SystemExit("--duration must be finite and positive")
+    if not all(math.isfinite(value) for value in args.start):
+        raise SystemExit("--start values must be finite")
     if (
         not args.no_chat
         and args.provider == "openai"
@@ -144,6 +151,14 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with platform.runtime.model_lock:
             platform.model.camera("dog_front_camera").fovy[0] = CAMERA_FOVY_DEG
+        if tuple(args.start) != (0, 0, 0):
+            x, y, yaw = args.start
+            half_angle = math.radians(yaw) / 2
+            platform.config["simulation"]["initial_position"] = [x, y, 0.42]
+            platform.config["simulation"]["initial_quaternion"] = [
+                math.cos(half_angle), 0, 0, math.sin(half_angle)
+            ]
+            platform.reset()
         motion = Task2MotionAdapter(platform)
         task4 = Task4Integration(
             platform,
@@ -160,6 +175,10 @@ def main(argv: list[str] | None = None) -> int:
                     host=args.ollama_host,
                     logger=log,
                 )
+            elif args.provider == "dashscope":
+                chat = build_qwen_cloud_chat_loop(executor, model=args.model, logger=log)
+            elif args.provider == "deepseek":
+                chat = build_deepseek_chat_loop(executor, model=args.model, logger=log)
             else:
                 chat = build_openai_chat_loop(executor, model=args.model, logger=log)
         else:

@@ -209,6 +209,7 @@ def goto_object(
     last_sim_time = None
     scanned_deg = 0.0
     misses = 0
+    near_steps = 0
 
     def fail(reason: str) -> bool:
         print(f"[MISSION] status=FAIL reason={reason}")
@@ -253,9 +254,22 @@ def goto_object(
             # success still requires a fresh class/color detection after stopping.
             height_share = (y2 - y1) / target.frame_height
             if height_share >= stop_box_height:
-                if final_approach_steps:
-                    print(f"[APPROACH] final_visual_steps={final_approach_steps}")
-                for _ in range(final_approach_steps):
+                width_share = (x2 - x1) / target.frame_width
+                # Height saturates when the chair meets the image borders. Width
+                # still separates the too-far and nearly-cropped cases in this scene.
+                if width_share < 0.42:
+                    if near_steps >= 8:
+                        stop()
+                        return fail("visual_proximity_unreliable")
+                    move(0.20, 0.0, 0.0, 0.25)
+                    near_steps += 1
+                    continue
+                terminal_steps = min(final_approach_steps,
+                                     0 if width_share > 0.58 else
+                                     2 if width_share > 0.48 else final_approach_steps)
+                if terminal_steps:
+                    print(f"[APPROACH] final_visual_steps={terminal_steps}")
+                for _ in range(terminal_steps):
                     move(0.20, 0.0, 0.0, 0.25)
 
                 stop()
