@@ -1,7 +1,7 @@
 # EE5112 MiniLab 1.3 — Group Report (draft)
 
-**Group index:** [TEAM TO FILL]  
-**Members and matriculation numbers:** [TEAM TO FILL]  
+**Group index:** [TEAM TO FILL]
+**Members and matriculation numbers:** [TEAM TO FILL]
 **Submission date:** [TEAM TO FILL]
 
 > Review before submission: fill all identity and contribution fields, replace Task 2 and Task 3 videos as flagged below, and update Task 4 metrics only from the final tested controller revision.
