@@ -185,6 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     platform = Platform(gui=args.gui, camera=True, logger=log, port=args.port)
     task4: Task4Integration | None = None
     chat: TerminalChatLoop | None = None
+    terminal_thread: threading.Thread | None = None
     dual_view = None
     try:
         with platform.runtime.model_lock:
@@ -240,11 +241,12 @@ def main(argv: list[str] | None = None) -> int:
                 f"start=({args.start[0]:.2f},{args.start[1]:.2f},{args.start[2]:.1f})"
             )
             if chat is not None:
-                threading.Thread(
+                terminal_thread = threading.Thread(
                     target=chat.run,
                     name="task3-terminal",
                     daemon=True,
-                ).start()
+                )
+                terminal_thread.start()
             steps = run_simulation_loop(
                 platform,
                 task4,
@@ -258,6 +260,10 @@ def main(argv: list[str] | None = None) -> int:
             f"[RUNTIME] event=STOP steps={steps} "
             f"sim_time={platform.data.time:.2f}"
         )
+        if chat is not None and terminal_thread is not None and terminal_thread.is_alive():
+            chat.cancel()
+            log("[CHAT] event=SIM_STOPPED hint=/quit")
+            terminal_thread.join()
         return 0
     finally:
         if chat is not None:

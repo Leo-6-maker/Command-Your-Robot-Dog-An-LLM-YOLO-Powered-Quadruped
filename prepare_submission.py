@@ -38,6 +38,7 @@ source_files = [
     *root.joinpath("task3").rglob("*"),
     *root.joinpath("report_assets").rglob("*"),
     *root.joinpath("task4_evidence/2026-09-30-benchmark-v8").rglob("*"),
+    *root.joinpath("task4_evidence/2026-09-30-llm-current").rglob("*"),
 ]
 with zipfile.ZipFile(destination, "x", compression=zipfile.ZIP_DEFLATED) as archive:
     archive.write(args.report, "Group_Report.pdf")

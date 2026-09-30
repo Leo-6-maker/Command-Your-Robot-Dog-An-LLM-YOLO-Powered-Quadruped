@@ -429,6 +429,12 @@ key is read from `DEEPSEEK_API_KEY` in the environment and is not in the repo.
 Task 3's separate report covers its OpenAI-versus-local-Qwen comparison.
 The two original terminal logs and the final MP4 hash are in
 [`task4_evidence/2026-09-30-video/`](task4_evidence/2026-09-30-video/).
+Separate current-revision headless logs in
+[`task4_evidence/2026-09-30-llm-current/`](task4_evidence/2026-09-30-llm-current/)
+show real DeepSeek English commands succeeding for aligned red and green chairs
+at 0.79 m each. The same folder also retains a random-start red-chair run that
+correctly failed C2 at 0.8011 m. These logs verify the current LLM integration
+but are not substitutes for the terminal-visible video.
 
 On Windows, extract `task2/EE5112_Task2_GitHub_Upload.zip` beside this repo so
 that `../task2_runtime/task2/task2/platform.py` exists. Install the packaged

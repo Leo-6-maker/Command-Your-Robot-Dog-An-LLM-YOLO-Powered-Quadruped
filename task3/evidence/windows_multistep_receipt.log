@@ -1,0 +1,23 @@
+[MAP] switched to object_lab
+[RUNTIME] event=START mode=headless duration_s=180.0 start=(0.00,0.00,0.0)
+[CHAT] event=READY input=english hint=/help
+robot> [CMD] text=Move forward at speed 0.4 for one second, then turn left 45 degrees.
+robot> [LLM] provider=deepseek model=deepseek-chat latency_s=0.656 input_tokens=864 output_tokens=70 accepted=true actions=2
+[PLAN] accepted=true actions=2 message=Moving forward then turning left.
+[EXEC] step=1/2 type=move vx=0.40 vy=0.00 wz=0.00 duration_s=1.00
+[SKILL] move values=(0.4, 0.0, 0.0, 1.0) t=23.32
+[MOVE] completed duration=1.00
+[EXEC] step=1/2 type=move status=SUCCESS
+[EXEC] step=2/2 type=turn angle_deg=45.00
+[SKILL] turn values=(45.0,) t=24.36
+[TURN] target=45.0 deg final_error=1.92 deg status=SUCCESS
+[EXEC] step=2/2 type=turn status=SUCCESS final_error_deg=1.92
+[DONE] status=SUCCESS actions=2
+[CMD] text=Write a poem about robot dogs.
+robot> [LLM] provider=deepseek model=deepseek-chat latency_s=0.656 input_tokens=913 output_tokens=26 accepted=false actions=0
+[PLAN] accepted=false actions=0 message=Unsupported request: only robot-dog movement commands are allowed.
+[DONE] status=REJECTED actions=0 reason=Unsupported request: only robot-dog movement commands are allowed.
+[CHAT] event=STOP_REQUESTED
+[CHAT] event=CLOSED
+[RUNTIME] event=STOP steps=13741 sim_time=68.71
+[CHAT] event=STOP_REQUESTED
