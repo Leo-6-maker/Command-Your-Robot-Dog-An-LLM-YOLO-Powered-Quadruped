@@ -22,10 +22,14 @@ for file in (args.report, args.video_task2, args.video_task3, args.video_task4):
         parser.error(f"missing file: {file}")
 with fitz.open(args.report) as report:
     report_text = "\n".join(page.get_text() for page in report)
-    if any(marker in report_text for marker in (
+    placeholders = (
         "[TEAM TO FILL]", "[Student A]", "[Student B]", "[Student C]",
         "[insert actual", "[Review and fill", "[Each member must",
-    )):
+    )
+    draft_text = (root / "GROUP_REPORT_DRAFT.md").read_text(encoding="utf-8")
+    task2_text = (root / "task2/Task2_Report.md").read_text(encoding="utf-8")
+    if any(marker in report_text or marker in draft_text or marker in task2_text
+           for marker in placeholders):
         parser.error("report still contains team identity or contribution placeholders")
 
 destination = root.parent / f"minilab_1.3_group_{args.group_index}.zip"
