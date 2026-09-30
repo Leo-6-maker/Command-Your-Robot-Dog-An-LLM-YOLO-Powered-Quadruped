@@ -132,6 +132,11 @@ OpenAI 兼容 Chat Completions 的 JSON 模式，沿用本目录同一份 prompt
 
 绿椅演示：`.\run_task4_demo.ps1 -Color green`。在提示符输入英文
 `Go to the red chair.` / `Go to the green chair.`。从仓库根目录运行。
+脚本会打开 `http://127.0.0.1:8766/`：上方固定选择后上方跟拍，
+下方显示 Task 4 真正读取的 `dog_front_camera`。把浏览器放在屏幕左侧、
+终端放在右侧，开始你自己的屏幕录制后再输入指令。录制结束前在终端
+确认出现 `[FOUND]` 和 `[MISSION] status=SUCCESS`，然后输入 `/quit`。
+每次运行可传入新 `-RunId`，例如 `-RunId red_manual_01`，避免日志重名。
 阿里云百炼可用 `--provider dashscope --model qwen-plus`，但该机器现有
 百炼账户返回 `Arrearage`，不能用于本机最终视频。队友此前在 Linux
 运行的本地 Ollama 记录仍见下文。

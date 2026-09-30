@@ -13,5 +13,5 @@ Write-Host "Task 4: type Go to the $Color chair. after [CHAT] READY"
 & .\.venv\Scripts\python.exe -u -m task3.run `
     --task2-root ..\task2_runtime\task2 `
     --provider deepseek --model deepseek-chat `
-    --gui --port 8765 --duration 300 --mission-timeout 180 --start $pose `
+    --gui --dual-view --port 8765 --duration 300 --mission-timeout 180 --start $pose `
     --log-file "runs\task4_demo_$RunId.log"

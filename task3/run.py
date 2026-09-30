@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import threading
 import time
+import webbrowser
 from typing import Callable, Protocol
 
 from task4 import CAMERA_FOVY_DEG
@@ -65,6 +66,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="maximum simulation seconds (default: 120)",
     )
     parser.add_argument("--port", type=int, default=8765, help="Task 2 browser port")
+    parser.add_argument("--dual-view", action="store_true",
+                        help="show rear overhead and onboard camera together in the browser")
     parser.add_argument("--log-file", type=Path,
                         help="write the same runtime log lines to a new UTF-8 file")
     parser.add_argument("--mission-timeout", type=float, default=120,
@@ -146,6 +149,8 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--mission-timeout must be finite and positive")
     if not all(math.isfinite(value) for value in args.start):
         raise SystemExit("--start values must be finite")
+    if args.dual_view and not args.gui:
+        raise SystemExit("--dual-view requires --gui")
     if (
         not args.no_chat
         and args.provider == "openai"
@@ -180,6 +185,7 @@ def main(argv: list[str] | None = None) -> int:
     platform = Platform(gui=args.gui, camera=True, logger=log, port=args.port)
     task4: Task4Integration | None = None
     chat: TerminalChatLoop | None = None
+    dual_view = None
     try:
         with platform.runtime.model_lock:
             platform.model.camera("dog_front_camera").fovy[0] = CAMERA_FOVY_DEG
@@ -221,6 +227,13 @@ def main(argv: list[str] | None = None) -> int:
         with platform.scene.viewer(browser_only) as viewer:
             if not browser_only:
                 _configure_native_camera(viewer, platform)
+            if args.dual_view:
+                from .dual_view import DualViewServer
+
+                dual_view = DualViewServer(platform.camera, args.port, args.port + 1)
+                dual_view.start()
+                webbrowser.open(dual_view.url, new=2)
+                log(f"[UI] dual_view={dual_view.url}")
             log(
                 f"[RUNTIME] event=START mode={_mode_name(args)} "
                 f"duration_s={args.duration:.1f}"
@@ -248,6 +261,8 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         if chat is not None:
             chat.cancel()
+        if dual_view is not None:
+            dual_view.close()
         if task4 is not None:
             task4.close()
         platform.close()
