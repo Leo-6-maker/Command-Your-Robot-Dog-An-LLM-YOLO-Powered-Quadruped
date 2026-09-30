@@ -175,10 +175,10 @@ def goto_object(
     *,
     timeout_s: float = 60.0,
     scan_step_deg: float = 30.0,
-    misses_before_search: int = 3,
+    misses_before_search: int = 5,
     stop_box_height: float = STOP_BOX_HEIGHT,
     final_approach_steps: int = FINAL_APPROACH_STEPS,
-    center_tolerance: float = 0.06,
+    center_tolerance: float = 0.09,
     camera_fovy_deg: float = CAMERA_FOVY_DEG,
 ) -> bool:
     """Search, align and approach using injected Task 2 inputs.
@@ -254,7 +254,9 @@ def goto_object(
                 or (height_share >= 0.85 and width_share >= 0.55)
             )
             if not ready_to_stop and abs(offset_x) > tolerance * target.frame_width:
-                angle = -math.degrees(math.atan2(offset_x, focal_px))
+                # ponytail: partial turns keep a distant chair visible to YOLO;
+                # full correction can return to the view where detection dropped.
+                angle = -0.6 * math.degrees(math.atan2(offset_x, focal_px))
                 if height_share >= 0.75:
                     angle = max(-12.0, min(12.0, angle))
                 turn(angle)

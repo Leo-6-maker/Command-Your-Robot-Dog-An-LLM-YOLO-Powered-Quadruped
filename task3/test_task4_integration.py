@@ -213,8 +213,8 @@ def test_real_task4_mission_runs_through_bridge_to_success():
 
     assert not worker.is_alive()
     assert results == [True]
-    assert motion.calls == [("move", 0.2, 0.0, 0.0, 0.25), ("stop",), ("stop",)]
-    # One calibrated short step, then a fresh stopped-frame check.
+    assert motion.calls == [("stop",), ("stop",)]
+    # A strong close view stops immediately, then checks a fresh frame.
 
 
 def test_frame_captured_during_motion_is_not_reused_after_stop():
@@ -293,6 +293,23 @@ def test_turn_requires_new_box_before_deciding_to_stop():
     assert abs(angles[0]) <= 12  # A large nearby box must not trigger a 40° swing.
 
 
+def test_distant_chair_uses_partial_turn_before_new_detection():
+    from task4 import CameraObservation, Detection, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    far = Detection("chair", "red", 0.7, (400, 120, 482, 260), 640, 480)
+    near = Detection("chair", "red", 0.8, (100, 0, 540, 480), 640, 480)
+    detections = iter([[far], [near], [near]])
+    angles = []
+    assert goto_object(
+        "chair", "red", SimpleNamespace(detect=lambda _: next(detections)),
+        lambda after: CameraObservation(frame, (2.3, -1), (after or 0) + 1),
+        lambda *_: pytest.fail("unexpected move"), angles.append,
+        lambda: None, lambda *_: 0.7, final_approach_steps=0,
+    )
+    assert len(angles) == 1 and -25 < angles[0] < -10
+
+
 def test_stopped_detection_can_recover_on_a_fresh_frame():
     from task4 import CameraObservation, goto_object
 
@@ -322,7 +339,7 @@ def test_narrow_near_box_approaches_and_reobserves():
 
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
     boxes = iter([(200, 1, 400, 479), (170, 1, 470, 479),
-                  (170, 1, 470, 479)])
+                  (150, 1, 490, 479), (150, 1, 490, 479)])
     moves = []
     assert goto_object(
         "chair", "green",
@@ -332,7 +349,7 @@ def test_narrow_near_box_approaches_and_reobserves():
         lambda *_: moves.append(1), lambda *_: pytest.fail("unexpected turn"),
         lambda: None, lambda *_: 0.7,
     )
-    assert len(moves) == 4  # One observed extra step, then three terminal steps.
+    assert len(moves) == 2  # Reobserve and stop once the chair is visually close.
 
 
 def test_close_chair_does_not_oscillate_over_small_center_offsets():
@@ -374,7 +391,7 @@ def test_wide_chair_stops_when_pitch_shrinks_box_height():
         lambda *_: pytest.fail("wide chair must not trigger turn"),
         lambda: None, lambda *_: 0.7,
     )
-    assert len(moves) == 1
+    assert len(moves) == 0
 
 
 def _capture_exception(target, function, *args):
