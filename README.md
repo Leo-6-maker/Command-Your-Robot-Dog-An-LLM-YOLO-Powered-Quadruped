@@ -11,7 +11,7 @@ to use the Task 2 platform and scene.
 
 [`TASK1_REPORT_SECTION.md`](TASK1_REPORT_SECTION.md) and
 [`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md) provide an editable combined report draft.
-Install `Markdown==3.4.1`, then run `python render_group_report.py` with Edge
+Install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py` with Edge
 or Chrome installed to export its PDF. The team must fill the
 group index, names, matriculation numbers, actual contributions and AI usage
 before submission. The current Task 2 video needs a desktop terminal recording;
