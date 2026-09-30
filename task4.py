@@ -272,11 +272,16 @@ def goto_object(
                     move(0.20, 0.0, 0.0, 0.25)
                     near_steps += 1
                     continue
-                terminal_steps = min(final_approach_steps,
-                                     1 if width_share > 0.48 else
-                                     3 if width_share > 0.44 else final_approach_steps)
+                terminal_steps = (
+                    0 if height_share >= 0.85 and width_share >= 0.55
+                    else min(final_approach_steps,
+                             1 if width_share > 0.48 else
+                             3 if width_share > 0.44 else final_approach_steps)
+                )
                 if terminal_steps:
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
+                else:
+                    print("[APPROACH] stop reason=visual_proximity")
                 for _ in range(terminal_steps):
                     move(0.20, 0.0, 0.0, 0.25)
                     close_observation = get_observation(last_sim_time)
