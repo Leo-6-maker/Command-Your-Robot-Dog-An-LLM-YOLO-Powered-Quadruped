@@ -1,0 +1,97 @@
+{
+  "target_class": "chair",
+  "target_color": "red",
+  "start_pose": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": true,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      -0.011665981110825549,
+      -0.0029400702544755946
+    ],
+    "detections": [
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.6292316913604736,
+        "bbox": [
+          303,
+          204,
+          334,
+          235
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.39272254705429077,
+        "bbox": [
+          369,
+          145,
+          420,
+          230
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": true,
+  "elapsed_wall_s": 63.062999999994645,
+  "elapsed_sim_s": 76.20500000000138,
+  "last_controller_snapshot": {
+    "sim_time": 78.00500000000154,
+    "base_xy": [
+      2.307123598051651,
+      -0.6111423976213718
+    ]
+  },
+  "final": {
+    "sim_time": 78.30500000000127,
+    "base_xy": [
+      2.3067120137723274,
+      -0.6106162900449212
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.3289150595664978,
+        "bbox": [
+          146,
+          1,
+          526,
+          452
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.280906081199646,
+        "bbox": [
+          147,
+          185,
+          525,
+          450
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.795152756032451,
+  "object_contacts": []
+}

@@ -1,0 +1,110 @@
+{
+  "target_class": "chair",
+  "target_color": "red",
+  "start_pose": [
+    1.0,
+    -1.0,
+    0.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": true,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.9883340188891738,
+      -1.0029400702544753
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.7495006322860718,
+        "bbox": [
+          276,
+          121,
+          357,
+          256
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.5461956262588501,
+        "bbox": [
+          17,
+          120,
+          133,
+          258
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.379108726978302,
+        "bbox": [
+          123,
+          216,
+          190,
+          270
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "orange",
+        "color": "red",
+        "confidence": 0.3666064441204071,
+        "bbox": [
+          123,
+          216,
+          190,
+          270
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": true,
+  "elapsed_wall_s": 9.39100000000326,
+  "elapsed_sim_s": 15.705000000000783,
+  "last_controller_snapshot": {
+    "sim_time": 17.505000000000802,
+    "base_xy": [
+      2.254981598011166,
+      -1.040315585006214
+    ]
+  },
+  "final": {
+    "sim_time": 17.805000000000742,
+    "base_xy": [
+      2.255641259944016,
+      -1.0392762079387738
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.38656625151634216,
+        "bbox": [
+          27,
+          1,
+          398,
+          480
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.745394227511712,
+  "object_contacts": []
+}

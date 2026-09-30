@@ -6,5 +6,7 @@ __pycache__/
 .pytest_cache/
 *.pt
 runs/
+GROUP_REPORT_DRAFT.html
+GROUP_REPORT_DRAFT.pdf
 MUJOCO_LOG.TXT
 task3/evidence/*_live.log

@@ -1,0 +1,70 @@
+{
+  "target_class": "chair",
+  "target_color": "red",
+  "start_pose": [
+    1.0,
+    0.0,
+    -30.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": false,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.9883198706186911,
+      0.002679491660205202
+    ],
+    "detections": [
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.6042750477790833,
+        "bbox": [
+          136,
+          222,
+          212,
+          284
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "airplane",
+        "color": "unknown",
+        "confidence": 0.2564936578273773,
+        "bbox": [
+          0,
+          82,
+          328,
+          283
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": false,
+  "elapsed_wall_s": 57.73499999998603,
+  "elapsed_sim_s": 92.5649999999865,
+  "last_controller_snapshot": {
+    "sim_time": 94.30499999998672,
+    "base_xy": [
+      2.2507211608118616,
+      -0.7162983963313623
+    ]
+  },
+  "final": {
+    "sim_time": 94.60499999998645,
+    "base_xy": [
+      2.252234497657652,
+      -0.7162271081420325
+    ],
+    "detections": []
+  },
+  "final_target_visible": false,
+  "final_distance_m": 0.7998001629449307,
+  "object_contacts": []
+}

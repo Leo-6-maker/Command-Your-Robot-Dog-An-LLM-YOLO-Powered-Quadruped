@@ -7,6 +7,22 @@ The inspected upstream snapshot is commit `dd40180f1121a66373d261e64a9a09eb69b1b
 The example creates the onboard `dog_front_camera`; the course brief requires Task 3 and Task 4
 to use the Task 2 platform and scene.
 
+## Group submission status
+
+[`TASK1_REPORT_SECTION.md`](TASK1_REPORT_SECTION.md) and
+[`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md) provide an editable combined report draft.
+Install `Markdown==3.4.1`, then run `python render_group_report.py` with Edge
+or Chrome installed to export its PDF. The team must fill the
+group index, names, matriculation numbers, actual contributions and AI usage
+before submission. The current Task 2 video needs a desktop terminal recording;
+the current Task 3 video needs a two-action English command including a turn.
+Use `run_task2_demo.ps1` and `run_task3_demo.ps1` to make those recordings.
+After the team reviews the final PDF and replaces both videos, run
+`python prepare_submission.py <group-index> --report <final.pdf> --video-task2 <task2.mp4> --video-task3 <task3.mp4> --video-task4 task4_evidence/Video_Task4.mp4`.
+The packaging command rejects reports with identity/contribution placeholders
+and refuses to overwrite an existing group zip; the team must still watch all
+three videos to confirm their required terminal lines.
+
 ## Task 3 — completed LLM command interface
 
 Task 3 is implemented in [`task3/`](task3/README.md). It provides:
@@ -25,16 +41,16 @@ both providers.
 
 ## Task 4 — evaluated and recorded
 
-Task 4's fixed final-controller evaluation is
-[`task4_evidence/2026-09-30-benchmark-v7/`](task4_evidence/2026-09-30-benchmark-v7/):
-8/10 complete C1–C3 missions, 9/10 stopped-frame class/color matches and
+Task 4's current fixed evaluation is
+[`task4_evidence/2026-09-30-benchmark-v8/`](task4_evidence/2026-09-30-benchmark-v8/):
+7/10 complete C1–C3 missions, 9/10 stopped-frame class/color matches and
 0/10 object-contact trials. The two successful real English-command GUI
 missions are joined in [`Video_Task4.mp4`](task4_evidence/Video_Task4.mp4).
 The report-ready method, ten-trial table and failure analysis are in
 [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md).
-Those results belong to controller revision `49af5ed`. The later close-range
-re-observation change and optional randomized starts need a fresh evaluation
-before their success rate can be reported.
+The fixed results belong to controller revision `3692d0b`; the video was
+recorded on an earlier controller revision. The older v7 batch at `49af5ed`
+remains available as historical 8/10 evidence and is not mixed with v8.
 
 ## Task 4 core and integration
 
