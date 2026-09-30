@@ -275,7 +275,7 @@ def goto_object(
                     near_steps += 1
                     continue
                 terminal_steps = (
-                    0 if height_share >= 0.85 and width_share >= 0.65
+                    0 if height_share >= 0.85 and width_share >= 0.55
                     else min(final_approach_steps,
                              1 if width_share > 0.48 else
                              3 if width_share > 0.44 else final_approach_steps)
@@ -301,7 +301,7 @@ def goto_object(
                         close_target.bbox[1] <= 2
                         and close_target.bbox[3] >= 0.98 * close_target.frame_height
                     )
-                    if close_width >= 0.53 or (cropped_vertically and close_width >= 0.50):
+                    if close_width >= 0.48 or cropped_vertically:
                         print("[APPROACH] stop reason=visual_proximity")
                         break
 

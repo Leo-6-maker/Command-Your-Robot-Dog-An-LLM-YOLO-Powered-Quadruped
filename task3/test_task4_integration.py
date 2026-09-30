@@ -378,7 +378,7 @@ def test_large_edge_box_stops_without_turning_away():
     )
 
 
-def test_wide_chair_takes_one_final_visual_step_when_pitch_shrinks_box_height():
+def test_wide_chair_stops_when_pitch_shrinks_box_height():
     from task4 import CameraObservation, goto_object
 
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -391,7 +391,7 @@ def test_wide_chair_takes_one_final_visual_step_when_pitch_shrinks_box_height():
         lambda *_: pytest.fail("wide chair must not trigger turn"),
         lambda: None, lambda *_: 0.7,
     )
-    assert len(moves) == 1
+    assert len(moves) == 0
 
 
 def _capture_exception(target, function, *args):
