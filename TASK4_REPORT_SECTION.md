@@ -38,6 +38,9 @@ records are checked after each trial.
 
 ## Fixed evaluation
 
+The results below belong to controller revision `49af5ed`; subsequent
+close-range re-observation and randomized-start changes are not included.
+
 All ten trials used controller commit `49af5ed`, one scene, one detector and
 one parameter set. We varied requested color and robot start position/yaw;
 180° starts deliberately face away from the target. These are structured

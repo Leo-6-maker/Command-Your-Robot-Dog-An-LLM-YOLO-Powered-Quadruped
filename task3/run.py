@@ -236,7 +236,8 @@ def main(argv: list[str] | None = None) -> int:
                 log(f"[UI] dual_view={dual_view.url}")
             log(
                 f"[RUNTIME] event=START mode={_mode_name(args)} "
-                f"duration_s={args.duration:.1f}"
+                f"duration_s={args.duration:.1f} "
+                f"start=({args.start[0]:.2f},{args.start[1]:.2f},{args.start[2]:.1f})"
             )
             if chat is not None:
                 threading.Thread(

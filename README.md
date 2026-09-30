@@ -32,6 +32,9 @@ Task 4's fixed final-controller evaluation is
 missions are joined in [`Video_Task4.mp4`](task4_evidence/Video_Task4.mp4).
 The report-ready method, ten-trial table and failure analysis are in
 [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md).
+Those results belong to controller revision `49af5ed`. The later close-range
+re-observation change and optional randomized starts need a fresh evaluation
+before their success rate can be reported.
 
 ## Task 4 core and integration
 

@@ -260,8 +260,8 @@ def goto_object(
                 turn(angle)
                 # Turning changes the box size: judge stopping from a new frame.
                 continue
-            # ponytail: the terminal steps retain the teammate's scene calibration;
-            # success still requires a fresh class/color detection after stopping.
+            # ponytail: approach in short steps; reobserve after each one so a
+            # cropped chair cannot trigger several blind steps into the object.
             if ready_to_stop or height_share >= stop_box_height:
                 # Height saturates when the chair meets the image borders. Width
                 # still separates the too-far and nearly-cropped cases in this scene.
@@ -279,6 +279,24 @@ def goto_object(
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
                 for _ in range(terminal_steps):
                     move(0.20, 0.0, 0.0, 0.25)
+                    close_observation = get_observation(last_sim_time)
+                    last_sim_time = close_observation.sim_time
+                    close_targets = [
+                        d for d in detector.detect(close_observation.rgb_frame)
+                        if d.matches(target_class, target_color)
+                    ]
+                    if not close_targets:
+                        print("[APPROACH] stop reason=target_lost")
+                        break
+                    close_target = max(close_targets, key=lambda d: d.confidence)
+                    close_width = (close_target.bbox[2] - close_target.bbox[0]) / close_target.frame_width
+                    cropped_vertically = (
+                        close_target.bbox[1] <= 2
+                        and close_target.bbox[3] >= 0.98 * close_target.frame_height
+                    )
+                    if close_width >= 0.48 or cropped_vertically:
+                        print("[APPROACH] stop reason=visual_proximity")
+                        break
 
                 stop()
                 # The first stopped frame can still catch body pitch settling.

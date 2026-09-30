@@ -9,6 +9,7 @@ Set-Location -LiteralPath $workspace
 $trialLog = Join-Path $workspace "runs\task4_demo_$RunId.log"
 $video = Join-Path $workspace "task4_evidence\video_clip_$RunId.mp4"
 $stopFile = Join-Path $workspace "runs\stop_record_$RunId.flag"
+$start = if ($Color -eq 'red') { @('1', '-1', '180') } else { @('1', '1', '0') }
 if ((Test-Path $trialLog) -or (Test-Path $video) -or (Test-Path $stopFile)) {
     throw "RunId already exists: $RunId"
 }
@@ -16,8 +17,8 @@ if ((Test-Path $trialLog) -or (Test-Path $video) -or (Test-Path $stopFile)) {
 $terminal = Start-Process powershell.exe -WindowStyle Normal -PassThru `
     -WorkingDirectory $workspace -ArgumentList @(
         '-NoExit', '-ExecutionPolicy', 'Bypass', '-File',
-        (Join-Path $workspace 'run_task4_demo.ps1'), '-Color', $Color,
-        '-RunId', $RunId)
+        (Join-Path $workspace 'run_task4_demo.ps1'), '-RunId', $RunId,
+        '-StartX', $start[0], '-StartY', $start[1], '-StartYaw', $start[2])
 $readyUntil = (Get-Date).AddSeconds(45)
 while ((Get-Date) -lt $readyUntil) {
     if ((Test-Path $trialLog) -and
