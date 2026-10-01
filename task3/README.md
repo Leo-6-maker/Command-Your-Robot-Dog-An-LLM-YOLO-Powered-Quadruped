@@ -1,5 +1,8 @@
 # Task 3 — LLM command planning
 
+完整的 Windows 安装与 Task 2–4 演示命令见[仓库根目录 README](../README.md)。
+Task 2 源码和场景已纳入本仓库的 `task2/`，无需另行解压 ZIP。
+
 本目录目前完成动作 JSON 协议、本地验证器、Task 2 非阻塞动作队列的阻塞适配器、串行动作执行器、OpenAI Structured Outputs 与本地 Ollama/Qwen 规划器，以及异步终端 chat loop。
 
 ## 动作协议
@@ -119,6 +122,31 @@ threading.Thread(target=chat.run, daemon=True).start()
 只有执行成功的计划会成为下一句的上下文，因此 `Do that again slower` 可以引用上一次成功动作。OpenAI 和 Ollama 请求都记录供应商、模型、延迟和 token 数，后续可直接用于两种 LLM 的实验对比。
 
 ## 本地 Qwen（Ollama）
+
+本机 Windows 没有队友 Linux 上的 Ollama 服务时，也可用已有的
+`DEEPSEEK_API_KEY` 调用真实文本 LLM。新增 `--provider deepseek` 走
+OpenAI 兼容 Chat Completions 的 JSON 模式，沿用本目录同一份 prompt、
+`parse_and_validate`、`PlanExecutor` 和 Task 4 回调；密钥仅从环境变量读取。
+统一演示入口（默认从场地中央出发）：
+
+```powershell
+.\run_task4_demo.ps1
+```
+
+出现 `[CHAT] event=READY` 后，在同一个终端输入英文
+`Go to the red chair.` 或 `Go to the green chair.`；目标由指令决定。
+随机起点可用 `.\run_task4_demo.ps1 -RandomStart -Seed 42`（相同种子复现同一候选起点），
+手工起点可用 `.\run_task4_demo.ps1 -StartX 0 -StartY 0 -StartYaw 180`。
+随机起点用于探索，尚未纳入固定十次评估；物品位置仍是 Task 2 的固定共享场景。
+从仓库根目录运行。
+脚本会打开 `http://127.0.0.1:8766/`：上方固定选择后上方跟拍，
+下方显示 Task 4 真正读取的 `dog_front_camera`。把浏览器放在屏幕左侧、
+终端放在右侧，开始你自己的屏幕录制后再输入指令。录制结束前在终端
+确认出现 `[FOUND]` 和 `[MISSION] status=SUCCESS`，然后输入 `/quit`。
+不传 `-RunId` 时脚本自动生成时间戳；指定时须使用未用过的名字，避免日志重名。
+阿里云百炼可用 `--provider dashscope --model qwen-plus`，但该机器现有
+百炼账户返回 `Arrearage`，不能用于本机最终视频。队友此前在 Linux
+运行的本地 Ollama 记录仍见下文。
 
 第二个 LLM 使用 `qwen2.5:7b`，通过本机 Ollama 的 `http://127.0.0.1:11434/api/chat` 接口运行。Ollama 负责加载模型和使用 GPU 推理；Task 3 仍负责 prompt、JSON Schema、本地 validator、上下文和动作执行。两种 LLM 共用同一套安全边界。
 

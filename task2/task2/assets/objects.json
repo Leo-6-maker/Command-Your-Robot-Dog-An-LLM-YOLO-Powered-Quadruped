@@ -1,0 +1,35 @@
+{
+  "usage": "Logging/evaluation only; never use positions for steering",
+  "objects": [
+    {
+      "id": "green_chair",
+      "coco_class": "chair",
+      "color": "green",
+      "position": [
+        3,
+        1,
+        0.5
+      ]
+    },
+    {
+      "id": "red_chair",
+      "coco_class": "chair",
+      "color": "red",
+      "position": [
+        3,
+        -1,
+        0.5
+      ]
+    },
+    {
+      "id": "orange_ball",
+      "coco_class": "sports ball",
+      "color": "orange",
+      "position": [
+        2.5,
+        0,
+        0.16
+      ]
+    }
+  ]
+}

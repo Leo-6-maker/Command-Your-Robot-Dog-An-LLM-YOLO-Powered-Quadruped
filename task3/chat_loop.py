@@ -7,7 +7,7 @@ from typing import Protocol
 from .command_policy import local_rejection_reason, plan_consistency_reason
 from .executor import ExecutionResult, PlanExecutor
 from .log_format import inline_value, optional_count
-from .planner import OllamaPlanner, OpenAIPlanner, PlanningResult
+from .planner import CompatibleChatPlanner, OllamaPlanner, OpenAIPlanner, PlanningResult
 from .validator import CommandPlan, validate_plan
 
 
@@ -218,3 +218,21 @@ def build_ollama_chat_loop(
     return TerminalChatLoop(
         OllamaPlanner(model=model, host=host), executor, logger=logger
     )
+
+
+def build_qwen_cloud_chat_loop(
+    executor: PlanExecutor, *, model: str | None = None,
+    logger: Callable[[str], None] = print,
+) -> TerminalChatLoop:
+    return TerminalChatLoop(CompatibleChatPlanner(model=model or "qwen-plus"),
+                            executor, logger=logger)
+
+
+def build_deepseek_chat_loop(
+    executor: PlanExecutor, *, model: str | None = None,
+    logger: Callable[[str], None] = print,
+) -> TerminalChatLoop:
+    return TerminalChatLoop(CompatibleChatPlanner(
+        model=model or "deepseek-chat", host="https://api.deepseek.com",
+        provider="deepseek", credential_env="DEEPSEEK_API_KEY",
+    ), executor, logger=logger)

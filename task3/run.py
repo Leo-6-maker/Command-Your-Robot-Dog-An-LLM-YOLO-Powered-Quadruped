@@ -8,12 +8,16 @@ from pathlib import Path
 import sys
 import threading
 import time
+import webbrowser
 from typing import Callable, Protocol
 
+from task4 import CAMERA_FOVY_DEG
 from .chat_loop import (
     TerminalChatLoop,
     build_ollama_chat_loop,
     build_openai_chat_loop,
+    build_qwen_cloud_chat_loop,
+    build_deepseek_chat_loop,
 )
 from .executor import PlanExecutor
 from .task2_adapter import Task2MotionAdapter
@@ -24,6 +28,28 @@ class ViewerLike(Protocol):
     def is_running(self) -> bool: ...
 
     def sync(self) -> None: ...
+
+
+class _TeeOutput:
+    """Mirror live terminal output without redirecting interactive stdin."""
+
+    def __init__(self, terminal, log_file):
+        self.terminal, self.log_file = terminal, log_file
+
+    def write(self, text):
+        self.terminal.write(text)
+        self.log_file.write(text)
+        return len(text)
+
+    def flush(self):
+        self.terminal.flush()
+        self.log_file.flush()
+
+    def isatty(self):
+        return self.terminal.isatty()
+
+    def fileno(self):
+        return self.terminal.fileno()
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,6 +66,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="maximum simulation seconds (default: 120)",
     )
     parser.add_argument("--port", type=int, default=8765, help="Task 2 browser port")
+    parser.add_argument("--dual-view", action="store_true",
+                        help="show rear overhead and onboard camera together in the browser")
+    parser.add_argument("--log-file", type=Path,
+                        help="write the same runtime log lines to a new UTF-8 file")
+    parser.add_argument("--mission-timeout", type=float, default=120,
+                        help="Task 4 mission wall-clock timeout in seconds")
+    parser.add_argument("--start", type=float, nargs=3, default=(0, 0, 0),
+                        metavar=("X", "Y", "YAW_DEG"),
+                        help="robot start pose for the shared Task 2 scene")
     parser.add_argument(
         "--task2-root",
         type=Path,
@@ -53,7 +88,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--provider",
-        choices=("openai", "ollama"),
+        choices=("openai", "ollama", "dashscope", "deepseek"),
         default=os.getenv("TASK3_PROVIDER", "openai"),
         help="LLM provider (default: TASK3_PROVIDER or openai)",
     )
@@ -110,6 +145,12 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if not math.isfinite(args.duration) or args.duration <= 0:
         raise SystemExit("--duration must be finite and positive")
+    if not math.isfinite(args.mission_timeout) or args.mission_timeout <= 0:
+        raise SystemExit("--mission-timeout must be finite and positive")
+    if not all(math.isfinite(value) for value in args.start):
+        raise SystemExit("--start values must be finite")
+    if args.dual_view and not args.gui:
+        raise SystemExit("--dual-view requires --gui")
     if (
         not args.no_chat
         and args.provider == "openai"
@@ -130,6 +171,10 @@ def main(argv: list[str] | None = None) -> int:
     from task2.platform import Platform
 
     log_lock = threading.Lock()
+    log_file = args.log_file.open("x", encoding="utf-8", buffering=1) if args.log_file else None
+    terminal_stdout = sys.stdout
+    if log_file is not None:
+        sys.stdout = _TeeOutput(terminal_stdout, log_file)
 
     def log(message: str) -> None:
         # Chat and simulator events originate on different threads. Keep each
@@ -140,13 +185,26 @@ def main(argv: list[str] | None = None) -> int:
     platform = Platform(gui=args.gui, camera=True, logger=log, port=args.port)
     task4: Task4Integration | None = None
     chat: TerminalChatLoop | None = None
+    terminal_thread: threading.Thread | None = None
+    dual_view = None
     try:
+        with platform.runtime.model_lock:
+            platform.model.camera("dog_front_camera").fovy[0] = CAMERA_FOVY_DEG
+        if tuple(args.start) != (0, 0, 0):
+            x, y, yaw = args.start
+            half_angle = math.radians(yaw) / 2
+            platform.config["simulation"]["initial_position"] = [x, y, 0.42]
+            platform.config["simulation"]["initial_quaternion"] = [
+                math.cos(half_angle), 0, 0, math.sin(half_angle)
+            ]
+            platform.reset()
         motion = Task2MotionAdapter(platform)
         task4 = Task4Integration(
             platform,
             motion,
             load_object_positions(objects_path),
             weights=str(weights_path),
+            mission_timeout_s=args.mission_timeout,
         )
         executor = PlanExecutor(motion, goto_object=task4.goto_object, logger=log)
         if not args.no_chat:
@@ -157,6 +215,10 @@ def main(argv: list[str] | None = None) -> int:
                     host=args.ollama_host,
                     logger=log,
                 )
+            elif args.provider == "dashscope":
+                chat = build_qwen_cloud_chat_loop(executor, model=args.model, logger=log)
+            elif args.provider == "deepseek":
+                chat = build_deepseek_chat_loop(executor, model=args.model, logger=log)
             else:
                 chat = build_openai_chat_loop(executor, model=args.model, logger=log)
         else:
@@ -166,16 +228,25 @@ def main(argv: list[str] | None = None) -> int:
         with platform.scene.viewer(browser_only) as viewer:
             if not browser_only:
                 _configure_native_camera(viewer, platform)
+            if args.dual_view:
+                from .dual_view import DualViewServer
+
+                dual_view = DualViewServer(platform.camera, task4.detector, args.port, args.port + 1)
+                dual_view.start()
+                webbrowser.open(dual_view.url, new=2)
+                log(f"[UI] dual_view={dual_view.url}")
             log(
                 f"[RUNTIME] event=START mode={_mode_name(args)} "
-                f"duration_s={args.duration:.1f}"
+                f"duration_s={args.duration:.1f} "
+                f"start=({args.start[0]:.2f},{args.start[1]:.2f},{args.start[2]:.1f})"
             )
             if chat is not None:
-                threading.Thread(
+                terminal_thread = threading.Thread(
                     target=chat.run,
                     name="task3-terminal",
                     daemon=True,
-                ).start()
+                )
+                terminal_thread.start()
             steps = run_simulation_loop(
                 platform,
                 task4,
@@ -189,13 +260,22 @@ def main(argv: list[str] | None = None) -> int:
             f"[RUNTIME] event=STOP steps={steps} "
             f"sim_time={platform.data.time:.2f}"
         )
+        if chat is not None and terminal_thread is not None and terminal_thread.is_alive():
+            chat.cancel()
+            log("[CHAT] event=SIM_STOPPED hint=/quit")
+            terminal_thread.join()
         return 0
     finally:
         if chat is not None:
             chat.cancel()
+        if dual_view is not None:
+            dual_view.close()
         if task4 is not None:
             task4.close()
         platform.close()
+        if log_file is not None:
+            sys.stdout = terminal_stdout
+            log_file.close()
 
 
 def _import_task2(task2_root: Path | None):

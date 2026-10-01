@@ -73,8 +73,8 @@ Task 4 可以连续排入短时间 `move` 指令实现视觉控制，但不得�
 - `task2/assets/scene.xml`、`objects.json`：场景与真值物体中心。
 - `task2/run.py`：原生/浏览器/无窗口演示及视频输出。
 - `task2/verify_scene.py`、`evaluate.py`、`test_skills.py`：实测工具。
-- `evidence/`：检测图、数值表、日志和视频。
-- `Task2_Report.pdf` / `Task2_Report.md`：英文报告章节，合并到小组报告。
+- `evidence/`：仓库保留检测图与数值表；完整运行日志和视频仅保存在本地。
+- `Task2_Report.md`：英文报告章节，合并到小组报告；生成的 PDF 不提交 Git。
 
 视频由仿真离屏渲染生成，底部是同次执行产生的同步日志面板，并非桌面终端录屏。为严格满足题目“终端可见”，提交前请运行 `--gui`，把终端和浏览器并排，按 M、K 录制一遍桌面；看到 [TURN] SUCCESS 后结束录制。原生窗口已启动测试，浏览器地图/键盘/相机接口另有日志。不要将接口测试写成你本人已经手动演示。
 

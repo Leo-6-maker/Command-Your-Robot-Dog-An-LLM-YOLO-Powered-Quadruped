@@ -234,3 +234,23 @@ def test_ollama_planner_rejects_incomplete_and_wraps_connection_errors():
 
     with pytest.raises(PlannerAPIError, match="Ollama request failed"):
         OllamaPlanner(requester=offline).plan("Move forward")
+def test_compatible_chat_endpoint_keeps_local_plan_validation(monkeypatch):
+    from task3.planner import CompatibleChatPlanner
+
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-only")
+    requests = []
+    def request(url, payload, key, timeout):
+        requests.append((url, payload, key, timeout))
+        return {"id": "one", "choices": [{"finish_reason": "stop", "message": {
+            "content": '{"accepted":true,"message":"Going to the green chair.",'
+                       '"actions":[{"type":"goto_object","class":"chair","color":"green"}]}'
+        }}], "usage": {"prompt_tokens": 20, "completion_tokens": 15}}
+
+    planner = CompatibleChatPlanner(model="deepseek-chat", host="https://api.deepseek.com",
+                                    provider="deepseek", credential_env="DEEPSEEK_API_KEY",
+                                    requester=request)
+    result = planner.plan("Go to the green chair.")
+    assert result.provider == "deepseek" and result.plan.actions[0].color == "green"
+    assert requests[0][0] == "https://api.deepseek.com/chat/completions"
+    assert requests[0][1]["response_format"] == {"type": "json_object"}
+    assert requests[0][2] == "test-only"
