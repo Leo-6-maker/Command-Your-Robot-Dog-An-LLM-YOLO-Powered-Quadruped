@@ -63,7 +63,8 @@ def _box_color(
     x1, y1, x2, y2 = bbox
     hsv = np.asarray(Image.fromarray(rgb_frame[y1:y2, x1:x2]).convert("HSV"))
     hue, saturation, value = hsv.transpose(2, 0, 1)
-    visible = (saturation >= 70) & (value >= 45)
+    # Dark chair faces remain colored under MuJoCo lighting; 45 discards them.
+    visible = (saturation >= 70) & (value >= 25)
     hue = hue[visible]
     if hue.size == 0:
         return "unknown"
@@ -97,6 +98,7 @@ class YoloColorDetector:
         self.model = YOLO(weights)
         self.confidence = confidence
         self.min_color_share = min_color_share
+        self.latest_annotated_frame: np.ndarray | None = None
 
     def detect(self, rgb_frame: np.ndarray) -> list[Detection]:
         if (
@@ -118,6 +120,7 @@ class YoloColorDetector:
         )[0]
         detections = []
         if result.boxes is None:
+            self.latest_annotated_frame = rgb_frame.copy()
             return detections
 
         for box, class_id, confidence in zip(
@@ -146,6 +149,8 @@ class YoloColorDetector:
             print(detection.log_line())
             detections.append(detection)
 
+        # Publish the exact frame YOLO saw, with its boxes, for the demo view.
+        self.latest_annotated_frame = annotate_frame(rgb_frame, detections)
         return detections
 
 
@@ -158,8 +163,9 @@ def annotate_frame(rgb_frame: np.ndarray, detections: list[Detection]) -> np.nda
     for detection in detections:
         x1, y1, x2, y2 = detection.bbox
         label = f"{detection.class_name} {detection.color} {detection.confidence:.2f}"
-        draw.rectangle(detection.bbox, outline=(0, 255, 0), width=2)
-        draw.text((x1, max(0, y1 - 14)), label, fill=(0, 255, 0))
+        draw.rectangle(detection.bbox, outline=(255, 230, 0), width=3)
+        draw.text((x1, max(0, y1 - 14)), label, fill=(255, 230, 0),
+                  stroke_width=2, stroke_fill=(0, 0, 0))
     return np.asarray(image)
 
 
@@ -175,7 +181,7 @@ def goto_object(
     *,
     timeout_s: float = 60.0,
     scan_step_deg: float = 30.0,
-    misses_before_search: int = 5,
+    misses_before_search: int = 2,
     stop_box_height: float = STOP_BOX_HEIGHT,
     final_approach_steps: int = FINAL_APPROACH_STEPS,
     center_tolerance: float = 0.09,
@@ -210,6 +216,7 @@ def goto_object(
     scanned_deg = 0.0
     misses = 0
     near_steps = 0
+    tracked_target: Detection | None = None
 
     def fail(reason: str) -> bool:
         print(f"[MISSION] status=FAIL reason={reason}")
@@ -223,11 +230,25 @@ def goto_object(
                 start_sim_time = observation.sim_time
             detections = detector.detect(observation.rgb_frame)
             targets = [d for d in detections if d.matches(target_class, target_color)]
+            if targets and tracked_target is not None:
+                # Keep the same image-space target when YOLO emits another
+                # same-color chair box with a temporarily higher confidence.
+                nearby = [
+                    d for d in targets
+                    if abs(d.center_x - tracked_target.center_x) <= 0.35 * d.frame_width
+                ]
+                if nearby:
+                    targets = nearby
+                elif misses < 2:
+                    targets = []  # one surprising box does not steal the track
+                else:
+                    tracked_target = None
             if not targets:
                 misses += 1
-                if misses < misses_before_search:
+                if misses < (5 if tracked_target is not None else misses_before_search):
                     continue
                 misses = 0
+                tracked_target = None
                 if scanned_deg >= 360.0:
                     return fail("full_turn_without_detection")
                 angle = min(scan_step_deg, 360.0 - scanned_deg)
@@ -238,9 +259,14 @@ def goto_object(
 
             scanned_deg = 0.0
             misses = 0
-            # A larger low-confidence duplicate can include background and send
-            # the final turn away from the chair. Prefer the detector's confidence.
-            target = max(targets, key=lambda detection: detection.confidence)
+            if tracked_target is None:
+                target = max(targets, key=lambda d: d.confidence)
+            else:
+                target = max(
+                    targets,
+                    key=lambda d: d.confidence - abs(d.center_x - tracked_target.center_x) / d.frame_width,
+                )
+            tracked_target = target
             x1, y1, x2, y2 = target.bbox
             offset_x = target.center_x - target.frame_width / 2
             focal_px = target.frame_height / (
@@ -274,17 +300,17 @@ def goto_object(
                     move(0.20, 0.0, 0.0, 0.25)
                     near_steps += 1
                     continue
-                terminal_steps = (
-                    0 if height_share >= 0.85 and width_share >= 0.55
-                    else min(final_approach_steps,
-                             1 if width_share > 0.48 else
-                             3 if width_share > 0.44 else final_approach_steps)
+                # The camera sits ahead of the trunk, so a nearly full-frame
+                # chair can still be outside the 0.80 m trunk distance limit.
+                terminal_steps = min(
+                    final_approach_steps,
+                    0 if width_share >= 0.60 else 2 if width_share > 0.44 else 4,
                 )
                 if terminal_steps:
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
                 else:
                     print("[APPROACH] stop reason=visual_proximity")
-                for _ in range(terminal_steps):
+                for step in range(terminal_steps):
                     move(0.20, 0.0, 0.0, 0.25)
                     close_observation = get_observation(last_sim_time)
                     last_sim_time = close_observation.sim_time
@@ -301,7 +327,7 @@ def goto_object(
                         close_target.bbox[1] <= 2
                         and close_target.bbox[3] >= 0.98 * close_target.frame_height
                     )
-                    if close_width >= 0.48 or cropped_vertically:
+                    if close_width >= 0.65 or (step >= 1 and cropped_vertically):
                         print("[APPROACH] stop reason=visual_proximity")
                         break
 
@@ -317,6 +343,37 @@ def goto_object(
                     ]
                     if final_targets:
                         break
+                if not final_targets and height_share >= 0.90 and width_share >= 0.35:
+                    # Near-field YOLO may lose a chair cropped by the camera.
+                    # Back away a little before trying to change the viewing angle.
+                    print("[APPROACH] recovery=back")
+                    move(-0.10, 0.0, 0.0, 0.25)
+                    stop()
+                    for _ in range(3):
+                        final_observation = get_observation(last_sim_time)
+                        last_sim_time = final_observation.sim_time
+                        final_targets = [
+                            d for d in detector.detect(final_observation.rgb_frame)
+                            if d.matches(target_class, target_color)
+                        ]
+                        if final_targets:
+                            break
+                if not final_targets and height_share >= 0.90 and width_share >= 0.35:
+                    # A cropped chair can disappear from YOLO when the body settles.
+                    # Change the viewing angle without leaving the distance limit.
+                    angle = 8.0 if target.center_x <= target.frame_width / 2 else -8.0
+                    print(f"[APPROACH] recovery=turn angle={angle:.0f}deg")
+                    turn(angle)
+                    stop()
+                    for _ in range(3):
+                        final_observation = get_observation(last_sim_time)
+                        last_sim_time = final_observation.sim_time
+                        final_targets = [
+                            d for d in detector.detect(final_observation.rgb_frame)
+                            if d.matches(target_class, target_color)
+                        ]
+                        if final_targets:
+                            break
                 if not final_targets:
                     return fail("target_not_visible_at_stop")
                 distance = planar_distance_m(

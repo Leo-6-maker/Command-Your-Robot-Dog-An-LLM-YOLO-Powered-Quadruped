@@ -5,7 +5,15 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 *.pt
+!task2/task2/assets/yolo11n.pt
+*.zip
+*.mp4
+*.webm
+*.pdf
 runs/
+task4_evidence/
+TASK4_HANDOFF.md
+task3/SUBMISSION_CONTENTS.md
 GROUP_REPORT_DRAFT.html
 GROUP_REPORT_DRAFT.pdf
 MUJOCO_LOG.TXT

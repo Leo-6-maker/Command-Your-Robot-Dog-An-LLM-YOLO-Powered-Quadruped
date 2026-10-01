@@ -2,8 +2,8 @@
 
 ## Method and integration
 
-We used the Task 2 `object_lab` MJCF scene (`task2/assets/scene.xml` inside
-`task2/EE5112_Task2_GitHub_Upload.zip`) and its quadruped locomotion skills.
+We used the Task 2 `object_lab` MJCF scene
+(`task2/task2/assets/scene.xml` in this repository) and its quadruped locomotion skills.
 The controller reads only the robot's onboard `dog_front_camera` RGB frames
 (640 × 480, sampled at 10 Hz of simulation time). The shared camera has a
 100° vertical field of view in both the Task 4 trial runner and the Task 3
@@ -77,16 +77,17 @@ frames. None is counted as found. An exploratory random-start red-chair run
 from (0.5, 0.4, 90°) succeeded at 0.785 m in 55.6 wall-clock seconds with no
 contact; it is not included in the fixed ten-trial rate.
 
-The exact raw evidence is in
+The compact GitHub evidence is in
 [`task4_evidence/2026-09-30-benchmark-v8/`](task4_evidence/2026-09-30-benchmark-v8/):
-`manifest.json`, per-trial logs, `result.json`, initial and stopped RGB images,
-annotated detections, `summary.csv` and `summary.json`. The earlier v7 batch
-at revision `49af5ed` reported 8/10 and remains archived; results from the
-two revisions are not combined.
+`manifest.json`, per-trial logs and `result.json`, `summary.csv` and
+`summary.json`. Raw RGB frames and annotated detections remain local, outside
+Git. The earlier v7 batch at revision `49af5ed` reported 8/10 and remains
+historical; results from the two revisions are not combined. Later controller
+edits are not covered by this v8 evaluation.
 
 ## Video and reproduction
 
-[`task4_evidence/Video_Task4.mp4`](task4_evidence/Video_Task4.mp4) is a
+The historical `Video_Task4.mp4` is stored locally, not on GitHub. It is a
 104.375 s, 1920 × 1080, 8 fps desktop recording. The terminal remains visible
 throughout both unaltered executions. It was recorded before revision
 `3692d0b`, so its two missions are demonstration evidence, not entries in the
@@ -98,27 +99,24 @@ ends with `[FOUND] ... d=0.75 m` and `[MISSION] status=SUCCESS`. The video uses
 the real Task 3 chat loop and DeepSeek `deepseek-chat` JSON planner; the API
 key is read from `DEEPSEEK_API_KEY` in the environment and is not in the repo.
 Task 3's separate report covers its OpenAI-versus-local-Qwen comparison.
-The two original terminal logs and the final MP4 hash are in
-[`task4_evidence/2026-09-30-video/`](task4_evidence/2026-09-30-video/).
-Separate current-revision headless logs in
+The two original terminal logs and the MP4 hash are retained locally.
+Separate historical headless logs in
 [`task4_evidence/2026-09-30-llm-current/`](task4_evidence/2026-09-30-llm-current/)
 show real DeepSeek English commands succeeding for aligned red and green chairs
 at 0.79 m each. The same folder also retains a random-start red-chair run that
-correctly failed C2 at 0.8011 m. These logs verify the current LLM integration
+correctly failed C2 at 0.8011 m. These logs verify that revision's LLM integration
 but are not substitutes for the terminal-visible video.
 
-On Windows, extract `task2/EE5112_Task2_GitHub_Upload.zip` beside this repo so
-that `../task2_runtime/task2/task2/platform.py` exists. Install the packaged
-Task 2 and Task 3 requirements under Python 3.12, then run from this repo:
+On Windows, use the checked-in `task2/` source. Install Task 2 and Task 3
+requirements under Python 3.12, then run from this repo:
 
 ```powershell
-Expand-Archive .\task2\EE5112_Task2_GitHub_Upload.zip -DestinationPath ..\task2_runtime
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-.\.venv\Scripts\python.exe -m pip install -e ..\task2_runtime\task2
-.\.venv\Scripts\python.exe -m pip install -r ..\task2_runtime\task2\requirements-task2.txt -r task3\requirements-task3.txt pywin32
-.\.venv\Scripts\python.exe -u run_task4_benchmark.py task4_evidence\new_fixed_batch
-.\.venv\Scripts\python.exe summarize_task4_benchmark.py task4_evidence\new_fixed_batch
+.\.venv\Scripts\python.exe -m pip install -e .\task2
+.\.venv\Scripts\python.exe -m pip install -r .\task2\requirements-task2.txt -r task3\requirements-task3.txt pywin32
+.\.venv\Scripts\python.exe -u run_task4_benchmark.py runs\new_fixed_batch
+.\.venv\Scripts\python.exe summarize_task4_benchmark.py runs\new_fixed_batch
 .\capture_task4_demo.ps1 -Color red -RunId red_new
 .\capture_task4_demo.ps1 -Color green -RunId green_new
 ```

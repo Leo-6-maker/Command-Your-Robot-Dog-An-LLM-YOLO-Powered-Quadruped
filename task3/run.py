@@ -231,7 +231,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.dual_view:
                 from .dual_view import DualViewServer
 
-                dual_view = DualViewServer(platform.camera, args.port, args.port + 1)
+                dual_view = DualViewServer(platform.camera, task4.detector, args.port, args.port + 1)
                 dual_view.start()
                 webbrowser.open(dual_view.url, new=2)
                 log(f"[UI] dual_view={dual_view.url}")

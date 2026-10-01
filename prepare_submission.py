@@ -2,6 +2,7 @@
 
 import argparse
 from pathlib import Path
+import subprocess
 import zipfile
 
 import fitz
@@ -35,15 +36,11 @@ with fitz.open(args.report) as report:
 destination = root.parent / f"minilab_1.3_group_{args.group_index}.zip"
 if destination.exists():
     parser.error(f"package already exists: {destination}")
-source_files = [
-    *root.glob("*.py"), *root.glob("*.ps1"), *root.glob("*.md"),
-    root / ".gitignore",
-    *root.joinpath("task2").rglob("*"),
-    *root.joinpath("task3").rglob("*"),
-    *root.joinpath("report_assets").rglob("*"),
-    *root.joinpath("task4_evidence/2026-09-30-benchmark-v8").rglob("*"),
-    *root.joinpath("task4_evidence/2026-09-30-llm-current").rglob("*"),
-]
+try:
+    tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=root)
+except (OSError, subprocess.CalledProcessError):
+    parser.error("package from a Git checkout so only versioned source is included")
+source_files = [root / name.decode("utf-8") for name in tracked.split(b"\0") if name]
 with zipfile.ZipFile(destination, "x", compression=zipfile.ZIP_DEFLATED) as archive:
     archive.write(args.report, "Group_Report.pdf")
     for number, video in ((2, args.video_task2), (3, args.video_task3),

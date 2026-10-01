@@ -36,7 +36,7 @@ if ($RandomStart) {
 Write-Host "Task 4 start pose: x=$($pose[0]) y=$($pose[1]) yaw=$($pose[2]) deg; RunId=$RunId"
 Write-Host 'After [CHAT] READY, type Go to the red chair. or Go to the green chair.'
 & .\.venv\Scripts\python.exe -u -m task3.run `
-    --task2-root ..\task2_runtime\task2 `
+    --task2-root .\task2 `
     --provider deepseek --model deepseek-chat `
     --gui --dual-view --port 8765 --duration 300 --mission-timeout 180 --start $pose `
     --log-file "runs\task4_demo_$RunId.log"

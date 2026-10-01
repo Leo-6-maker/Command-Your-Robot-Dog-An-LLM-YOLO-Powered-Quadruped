@@ -34,7 +34,7 @@ for name, color, x, y, yaw in TRIALS:
         print(f"[BENCH] {name} existing result, skipping", flush=True)
         continue
     command = [sys.executable, "-u", "run_task4_trial.py", "--task2-root",
-               str(Path("../task2_runtime/task2")), "--color", color,
+               str(Path("task2")), "--color", color,
                "--start", str(x), str(y), str(yaw), "--timeout", "120",
                "--output", str(output)]
     print(f"[BENCH] {name} starting", flush=True)

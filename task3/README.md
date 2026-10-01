@@ -1,5 +1,8 @@
 # Task 3 — LLM command planning
 
+完整的 Windows 安装与 Task 2–4 演示命令见[仓库根目录 README](../README.md)。
+Task 2 源码和场景已纳入本仓库的 `task2/`，无需另行解压 ZIP。
+
 本目录目前完成动作 JSON 协议、本地验证器、Task 2 非阻塞动作队列的阻塞适配器、串行动作执行器、OpenAI Structured Outputs 与本地 Ollama/Qwen 规划器，以及异步终端 chat loop。
 
 ## 动作协议

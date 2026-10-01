@@ -1,30 +1,14 @@
-# Task 2 — Platform, scene, camera and motion skills
+# Task 2 — shared quadruped platform
 
-[Download the complete Task 2 package](EE5112_Task2_GitHub_Upload.zip). The archive preserves all 123 files and their directory structure: source code, robot/terrain resources, ONNX and YOLO weights, custom scene, report, evaluation results and demo video.
+This directory now contains the Task 2 source directly. No Task 2 ZIP or sibling runtime checkout is required. The adapted platform and scene are in `task2/`; the course locomotion runtime and robot resources are in `eg/` and `src/`. The ONNX walking policy and YOLO11n weights are retained as runtime inputs. Their origin is recorded in [`task2/assets/PROVENANCE.txt`](task2/assets/PROVENANCE.txt).
 
-## Run
+From the repository root on Windows, follow the [root installation and integrated demo instructions](../README.md). To run Task 2 alone after installation:
 
-Extract the archive into a separate working directory. Inside its `task2/` folder, follow `README_TASK2_中文.md`. With Python 3.12:
-
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
-python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-python -m pip install -r requirements-task2.txt
-MUJOCO_GL=egl python -m task2.run --gui --duration 600
+```powershell
+cd task2
+..\.venv\Scripts\python.exe -m task2.run --gui --duration 600
 ```
 
-Open http://localhost:8765. M triggers a timed move; K triggers a closed-loop 180-degree turn.
+Open `http://127.0.0.1:8765`. Enter `m` for a timed move and `k` for a closed-loop 180-degree turn. The browser can select the object lab scene and the onboard front, rear overhead, and top cameras. The root [`run_task2_demo.ps1`](../run_task2_demo.ps1) runs the same demonstration.
 
-## Contents and status
-
-- `task2/`: platform, camera, motion skills, scene builder, verification and evaluation scripts.
-- `task2/assets/`: scene MJCF, object centres and YOLO11n weights.
-- `eg/` and `src/`: course platform resources from aoqianz/quadruped_mujoco, commit dd40180f1121a66373d261e64a9a09eb69b1b2a7.
-- `Task2_Report.pdf` and `.md`: report chapter; fill in the student identity before submission.
-- `evidence/`: detection images, turn comparison, logs and Video_Task2.mp4. The included video is an offscreen recording with synchronized log text. A desktop recording with the actual terminal visible still needs to be supplied.
-
-Task 2 uses a nonblocking motion queue. The existing Task 4 callbacks expect blocking completion and a synchronized RGB/pose snapshot, so integration requires an adapter; it is not already connected.
-
-This upload adds only this Task 2 directory. The existing root README, .gitignore and task4.py are unchanged.
+The authored objects and their evaluation-only centers are in [`task2/assets/scene.xml`](task2/assets/scene.xml) and [`task2/assets/objects.json`](task2/assets/objects.json). Task 3 and Task 4 import this exact platform. The [Chinese implementation guide](README_TASK2_%E4%B8%AD%E6%96%87.md) and [`Task2_Report.md`](Task2_Report.md) explain the camera, 50 Hz ONNX policy, 200 Hz MuJoCo/PD loop, motion queue, and turn evaluation. Compact report evidence is under `evidence/`; generated logs and videos stay local and are not committed.

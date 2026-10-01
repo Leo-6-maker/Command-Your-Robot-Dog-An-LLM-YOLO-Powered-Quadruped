@@ -1,0 +1,10 @@
+# Verified with Python 3.12. Install CPU torch/torchvision first; see README.
+mujoco==3.14.0
+numpy==2.5.3
+onnxruntime==1.30.0
+PyYAML==6.0.3
+Pillow==12.3.0
+ultralytics==8.4.160
+imageio==2.37.4
+imageio-ffmpeg==0.6.0
+pytest==9.1.1

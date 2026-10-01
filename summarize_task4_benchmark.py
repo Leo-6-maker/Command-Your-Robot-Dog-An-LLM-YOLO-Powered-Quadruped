@@ -11,7 +11,7 @@ from task3.task4_integration import load_object_positions
 
 root = Path(sys.argv[1])
 objects_file = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(
-    "../task2_runtime/task2/task2/assets/objects.json")
+    "task2/task2/assets/objects.json")
 positions = load_object_positions(objects_file)
 manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
 rows = []

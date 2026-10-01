@@ -9,7 +9,7 @@ from PIL import Image
 
 
 class DualViewServer:
-    def __init__(self, front_camera, task2_port: int, port: int):
+    def __init__(self, front_camera, detector, task2_port: int, port: int):
         self.task2_port = task2_port
         page = f"""<!doctype html><html lang="en"><meta charset="utf-8">
 <title>Task4 Dual View</title><style>
@@ -21,7 +21,7 @@ img{{min-height:0;width:100%;flex:1;object-fit:contain;background:#02060c}}
 </style><main>
 <section><header>Rear overhead · robot and scene</header>
 <img src="http://127.0.0.1:{task2_port}/api/stream.mjpg"></section>
-<section><header>dog_front_camera · live YOLO input</header>
+<section><header>dog_front_camera · latest YOLO detections</header>
 <img id="front"></section></main>
 <script>const front=document.getElementById('front');
 function refresh(){{front.src='/front.jpg?t='+Date.now()}}
@@ -34,13 +34,16 @@ refresh();</script></html>""".encode()
                 if self.path == "/":
                     content, kind = page, "text/html; charset=utf-8"
                 elif self.path.startswith("/front.jpg"):
-                    frame = front_camera.latest()
-                    if frame is None:
-                        self.send_response(204)
-                        self.end_headers()
-                        return
+                    annotated = detector.latest_annotated_frame
+                    if annotated is None:
+                        frame = front_camera.latest()
+                        if frame is None:
+                            self.send_response(204)
+                            self.end_headers()
+                            return
+                        annotated = frame.rgb
                     output = BytesIO()
-                    Image.fromarray(frame.rgb).save(output, format="JPEG", quality=75)
+                    Image.fromarray(annotated).save(output, format="JPEG", quality=75)
                     content, kind = output.getvalue(), "image/jpeg"
                 else:
                     self.send_error(404)
