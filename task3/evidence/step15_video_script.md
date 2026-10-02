@@ -30,10 +30,21 @@ The prepared demo uses local `qwen2.5:7b`, so no key or paid API request appears
 
 Start the GNOME desktop recorder only after the terminal shows `[CHAT] event=READY` and the browser shows `SIM LIVE`. Enter one command at a time and wait for `[DONE]` before continuing.
 
-1. Explicit forward motion:
+Copy-ready list (submit each line separately):
+
+```text
+Move forward at speed 0.4 for one second.
+Do that again, but slower.
+Move left at speed 0.3 for one second.
+Execute exactly two actions in order: first move backward at speed 0.4 for one second, then turn left 45 degrees.
+Write a poem about robot dogs.
+/quit
+```
+
+1. Short explicit forward motion (kept short so the robot does not reach the chair):
 
    ```text
-   Move forward at speed 0.6 for two seconds.
+   Move forward at speed 0.4 for one second.
    ```
 
 2. Successful-context reference:
@@ -45,21 +56,25 @@ Start the GNOME desktop recorder only after the terminal shows `[CHAT] event=REA
 3. Lateral direction/sign demonstration:
 
    ```text
-   Move left at speed 0.4 for two seconds.
+   Move left at speed 0.3 for one second.
    ```
 
 4. Required multi-step command. This must produce one `[CMD]` line with `n=2`, followed by
    `[EXEC] step=1/2` and `[EXEC] step=2/2`:
 
    ```text
-   Execute exactly two actions in order: first move forward at speed 0.4 for two seconds, then turn left 45 degrees.
+   Execute exactly two actions in order: first move backward at speed 0.4 for one second, then turn left 45 degrees.
    ```
 
    A local Qwen preflight on 2026-10-02 produced exactly:
 
    ```text
-   [CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=2.00),turn(angle_deg=45.00) n=2
+   [CMD] actions=move(vx=-0.40,vy=0.00,wz=0.00,duration_s=1.00),turn(angle_deg=45.00) n=2
    ```
+
+   The backward first step deliberately moves away from the chair before turning. Across the full
+   script, commanded forward travel is largely cancelled by this backward action, keeping the dog
+   visible and clear of the obstacle.
 
 5. Required rejection example:
 
