@@ -235,6 +235,7 @@ def test_found_requires_live_matching_detection_at_stop(final_color, capsys):
 
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
     calls = []
+    moves = []
     index = 0
 
     def observe(after):
@@ -256,7 +257,8 @@ def test_found_requires_live_matching_detection_at_stop(final_color, capsys):
 
     result = goto_object(
         "chair", "green", SimpleNamespace(detect=detect), observe,
-        lambda *_: None, lambda *_: calls.append("turn"), lambda: calls.append("stop"),
+        lambda *args: moves.append(args), lambda *_: calls.append("turn"),
+        lambda: calls.append("stop"),
         distance, final_approach_steps=0,
     )
     output = capsys.readouterr().out
@@ -265,6 +267,9 @@ def test_found_requires_live_matching_detection_at_stop(final_color, capsys):
     assert ("distance" in calls) is result
     assert calls[-1] == "stop"
     assert "turn" not in calls
+    assert all(move[0] < 0 for move in moves)  # Recovery may only back away.
+    if not result:
+        assert "[MISSION] status=FAIL reason=target_not_visible_at_stop" in output
 
 
 def test_turn_requires_new_box_before_deciding_to_stop():
@@ -339,7 +344,8 @@ def test_narrow_near_box_approaches_and_reobserves():
 
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
     boxes = iter([(200, 1, 400, 479), (170, 1, 470, 479),
-                  (150, 1, 490, 479), (150, 1, 490, 479)])
+                  (150, 1, 490, 479), (150, 1, 490, 479),
+                  (150, 1, 490, 479)])
     moves = []
     assert goto_object(
         "chair", "green",
@@ -349,7 +355,9 @@ def test_narrow_near_box_approaches_and_reobserves():
         lambda *_: moves.append(1), lambda *_: pytest.fail("unexpected turn"),
         lambda: None, lambda *_: 0.7,
     )
-    assert len(moves) == 2  # Reobserve and stop once the chair is visually close.
+    # One cautious near step plus two terminal steps; the fifth detection is
+    # a distinct post-stop frame used for mandatory C1 confirmation.
+    assert len(moves) == 3
 
 
 def test_close_chair_does_not_oscillate_over_small_center_offsets():

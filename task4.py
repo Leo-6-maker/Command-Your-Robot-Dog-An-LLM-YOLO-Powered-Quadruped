@@ -344,26 +344,11 @@ def goto_object(
                     if final_targets:
                         break
                 if not final_targets and height_share >= 0.90 and width_share >= 0.35:
-                    # Near-field YOLO may lose a chair cropped by the camera.
-                    # Back away a little before trying to change the viewing angle.
+                    # A very close chair can be cropped out when the gait settles.
+                    # One short backward step is collision-safe; stop again and
+                    # require a fresh live match. Never turn after the final stop.
                     print("[APPROACH] recovery=back")
                     move(-0.10, 0.0, 0.0, 0.25)
-                    stop()
-                    for _ in range(3):
-                        final_observation = get_observation(last_sim_time)
-                        last_sim_time = final_observation.sim_time
-                        final_targets = [
-                            d for d in detector.detect(final_observation.rgb_frame)
-                            if d.matches(target_class, target_color)
-                        ]
-                        if final_targets:
-                            break
-                if not final_targets and height_share >= 0.90 and width_share >= 0.35:
-                    # A cropped chair can disappear from YOLO when the body settles.
-                    # Change the viewing angle without leaving the distance limit.
-                    angle = 8.0 if target.center_x <= target.frame_width / 2 else -8.0
-                    print(f"[APPROACH] recovery=turn angle={angle:.0f}deg")
-                    turn(angle)
                     stop()
                     for _ in range(3):
                         final_observation = get_observation(last_sim_time)
