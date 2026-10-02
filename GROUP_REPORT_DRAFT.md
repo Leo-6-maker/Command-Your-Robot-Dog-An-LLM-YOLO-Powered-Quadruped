@@ -258,17 +258,15 @@ Run all Task 3 tests from the repository root:
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-Current main-aligned result during the log-protocol revision:
+Current Task 3/4 result after the integration updates:
 
 ```text
-115 passed, 3 failed
+121 passed
 ```
 
 The tests cover parsing, schema and semantic limits, direction consistency, provider boundaries,
 context, cancellation, strict execution order, Task 2 completion, Task 4 callbacks, log sanitising,
-benchmark scoring and cost calculations. All 40 log/chat/policy/executor tests pass. The three
-remaining failures are inherited Task 4 final-redetection test mismatches and are tracked
-separately from this logging change.
+benchmark scoring and cost calculations. All 121 tests pass.
 
 ## 8. Reproduction
 
@@ -360,12 +358,12 @@ is heavily cropped, partially occluded, or affected by body pitch.
 Task 3 parses the typed English command into a validated
 `goto_object(class="chair", color="red"|"green")` action. The Task 4 callback
 requests synchronized fresh camera/robot-pose snapshots from the Task 2
-adapter. Before acquiring a target, two consecutive camera misses trigger a 30°
+adapter. Before acquiring a target, two consecutive camera misses trigger a 20°
 search turn; while tracking a target, five consecutive misses are tolerated before
 resuming the search. After detection, the controller makes a partial turn toward
 the box center and advances through completed 0.25 s motion skills. Close-range
 box width limits the final number of short steps. It then stops and checks up to
-three fresh frames. If an extremely close chair is cropped out, the only recovery
+five fresh frames. If an extremely close chair is cropped out, the only recovery
 is one short backward step followed by another stop and fresh-frame check; it never
 turns during final recovery. A full search turn without a target, timeout, lost
 stopped-frame target after recovery, or excessive final distance prints
@@ -382,11 +380,11 @@ records are checked after each trial.
 
 ## Fixed evaluation
 
-The results below belong to controller revision `2fa2821`, which includes
-close-range re-observation and collision-safe final recovery. The optional
+The results below belong to controller revision `d6f0c7b`, which adds smaller
+search turns and a calibrated close-range visual approach. The optional
 randomized-start poses are explored separately from this fixed batch.
 
-All ten trials used controller commit `2fa2821`, one scene, one detector and
+All ten trials used controller commit `d6f0c7b`, one scene, one detector and
 one parameter set. We varied requested color and robot start position/yaw;
 180° starts deliberately face away from the target. These are structured
 target trials that isolate navigation; the separate video verifies the real
@@ -397,32 +395,31 @@ does not change the verdict.
 
 | Trial | Target | Start (x, y, yaw°) | Initial target detection | C1 class + color | d_eval (m) | Result |
 |---|---|---|---|---|---:|---|
-| 01 | green chair | (1, 1, 0) | yes | yes | 0.760 | success |
-| 02 | red chair | (1, −1, 0) | yes | yes | 0.751 | success |
-| 03 | green chair | (0.5, 1, 0) | yes | yes | 0.827 | fail: stopped C2 d = 0.8276 m |
-| 04 | red chair | (0.5, −1, 0) | yes | yes | 0.832 | fail: stopped C2 d = 0.8314 m |
-| 05 | green chair | (0, 0, 0) | no | yes | 0.756 | success |
-| 06 | red chair | (0, 0, 0) | yes | yes | 0.808 | fail: stopped C2 d = 0.8079 m |
-| 07 | green chair | (1, 1, 180) | no | yes | 0.768 | success, initially hidden |
-| 08 | red chair | (1, −1, 180) | no | yes | 0.818 | fail: stopped C2 d = 0.8170 m |
-| 09 | green chair | (1, 0, 30) | no | **no** | 0.484 | fail: Task 2 turn timeout |
-| 10 | red chair | (1, 0, −30) | no | **no** | 2.221 | fail: full turn without detection |
+| 01 | green chair | (1, 1, 0) | yes | yes | 0.779 | success |
+| 02 | red chair | (1, −1, 0) | yes | yes | 0.723 | success |
+| 03 | green chair | (0.5, 1, 0) | yes | **no** | 0.744 | fail: target not visible at stop |
+| 04 | red chair | (0.5, −1, 0) | yes | yes | 0.769 | success |
+| 05 | green chair | (0, 0, 0) | no | yes | 0.748 | success |
+| 06 | red chair | (0, 0, 0) | yes | yes | 0.780 | success |
+| 07 | green chair | (1, 1, 180) | no | yes | 0.752 | success, initially hidden |
+| 08 | red chair | (1, −1, 180) | no | yes | 0.807 | fail: stopped C2 d = 0.8060 m |
+| 09 | green chair | (1, 0, 30) | no | yes | 0.777 | success |
+| 10 | red chair | (1, 0, −30) | no | yes | 0.788 | success |
 
-The stopped-frame target detection rate is **8/10 (80%)**. Grounding selected
-the requested color on **8/8** stops with a target detection, or **8/10 (80%)**
-of all trials. The full C1–C3 approach success rate is **4/10 (40%)**, with
+The stopped-frame target detection rate is **9/10 (90%)**. Grounding selected
+the requested color on **9/9** stops with a target detection, or **9/10 (90%)**
+of all trials. The full C1–C3 approach success rate is **8/10 (80%)**, with
 **0/10 object-contact trials**. This detection rate is a task-level stopped
 frame measure, not conventional mAP; we did not annotate every frame with
 ground-truth boxes. Five starts had no initial target detection, including
-the two 180° hidden starts. Trials 03, 04, 06 and 08 selected the correct chair
-but stopped 0.0276 m, 0.0314 m, 0.0079 m and 0.0170 m outside C2, respectively.
-Trial 09 reached a close final evaluation pose but a Task 2 turn timeout ended
-the mission before a stopped-frame target confirmation. Trial 10 completed a
-full search turn without detecting the requested red chair. None is counted as
-found, and no result from an earlier controller revision is mixed into this rate.
+the two 180° hidden starts. Trial 03 entered the required distance but lost the
+heavily cropped chair in the fresh stopped frames, so it failed C1. Trial 08
+retained the correct red-chair detection but stopped only 0.0060 m outside C2.
+Neither is counted as found, and no result from another controller revision is
+mixed into this rate.
 
 The compact GitHub evidence is in
-[`task4_evidence/2026-10-02-benchmark-2fa2821/`](task4_evidence/2026-10-02-benchmark-2fa2821/):
+[`task4_evidence/2026-10-02-benchmark-d6f0c7b/`](task4_evidence/2026-10-02-benchmark-d6f0c7b/):
 `manifest.json`, per-trial logs and `result.json`, `summary.csv` and
 `summary.json`. Raw RGB frames and annotated detections remain local, outside
 Git. Earlier batches remain historical and are not combined with this fixed
@@ -433,7 +430,7 @@ evaluation.
 The historical `Video_Task4.mp4` is stored locally, not on GitHub. It is a
 104.375 s, 1920 × 1080, 8 fps desktop recording. The terminal remains visible
 throughout both unaltered executions. It was recorded before revision
-`2fa2821`, so its two missions are demonstration evidence, not entries in the
+`d6f0c7b`, so its two missions are demonstration evidence, not entries in the
 current ten-trial rate. The first command is `Go to the red
 chair.` from a 180° start; it shows `[CMD]`, `[SEARCH]`, `[DETECT]`, `[FOUND]
 ... d=0.74 m`, and `[MISSION] status=SUCCESS`. The second is `Go to the green

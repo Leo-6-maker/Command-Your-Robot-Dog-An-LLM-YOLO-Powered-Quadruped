@@ -307,7 +307,7 @@ def goto_object(
                 terminal_steps = min(
                     final_approach_steps,
                     0 if width_share >= 0.72 else 1 if width_share >= 0.60
-                    else 5,
+                    else 4 if width_share > 0.44 else 5,
                 )
                 if terminal_steps:
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
@@ -330,7 +330,7 @@ def goto_object(
                         close_target.bbox[1] <= 2
                         and close_target.bbox[3] >= 0.98 * close_target.frame_height
                     )
-                    if close_width >= 0.74 or (step >= 4 and cropped_vertically):
+                    if close_width >= 0.74 or (step >= 3 and cropped_vertically):
                         print("[APPROACH] stop reason=visual_proximity")
                         break
 
@@ -352,7 +352,7 @@ def goto_object(
                     # One short backward step is collision-safe; stop again and
                     # require a fresh live match. Never turn after the final stop.
                     print("[APPROACH] recovery=back")
-                    move(-0.15, 0.0, 0.0, 0.50)
+                    move(-0.10, 0.0, 0.0, 0.25)
                     stop()
                     for _ in range(FINAL_CONFIRM_FRAMES):
                         final_observation = get_observation(last_sim_time)

@@ -70,5 +70,5 @@ Original Step 14 result:
 `git diff --check` also completed without errors.
 
 On 2026-10-02, four new protocol tests were added. The focused log/chat/policy/executor suite is
-`40 passed`; the full main-aligned suite is `115 passed, 3 failed`, with all three failures inherited
-from Task 4 final-redetection behavior and unrelated to the logging change.
+`40 passed`; after the Task 4 integration tests were aligned with the final fresh-frame behavior,
+the full Task 3/4 suite is `121 passed`.

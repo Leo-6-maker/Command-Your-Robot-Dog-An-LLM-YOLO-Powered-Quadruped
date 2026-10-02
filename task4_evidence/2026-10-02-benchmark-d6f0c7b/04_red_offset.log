@@ -1,0 +1,222 @@
+[KEYBOARD] evdev not installed; browser keyboard control is available
+libdecor-gtk-WARNING: Failed to initialize GTK
+Failed to load plugin 'libdecor-gtk.so': failed to init
+No plugins found, falling back on no decorations
+WARNING: OpenGL error 0x502 in or before mjr_makeContext
+
+[MAP] switched to object_lab
+[DETECT] class=chair color=red conf=0.60 bbox=[285,137,348,240]
+[DETECT] class=orange color=red conf=0.45 bbox=[180,208,224,248]
+[TRIAL] class=chair color=red source=explicit_target start=[0.5, -1.0, 0.0]
+[DETECT] class=chair color=red conf=0.60 bbox=[285,137,348,240]
+[DETECT] class=orange color=red conf=0.45 bbox=[180,208,224,248]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=2.82
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.60 bbox=[177,206,222,246]
+[DETECT] class=chair color=red conf=0.55 bbox=[284,130,348,236]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=3.92
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.89 bbox=[282,124,349,233]
+[DETECT] class=chair color=green conf=0.45 bbox=[75,124,169,236]
+[DETECT] class=orange color=red conf=0.33 bbox=[171,201,218,243]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=5.06
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.87 bbox=[283,123,350,235]
+[DETECT] class=sports ball color=red conf=0.43 bbox=[169,203,218,245]
+[DETECT] class=chair color=green conf=0.33 bbox=[74,125,169,239]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=6.12
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.89 bbox=[279,122,349,235]
+[DETECT] class=sports ball color=red conf=0.75 bbox=[161,202,213,245]
+[DETECT] class=chair color=green conf=0.30 bbox=[61,122,161,240]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=7.14
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.59 bbox=[278,133,348,246]
+[DETECT] class=sports ball color=red conf=0.54 bbox=[159,212,211,256]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=8.34
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.48 bbox=[277,126,347,242]
+[DETECT] class=sports ball color=red conf=0.47 bbox=[151,209,205,255]
+[DETECT] class=chair color=green conf=0.27 bbox=[46,126,153,248]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=9.56
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.83 bbox=[275,128,348,248]
+[DETECT] class=chair color=green conf=0.58 bbox=[42,128,149,253]
+[DETECT] class=sports ball color=red conf=0.55 bbox=[148,213,203,259]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=10.78
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.77 bbox=[271,121,345,242]
+[DETECT] class=orange color=red conf=0.41 bbox=[139,208,197,255]
+[DETECT] class=chair color=green conf=0.40 bbox=[28,120,141,248]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=11.98
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.79 bbox=[272,125,346,249]
+[DETECT] class=sports ball color=red conf=0.45 bbox=[136,213,195,262]
+[DETECT] class=airplane color=unknown conf=0.36 bbox=[20,124,287,259]
+[DETECT] class=chair color=unknown conf=0.27 bbox=[23,126,280,258]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=13.16
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.73 bbox=[269,120,344,246]
+[DETECT] class=sports ball color=red conf=0.46 bbox=[126,211,188,261]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=14.30
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.80 bbox=[121,213,186,265]
+[DETECT] class=chair color=red conf=0.37 bbox=[268,121,345,250]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=15.44
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.47 bbox=[109,213,179,267]
+[DETECT] class=chair color=red conf=0.45 bbox=[264,119,343,251]
+[DETECT] class=airplane color=unknown conf=0.26 bbox=[1,115,332,259]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=16.70
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.66 bbox=[262,117,344,254]
+[DETECT] class=sports ball color=red conf=0.50 bbox=[104,215,176,271]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=17.74
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.58 bbox=[260,117,341,254]
+[DETECT] class=sports ball color=red conf=0.40 bbox=[92,216,169,273]
+[DETECT] class=orange color=red conf=0.28 bbox=[92,216,169,273]
+[DETECT] class=airplane color=unknown conf=0.27 bbox=[0,112,275,319]
+[DETECT] class=airplane color=unknown conf=0.26 bbox=[1,112,277,258]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=19.12
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.58 bbox=[86,216,166,275]
+[DETECT] class=chair color=red conf=0.45 bbox=[259,112,343,254]
+[DETECT] class=airplane color=unknown conf=0.43 bbox=[0,109,274,269]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=20.00
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.46 bbox=[254,106,341,252]
+[DETECT] class=sports ball color=red conf=0.39 bbox=[72,212,157,274]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=21.14
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.57 bbox=[63,216,153,280]
+[DETECT] class=chair color=red conf=0.35 bbox=[253,105,342,257]
+[DETECT] class=airplane color=unknown conf=0.29 bbox=[1,99,273,276]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=22.12
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.66 bbox=[44,213,143,280]
+[DETECT] class=chair color=red conf=0.55 bbox=[251,113,341,266]
+[DETECT] class=sports ball color=red conf=0.48 bbox=[51,224,146,291]
+[DETECT] class=airplane color=unknown conf=0.26 bbox=[1,106,272,349]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=23.82
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.51 bbox=[38,221,139,290]
+[DETECT] class=chair color=red conf=0.49 bbox=[248,104,341,263]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=24.96
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.64 bbox=[20,222,130,294]
+[DETECT] class=chair color=red conf=0.41 bbox=[244,103,340,265]
+[DETECT] class=airplane color=unknown conf=0.32 bbox=[0,93,256,355]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=26.22
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.68 bbox=[8,224,124,299]
+[DETECT] class=chair color=red conf=0.47 bbox=[242,100,341,267]
+[DETECT] class=airplane color=unknown conf=0.39 bbox=[0,92,255,364]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=27.42
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.70 bbox=[238,102,340,273]
+[DETECT] class=sports ball color=red conf=0.59 bbox=[0,228,114,308]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=28.62
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.75 bbox=[236,96,339,272]
+[DETECT] class=sports ball color=red conf=0.60 bbox=[0,228,106,311]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=29.72
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.44 bbox=[229,86,338,268]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=30.82
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.75 bbox=[227,91,339,276]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=31.94
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.60 bbox=[0,237,66,330]
+[DETECT] class=chair color=red conf=0.56 bbox=[220,90,337,281]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=33.02
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.76 bbox=[217,84,337,285]
+[DETECT] class=sports ball color=red conf=0.40 bbox=[0,242,53,332]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=34.20
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.73 bbox=[209,78,335,283]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=35.40
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.89 bbox=[206,82,336,293]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=36.52
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.93 bbox=[196,66,333,289]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=37.58
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.89 bbox=[194,77,333,304]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=38.62
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.90 bbox=[182,57,333,298]
+[SKILL] turn values=(10.34511616471158,) t=39.68
+[TURN] target=10.3 deg final_error=1.99 deg status=SUCCESS
+[DETECT] class=chair color=red conf=0.87 bbox=[236,74,377,310]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=41.66
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.88 bbox=[217,69,360,314]
+[DETECT] class=person color=red conf=0.31 bbox=[0,280,16,337]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=42.88
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.91 bbox=[208,55,358,310]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=44.10
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.90 bbox=[204,55,361,320]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=45.26
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.91 bbox=[195,47,359,324]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=46.46
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.79 bbox=[191,51,363,337]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=47.54
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.91 bbox=[177,19,362,330]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=48.62
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.87 bbox=[172,25,364,350]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=49.72
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.87 bbox=[157,5,362,352]
+[SKILL] turn values=(10.03282978214488,) t=50.82
+[TURN] target=10.0 deg final_error=1.95 deg status=SUCCESS
+[DETECT] class=chair color=red conf=0.63 bbox=[219,28,416,362]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=52.78
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.81 bbox=[194,0,404,358]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=53.68
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.66 bbox=[181,0,405,372]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=54.68
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.76 bbox=[172,0,407,395]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=55.70
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.84 bbox=[158,0,409,439]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=56.82
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.87 bbox=[146,0,412,473]
+[SKILL] move values=(0.2, 0.0, 0.0, 0.25) t=57.96
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.83 bbox=[132,0,414,464]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=59.02
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.72 bbox=[116,1,417,473]
+[APPROACH] final_visual_steps=4
+[SKILL] move values=(0.2, 0.0, 0.0, 0.25) t=60.18
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.72 bbox=[99,1,417,480]
+[SKILL] move values=(0.2, 0.0, 0.0, 0.25) t=61.30
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.76 bbox=[90,1,426,480]
+[SKILL] move values=(0.2, 0.0, 0.0, 0.25) t=62.36
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.75 bbox=[87,0,422,480]
+[SKILL] move values=(0.2, 0.0, 0.0, 0.25) t=63.42
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=red conf=0.65 bbox=[82,1,424,477]
+[APPROACH] stop reason=visual_proximity
+[DETECT] class=chair color=red conf=0.65 bbox=[94,1,423,479]
+[FOUND] class=chair color=red t=62.8 s d=0.77 m
+[MISSION] status=SUCCESS
+[DETECT] class=chair color=red conf=0.66 bbox=[96,1,423,479]
+[TRIAL] result=runs/benchmark_2026-10-02_d6f0c7b/04_red_offset/result.json success=True

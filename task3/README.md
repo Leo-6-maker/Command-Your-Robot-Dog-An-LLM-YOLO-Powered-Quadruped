@@ -252,7 +252,7 @@ python -m task3.run \
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-测试覆盖 JSON/schema 边界、本地拒绝、方向语义一致性、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。日志协议相关的 40 项测试全部通过；与最新 `main` 对齐后的完整结果为 `115 passed, 3 failed`，3 个失败均为合并前已经存在的 Task 4 复检行为与旧测试不一致，和本次日志修改无关。
+测试覆盖 JSON/schema 边界、本地拒绝、方向语义一致性、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。当前 Task 3/4 自动测试结果为 `121 passed`。
 
 ## 终端日志协议
 

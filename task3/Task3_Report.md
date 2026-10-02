@@ -125,17 +125,15 @@ Run all Task 3 tests from the repository root:
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-Current main-aligned result during the log-protocol revision:
+Current Task 3/4 result after the integration updates:
 
 ```text
-115 passed, 3 failed
+121 passed
 ```
 
 The tests cover parsing, schema and semantic limits, direction consistency, provider boundaries,
 context, cancellation, strict execution order, Task 2 completion, Task 4 callbacks, log sanitising,
-benchmark scoring and cost calculations. All 40 log/chat/policy/executor tests pass. The three
-remaining failures are inherited Task 4 final-redetection test mismatches in the current `main`
-baseline and are tracked separately from this logging change.
+benchmark scoring and cost calculations. All 121 tests pass.
 
 ## 8. Reproduction
 
