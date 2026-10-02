@@ -32,6 +32,13 @@ def command_log(plan: CommandPlan, *, rejection_reason: str = "unsupported_reque
         raise TypeError("command_log expects a validated CommandPlan")
     if not plan.accepted:
         return f"[CMD] rejected reason={inline_value(rejection_reason, limit=80)}"
+    # Match the Task 4 reference transcript exactly for its normal one-target
+    # command while preserving the ordered action-list form required by Task 3.
+    if len(plan.actions) == 1 and isinstance(plan.actions[0], GotoObjectAction):
+        action = plan.actions[0]
+        return (
+            f"[CMD] goto_object class={action.class_name} color={action.color}"
+        )
     actions = ",".join(_action_call(action) for action in plan.actions)
     return f"[CMD] actions={actions} n={len(plan.actions)}"
 

@@ -2,7 +2,7 @@
 
 > Historical log note: this run predates the 2026-10-02 protocol correction. The current runtime
 > prints the raw sentence as `[INPUT] text=...` and the parsed navigation action as
-> `[CMD] actions=goto_object(class=chair,color=green) n=1`.
+> `[CMD] goto_object class=chair color=green`.
 
 Date: 2026-09-29
 

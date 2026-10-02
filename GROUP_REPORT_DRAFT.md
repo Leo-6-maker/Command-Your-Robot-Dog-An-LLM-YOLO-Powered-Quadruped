@@ -208,7 +208,8 @@ The asynchronous chat loop prints stable one-line evidence records:
 ```
 
 `[INPUT]` contains the sanitised user text. The teacher-facing `[CMD]` record contains the parsed
-actions and count (for example, `[CMD] actions=move(...),turn(...) n=2`) or a stable rejection
+actions and count (for example, `[CMD] actions=move(...),turn(...) n=2`); a single Task 4 target uses
+`[CMD] goto_object class=chair color=green`. A rejection uses a stable
 reason (`[CMD] rejected reason=unsupported_request`). `[PLAN]` remains additional validation detail
 and does not replace `[CMD]`.
 

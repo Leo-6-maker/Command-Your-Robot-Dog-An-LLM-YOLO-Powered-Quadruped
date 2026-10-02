@@ -56,9 +56,7 @@ def test_command_log_formats_object_stop_and_rejection():
         {"accepted": False, "message": "Unsupported.", "actions": []}
     )
 
-    assert command_log(goto_plan) == (
-        "[CMD] actions=goto_object(class=chair,color=green) n=1"
-    )
+    assert command_log(goto_plan) == "[CMD] goto_object class=chair color=green"
     assert command_log(stop_plan) == "[CMD] actions=stop() n=1"
     assert command_log(rejected) == "[CMD] rejected reason=unsupported_request"
     assert command_log(rejected, rejection_reason="non-English") == (

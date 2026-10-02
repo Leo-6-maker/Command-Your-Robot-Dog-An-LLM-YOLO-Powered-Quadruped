@@ -286,6 +286,7 @@ conda run -n ee5112-minilab python -m pytest -q task3
 
 ```text
 [CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=1.00),turn(angle_deg=45.00) n=2
+[CMD] goto_object class=chair color=green
 [CMD] rejected reason=non-English
 [CMD] rejected reason=unsupported_request
 ```

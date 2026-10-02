@@ -75,7 +75,8 @@ The asynchronous chat loop prints stable one-line evidence records:
 
 `[INPUT]` contains the sanitised user text. In accordance with the course log protocol, `[CMD]`
 contains the parsed action calls and count, for example
-`[CMD] actions=move(...),turn(...) n=2`. Rejections instead produce a stable record such as
+`[CMD] actions=move(...),turn(...) n=2`. A single Task 4 navigation action follows the reference
+form `[CMD] goto_object class=chair color=green`. Rejections instead produce a stable record such as
 `[CMD] rejected reason=unsupported_request`; `[PLAN]` is retained as additional validation detail
 and does not replace the required `[CMD]` record.
 
