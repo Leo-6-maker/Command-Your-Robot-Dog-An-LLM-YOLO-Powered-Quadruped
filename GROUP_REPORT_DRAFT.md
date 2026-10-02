@@ -304,8 +304,10 @@ Enter `/quit` to cancel outstanding work and stop the integrated runtime safely.
 
 The previous desktop recording predates the corrected `[INPUT]`/`[CMD]` protocol and must be
 re-recorded after the remaining improvements are complete. The replacement must visibly show
-parsed-action and rejected `[CMD]` records. Both providers are evaluated with the common benchmark,
-so only one integrated provider demonstration is needed.
+parsed-action and rejected `[CMD]` records, plus one English request parsed as
+`[CMD] actions=move(...),turn(...) n=2` with both execution steps completing in order. Both
+providers are evaluated with the common benchmark, so only one integrated provider demonstration
+is needed.
 
 - File: `EE5112_MiniLab1_3_Task3_Demo.mp4`
 - Format: H.264 MP4, 1920x1080, 30 FPS, 95.8 seconds

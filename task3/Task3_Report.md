@@ -171,8 +171,10 @@ Enter `/quit` to cancel outstanding work and stop the integrated runtime safely.
 
 The previous desktop recording predates the corrected `[INPUT]`/`[CMD]` protocol and is retained
 only as historical evidence. It must be re-recorded after the remaining improvements are complete;
-the final recording must visibly show parsed-action and rejected `[CMD]` records. Both providers
-are evaluated with the common benchmark, so only one integrated provider demonstration is needed.
+the final recording must visibly show parsed-action and rejected `[CMD]` records. It must also show
+one natural-language request parsed into `move(...)` followed by `turn(...)`, with `n=2` and both
+execution steps completing in order. Both providers are evaluated with the common benchmark, so
+only one integrated provider demonstration is needed.
 
 - File: `EE5112_MiniLab1_3_Task3_Demo.mp4`
 - Format: H.264 MP4, 1920x1080, 30 FPS, 95.8 seconds

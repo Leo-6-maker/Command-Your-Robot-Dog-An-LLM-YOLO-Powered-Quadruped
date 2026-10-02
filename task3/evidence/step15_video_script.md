@@ -20,7 +20,8 @@ superseded artifact and must not be submitted as the final Task 3 video.
 - Keep the real terminal and MuJoCo GUI visible side by side.
 - Type every robot request in English in the terminal.
 - Keep each `[INPUT]`, `[LLM]`, parsed `[CMD]`, `[PLAN]`, `[EXEC]`, and final `[DONE]` line visible long enough to read.
-- Show successful movement, turning, a multi-turn context command, and one rejected request.
+- Show successful movement, conversational context, and one natural-language command that parses
+  into at least two sequential actions including a turn, plus one rejected request.
 - Do not expose an API key or the external key file.
 
 The prepared demo uses local `qwen2.5:7b`, so no key or paid API request appears in the recording.
@@ -41,16 +42,23 @@ Start the GNOME desktop recorder only after the terminal shows `[CHAT] event=REA
    Do that again, but slower.
    ```
 
-3. Closed-loop turn:
-
-   ```text
-   Turn left 90 degrees.
-   ```
-
-4. Lateral direction/sign demonstration (the stronger two-second command is easier to see):
+3. Lateral direction/sign demonstration:
 
    ```text
    Move left at speed 0.4 for two seconds.
+   ```
+
+4. Required multi-step command. This must produce one `[CMD]` line with `n=2`, followed by
+   `[EXEC] step=1/2` and `[EXEC] step=2/2`:
+
+   ```text
+   Execute exactly two actions in order: first move forward at speed 0.4 for two seconds, then turn left 45 degrees.
+   ```
+
+   A local Qwen preflight on 2026-10-02 produced exactly:
+
+   ```text
+   [CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=2.00),turn(angle_deg=45.00) n=2
    ```
 
 5. Required rejection example:
@@ -78,6 +86,8 @@ Use `Ctrl+Alt+Shift+R` to start recording the desktop and use the same shortcut 
 - Both windows remain readable at normal playback size.
 - Every English input has one `[INPUT]` line, one parsed/rejected `[CMD]` line and a visible `[DONE]` line.
 - Accepted commands show `[CMD] actions=... n=...`; the rejected request shows `[CMD] rejected reason=...`.
+- The required combined request visibly produces `move(...),turn(...) n=2`, then successfully
+  executes both `step=1/2` and `step=2/2` in order.
 - Robot movement is visible for all four accepted commands.
 - The poem request is visibly rejected and causes no motion.
 - No API key, billing page, unrelated notification, or private information is visible.
