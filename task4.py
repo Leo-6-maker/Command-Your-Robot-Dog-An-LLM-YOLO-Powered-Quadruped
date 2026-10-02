@@ -180,7 +180,7 @@ def goto_object(
     planar_distance_m: Callable[[tuple[float, float], str, str], float],
     *,
     timeout_s: float = 60.0,
-    scan_step_deg: float = 30.0,
+    scan_step_deg: float = 20.0,
     misses_before_search: int = 2,
     stop_box_height: float = STOP_BOX_HEIGHT,
     final_approach_steps: int = FINAL_APPROACH_STEPS,
@@ -283,6 +283,7 @@ def goto_object(
                 # ponytail: partial turns keep a distant chair visible to YOLO;
                 # full correction can return to the view where detection dropped.
                 angle = -0.6 * math.degrees(math.atan2(offset_x, focal_px))
+                angle = max(-20.0, min(20.0, angle))
                 if height_share >= 0.75:
                     angle = max(-12.0, min(12.0, angle))
                 turn(angle)
@@ -304,7 +305,8 @@ def goto_object(
                 # chair can still be outside the 0.80 m trunk distance limit.
                 terminal_steps = min(
                     final_approach_steps,
-                    0 if width_share >= 0.60 else 2 if width_share > 0.44 else 4,
+                    0 if width_share >= 0.72 else 1 if width_share >= 0.60
+                    else 3 if width_share > 0.44 else 4,
                 )
                 if terminal_steps:
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
@@ -327,7 +329,7 @@ def goto_object(
                         close_target.bbox[1] <= 2
                         and close_target.bbox[3] >= 0.98 * close_target.frame_height
                     )
-                    if close_width >= 0.65 or (step >= 1 and cropped_vertically):
+                    if close_width >= 0.70 or (step >= 2 and cropped_vertically):
                         print("[APPROACH] stop reason=visual_proximity")
                         break
 

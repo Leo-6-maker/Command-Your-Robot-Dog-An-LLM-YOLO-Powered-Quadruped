@@ -207,14 +207,23 @@ def test_real_task4_mission_runs_through_bridge_to_success():
     )
     worker.start()
 
-    assert motion.stopped.wait(0.2)  # visual stop before final verification frame
+    deadline = time.monotonic() + 0.2
+    while not any(call[0] == "move" for call in motion.calls):
+        assert time.monotonic() < deadline
+        time.sleep(0.001)
     publish(integration, platform, sequence=2, sim_time=2.1)
+    assert motion.stopped.wait(0.2)  # visual stop before final verification frame
+    publish(integration, platform, sequence=3, sim_time=2.2)
     worker.join(0.5)
 
     assert not worker.is_alive()
     assert results == [True]
-    assert motion.calls == [("stop",), ("stop",)]
-    # A strong close view stops immediately, then checks a fresh frame.
+    assert motion.calls == [
+        ("move", 0.20, 0.0, 0.0, 0.25),
+        ("stop",),
+        ("stop",),
+    ]
+    # A strong close view gets one bounded step and a fresh post-stop frame.
 
 
 def test_frame_captured_during_motion_is_not_reused_after_stop():
@@ -345,6 +354,7 @@ def test_narrow_near_box_approaches_and_reobserves():
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
     boxes = iter([(200, 1, 400, 479), (170, 1, 470, 479),
                   (150, 1, 490, 479), (150, 1, 490, 479),
+                  (150, 1, 490, 479),
                   (150, 1, 490, 479)])
     moves = []
     assert goto_object(
@@ -355,9 +365,34 @@ def test_narrow_near_box_approaches_and_reobserves():
         lambda *_: moves.append(1), lambda *_: pytest.fail("unexpected turn"),
         lambda: None, lambda *_: 0.7,
     )
-    # One cautious near step plus two terminal steps; the fifth detection is
+    # One cautious near step plus three terminal steps; the sixth detection is
     # a distinct post-stop frame used for mandatory C1 confirmation.
-    assert len(moves) == 3
+    assert len(moves) == 4
+
+
+def test_search_uses_small_steps_and_fails_after_one_full_turn(capsys):
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    turns = []
+    sim_time = 0.0
+
+    def observe(_after):
+        nonlocal sim_time
+        sim_time += 0.1
+        return CameraObservation(frame, (0, 0), sim_time)
+
+    result = goto_object(
+        "chair", "green", SimpleNamespace(detect=lambda _: []), observe,
+        lambda *_: pytest.fail("unexpected move"), turns.append, lambda: None,
+        lambda *_: pytest.fail("distance must not be read"), timeout_s=5,
+    )
+
+    assert result is False
+    assert turns == [20.0] * 18
+    assert "[MISSION] status=FAIL reason=full_turn_without_detection" in (
+        capsys.readouterr().out
+    )
 
 
 def test_close_chair_does_not_oscillate_over_small_center_offsets():
@@ -386,7 +421,7 @@ def test_large_edge_box_stops_without_turning_away():
     )
 
 
-def test_wide_chair_stops_when_pitch_shrinks_box_height():
+def test_wide_chair_takes_only_one_bounded_step_when_pitch_shrinks_box_height():
     from task4 import CameraObservation, goto_object
 
     frame = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -399,7 +434,7 @@ def test_wide_chair_stops_when_pitch_shrinks_box_height():
         lambda *_: pytest.fail("wide chair must not trigger turn"),
         lambda: None, lambda *_: 0.7,
     )
-    assert len(moves) == 0
+    assert len(moves) == 1
 
 
 def _capture_exception(target, function, *args):
