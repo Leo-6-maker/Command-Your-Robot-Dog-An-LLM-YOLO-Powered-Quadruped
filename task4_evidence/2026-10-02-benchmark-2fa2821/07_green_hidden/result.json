@@ -1,0 +1,70 @@
+{
+  "target_class": "chair",
+  "target_color": "green",
+  "start_pose": [
+    1.0,
+    1.0,
+    180.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": true,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      1.0116659811108266,
+      1.0029400702544753
+    ],
+    "detections": []
+  },
+  "initially_visible": false,
+  "elapsed_wall_s": 4.6606775570003265,
+  "elapsed_sim_s": 65.50500000001111,
+  "last_controller_snapshot": {
+    "sim_time": 67.10500000001146,
+    "base_xy": [
+      2.2363704989615703,
+      0.9311503172086392
+    ]
+  },
+  "final": {
+    "sim_time": 67.605000000011,
+    "base_xy": [
+      2.235445768111371,
+      0.9315848429745593
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.4280276894569397,
+        "bbox": [
+          125,
+          1,
+          459,
+          477
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "airplane",
+        "color": "green",
+        "confidence": 0.2590152621269226,
+        "bbox": [
+          22,
+          0,
+          638,
+          480
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.7676091500299013,
+  "object_contacts": []
+}

@@ -1,0 +1,98 @@
+{
+  "target_class": "chair",
+  "target_color": "green",
+  "start_pose": [
+    1.0,
+    0.0,
+    30.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": false,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.9919289991315131,
+      -0.008496480104539067
+    ],
+    "detections": [
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.3165314197540283,
+        "bbox": [
+          423,
+          221,
+          498,
+          283
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "orange",
+        "color": "red",
+        "confidence": 0.2994403839111328,
+        "bbox": [
+          423,
+          221,
+          498,
+          283
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": false,
+  "error": "TurnFailedError: Task 2 turn failed: FAIL timeout",
+  "elapsed_wall_s": 17.059949675000098,
+  "elapsed_sim_s": 249.36499999984392,
+  "last_controller_snapshot": {
+    "sim_time": 236.00499999985786,
+    "base_xy": [
+      2.7570809643181855,
+      0.5066846404747737
+    ]
+  },
+  "final": {
+    "sim_time": 251.40499999984385,
+    "base_xy": [
+      2.9123624557346743,
+      0.5240456084722045
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.722069263458252,
+        "bbox": [
+          237,
+          76,
+          359,
+          291
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "umbrella",
+        "color": "red",
+        "confidence": 0.32959648966789246,
+        "bbox": [
+          462,
+          300,
+          640,
+          480
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": false,
+  "final_distance_m": 0.4839554958665631,
+  "object_contacts": []
+}

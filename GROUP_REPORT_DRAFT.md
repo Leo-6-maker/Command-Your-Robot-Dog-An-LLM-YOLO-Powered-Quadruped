@@ -382,11 +382,11 @@ records are checked after each trial.
 
 ## Fixed evaluation
 
-The results below belong to controller revision `3692d0b`, which includes
-close-range re-observation and reduced long-range turn gain. The optional
+The results below belong to controller revision `2fa2821`, which includes
+close-range re-observation and collision-safe final recovery. The optional
 randomized-start poses are explored separately from this fixed batch.
 
-All ten trials used controller commit `3692d0b`, one scene, one detector and
+All ten trials used controller commit `2fa2821`, one scene, one detector and
 one parameter set. We varied requested color and robot start position/yaw;
 180° starts deliberately face away from the target. These are structured
 target trials that isolate navigation; the separate video verifies the real
@@ -397,44 +397,43 @@ does not change the verdict.
 
 | Trial | Target | Start (x, y, yaw°) | Initial target detection | C1 class + color | d_eval (m) | Result |
 |---|---|---|---|---|---:|---|
-| 01 | green chair | (1, 1, 0) | yes | yes | 0.771 | success |
-| 02 | red chair | (1, −1, 0) | yes | yes | 0.745 | success |
-| 03 | green chair | (0.5, 1, 0) | yes | yes | 0.745 | success |
-| 04 | red chair | (0.5, −1, 0) | yes | yes | 0.825 | fail: stopped C2 d = 0.8192 m |
-| 05 | green chair | (0, 0, 0) | no | yes | 0.760 | success |
-| 06 | red chair | (0, 0, 0) | yes | yes | 0.795 | success |
-| 07 | green chair | (1, 1, 180) | no | yes | 0.812 | fail: stopped C2 d = 0.8077 m |
-| 08 | red chair | (1, −1, 180) | no | yes | 0.798 | success, initially hidden |
-| 09 | green chair | (1, 0, 30) | no | yes | 0.744 | success |
-| 10 | red chair | (1, 0, −30) | no | **no** | 0.800 | fail: target absent on stopped frame |
+| 01 | green chair | (1, 1, 0) | yes | yes | 0.760 | success |
+| 02 | red chair | (1, −1, 0) | yes | yes | 0.751 | success |
+| 03 | green chair | (0.5, 1, 0) | yes | yes | 0.827 | fail: stopped C2 d = 0.8276 m |
+| 04 | red chair | (0.5, −1, 0) | yes | yes | 0.832 | fail: stopped C2 d = 0.8314 m |
+| 05 | green chair | (0, 0, 0) | no | yes | 0.756 | success |
+| 06 | red chair | (0, 0, 0) | yes | yes | 0.808 | fail: stopped C2 d = 0.8079 m |
+| 07 | green chair | (1, 1, 180) | no | yes | 0.768 | success, initially hidden |
+| 08 | red chair | (1, −1, 180) | no | yes | 0.818 | fail: stopped C2 d = 0.8170 m |
+| 09 | green chair | (1, 0, 30) | no | **no** | 0.484 | fail: Task 2 turn timeout |
+| 10 | red chair | (1, 0, −30) | no | **no** | 2.221 | fail: full turn without detection |
 
-The stopped-frame target detection rate is **9/10 (90%)**. Grounding selected
-the requested color on **9/9** stops with a target detection, or **9/10 (90%)**
-of all trials. The full C1–C3 approach success rate is **7/10 (70%)**, with
+The stopped-frame target detection rate is **8/10 (80%)**. Grounding selected
+the requested color on **8/8** stops with a target detection, or **8/10 (80%)**
+of all trials. The full C1–C3 approach success rate is **4/10 (40%)**, with
 **0/10 object-contact trials**. This detection rate is a task-level stopped
 frame measure, not conventional mAP; we did not annotate every frame with
 ground-truth boxes. Five starts had no initial target detection, including
-the two 180° hidden starts. Trials 04 and 07 selected the correct chair but
-stopped 0.0192 m and 0.0077 m outside C2, respectively. Trial 10 ended near
-0.80 m but failed C1 because YOLO did not label the red chair on the stopped
-frames. None is counted as found. An exploratory random-start red-chair run
-from (0.5, 0.4, 90°) succeeded at 0.785 m in 55.6 wall-clock seconds with no
-contact; it is not included in the fixed ten-trial rate.
+the two 180° hidden starts. Trials 03, 04, 06 and 08 selected the correct chair
+but stopped 0.0276 m, 0.0314 m, 0.0079 m and 0.0170 m outside C2, respectively.
+Trial 09 reached a close final evaluation pose but a Task 2 turn timeout ended
+the mission before a stopped-frame target confirmation. Trial 10 completed a
+full search turn without detecting the requested red chair. None is counted as
+found, and no result from an earlier controller revision is mixed into this rate.
 
 The compact GitHub evidence is in
-[`task4_evidence/2026-09-30-benchmark-v8/`](task4_evidence/2026-09-30-benchmark-v8/):
+[`task4_evidence/2026-10-02-benchmark-2fa2821/`](task4_evidence/2026-10-02-benchmark-2fa2821/):
 `manifest.json`, per-trial logs and `result.json`, `summary.csv` and
 `summary.json`. Raw RGB frames and annotated detections remain local, outside
-Git. The earlier v7 batch at revision `49af5ed` reported 8/10 and remains
-historical; results from the two revisions are not combined. Later controller
-edits are not covered by this v8 evaluation.
+Git. Earlier batches remain historical and are not combined with this fixed
+evaluation.
 
 ## Video and reproduction
 
 The historical `Video_Task4.mp4` is stored locally, not on GitHub. It is a
 104.375 s, 1920 × 1080, 8 fps desktop recording. The terminal remains visible
 throughout both unaltered executions. It was recorded before revision
-`3692d0b`, so its two missions are demonstration evidence, not entries in the
+`2fa2821`, so its two missions are demonstration evidence, not entries in the
 current ten-trial rate. The first command is `Go to the red
 chair.` from a 180° start; it shows `[CMD]`, `[SEARCH]`, `[DETECT]`, `[FOUND]
 ... d=0.74 m`, and `[MISSION] status=SUCCESS`. The second is `Go to the green

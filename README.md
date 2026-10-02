@@ -7,7 +7,7 @@ One MuJoCo quadruped executes typed English commands. Task 2 supplies the robot,
 | Task 2 | [`task2/task2/`](task2/task2/), [`task2/eg/`](task2/eg/), [`task2/src/`](task2/src/), [`task2/task2/assets/`](task2/task2/assets/) |
 | Task 3 | [`task3/`](task3/) (prompt, schema, validator, chat, executor, motion adapter) |
 | Task 4 | [`task4.py`](task4.py), [`task3/task4_integration.py`](task3/task4_integration.py), [`task3/dual_view.py`](task3/dual_view.py) |
-| Report and evaluation | [`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md), [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md), [compact Task 4 receipts](task4_evidence/2026-09-30-benchmark-v8/) |
+| Report and evaluation | [`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md), [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md), [compact Task 4 receipts](task4_evidence/2026-10-02-benchmark-2fa2821/) |
 
 The locomotion platform and resources derive from [`aoqianz/quadruped_mujoco`](https://github.com/aoqianz/quadruped_mujoco), inspected at commit `dd40180f1121a66373d261e64a9a09eb69b1b2a7`. Student A's Task 2 changes and provenance are documented in [`task2/README_TASK2_中文.md`](task2/README_TASK2_%E4%B8%AD%E6%96%87.md) and [`task2/task2/assets/PROVENANCE.txt`](task2/task2/assets/PROVENANCE.txt). The ONNX walking policy, robot/terrain resources, and YOLO11n weights are retained because they are needed to run the simulator. **Videos, raw clips, ZIP archives, generated reports, and raw trial image series are not stored on GitHub.** Compact report images and numerical receipts are retained.
 
@@ -63,7 +63,7 @@ These poses are demonstration choices, not guaranteed success. After submitting 
 
 Task 4 marks a target as found only when **C1** a fresh stopped onboard frame detects the requested class and color, **C2** trunk-to-object planar distance is at most `0.80 m`, and **C3** `[FOUND] class=... color=... t=... d=...` is printed. The course requires at least ten trials across different objects and starts, including an initially hidden target and same-class color disambiguation.
 
-The retained [v8 summary and per-trial logs/JSON](task4_evidence/2026-09-30-benchmark-v8/) report **7/10 C1–C3 successes and 0/10 object-contact trials for controller commit `3692d0b` only**. Subsequent controller and display changes are not measured by that fixed batch. Historical video clips and raw frame images remain local, outside Git. See [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md) for the method, ten-trial table, and failure analysis.
+The retained [current summary and per-trial logs/JSON](task4_evidence/2026-10-02-benchmark-2fa2821/) report **4/10 C1–C3 successes and 0/10 object-contact trials for controller commit `2fa2821` only**. Earlier batches are historical and are not mixed into this fixed evaluation. Historical video clips and raw frame images remain local, outside Git. See [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md) for the method, ten-trial table, and failure analysis.
 
 To evaluate a new committed controller revision, choose a new output directory:
 
