@@ -72,7 +72,7 @@ To evaluate a new committed controller revision, choose a new output directory:
 .\.venv\Scripts\python.exe summarize_task4_benchmark.py runs\benchmark_new
 ```
 
-The benchmark supplies structured targets to isolate navigation. A separate live English-command recording demonstrates the Task 3 LLM-to-Task 4 path. Review every trial's log, stopped frame, distance, and contact record before changing report metrics. `runs/` is local and ignored by Git.
+The benchmark refuses to run if its output directory already exists, preventing old trial receipts from being relabelled with a new commit. Always choose a fresh path for a new batch. The benchmark supplies structured targets to isolate navigation. A separate live English-command recording demonstrates the Task 3 LLM-to-Task 4 path. Review every trial's log, stopped frame, distance, and contact record before changing report metrics. `runs/` is local and ignored by Git.
 
 ## Course submission
 
