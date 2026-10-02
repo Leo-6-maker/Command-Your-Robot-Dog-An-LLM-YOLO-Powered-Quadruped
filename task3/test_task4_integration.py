@@ -355,6 +355,7 @@ def test_narrow_near_box_approaches_and_reobserves():
     boxes = iter([(200, 1, 400, 479), (170, 1, 470, 479),
                   (150, 1, 490, 479), (150, 1, 490, 479),
                   (150, 1, 490, 479),
+                  (150, 1, 490, 479),
                   (150, 1, 490, 479)])
     moves = []
     assert goto_object(
@@ -365,9 +366,9 @@ def test_narrow_near_box_approaches_and_reobserves():
         lambda *_: moves.append(1), lambda *_: pytest.fail("unexpected turn"),
         lambda: None, lambda *_: 0.7,
     )
-    # One cautious near step plus three terminal steps; the sixth detection is
+    # One cautious near step plus four terminal steps; the seventh detection is
     # a distinct post-stop frame used for mandatory C1 confirmation.
-    assert len(moves) == 4
+    assert len(moves) == 5
 
 
 def test_search_uses_small_steps_and_fails_after_one_full_turn(capsys):

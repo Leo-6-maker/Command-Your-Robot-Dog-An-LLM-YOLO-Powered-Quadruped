@@ -18,7 +18,8 @@ from PIL import Image
 # Fixed calibration shared by the trial runner and Task 3 entry point.
 CAMERA_FOVY_DEG = 100.0
 STOP_BOX_HEIGHT = 0.97
-FINAL_APPROACH_STEPS = 4
+FINAL_APPROACH_STEPS = 5
+FINAL_CONFIRM_FRAMES = 5
 
 
 @dataclass(frozen=True)
@@ -306,7 +307,7 @@ def goto_object(
                 terminal_steps = min(
                     final_approach_steps,
                     0 if width_share >= 0.72 else 1 if width_share >= 0.60
-                    else 3 if width_share > 0.44 else 4,
+                    else 4 if width_share > 0.44 else 5,
                 )
                 if terminal_steps:
                     print(f"[APPROACH] final_visual_steps={terminal_steps}")
@@ -329,14 +330,15 @@ def goto_object(
                         close_target.bbox[1] <= 2
                         and close_target.bbox[3] >= 0.98 * close_target.frame_height
                     )
-                    if close_width >= 0.70 or (step >= 2 and cropped_vertically):
+                    if close_width >= 0.74 or (step >= 3 and cropped_vertically):
                         print("[APPROACH] stop reason=visual_proximity")
                         break
 
                 stop()
                 # The first stopped frame can still catch body pitch settling.
-                # Stay stopped and require a live match within three fresh frames.
-                for _ in range(3):
+                # Stay stopped and require a live match within several fresh
+                # frames. This absorbs gait/camera settling without moving.
+                for _ in range(FINAL_CONFIRM_FRAMES):
                     final_observation = get_observation(last_sim_time)
                     last_sim_time = final_observation.sim_time
                     final_targets = [
@@ -352,7 +354,7 @@ def goto_object(
                     print("[APPROACH] recovery=back")
                     move(-0.10, 0.0, 0.0, 0.25)
                     stop()
-                    for _ in range(3):
+                    for _ in range(FINAL_CONFIRM_FRAMES):
                         final_observation = get_observation(last_sim_time)
                         last_sim_time = final_observation.sim_time
                         final_targets = [
