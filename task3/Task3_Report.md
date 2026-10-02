@@ -1,5 +1,7 @@
 # EE5112 MiniLab 1.3 — Task 3 Final Report
 
+> Phase report: the parser benchmark and 121-test count below predate bonus integration. The combined group report includes the current review: 136 Task 3/4 checks plus 6 Task 2 skill checks passed on 2 October 2026. This does not rerun the historical LLM benchmark or verify the final videos.
+
 ## 1. Deliverable summary
 
 Task 3 converts an English terminal command into a validated JSON action plan and executes the
@@ -125,7 +127,7 @@ Run all Task 3 tests from the repository root:
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-Current Task 3/4 result after the integration updates:
+Pre-bonus Task 3/4 result after the integration updates:
 
 ```text
 121 passed

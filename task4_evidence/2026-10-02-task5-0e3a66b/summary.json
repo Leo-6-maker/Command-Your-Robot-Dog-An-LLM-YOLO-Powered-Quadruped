@@ -1,0 +1,9 @@
+{
+  "code_revision": "0e3a66bbd147946566e6a9d27ab71ac1bf3b4d42",
+  "trials": 10,
+  "stopped_attempts": 10,
+  "c1_matches": 8,
+  "confirmed_grounding": 8,
+  "successes": 8,
+  "object_contact_trials": 0
+}

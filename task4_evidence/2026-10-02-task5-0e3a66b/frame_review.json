@@ -1,0 +1,14 @@
+[
+  {
+    "trial": "01_green_aligned",
+    "source_frame": "last_controller_frame.png",
+    "target_match": true,
+    "scope": "Offline re-inference on saved last controller RGB frame; not an additional navigation trial."
+  },
+  {
+    "trial": "03_green_offset",
+    "source_frame": "last_controller_frame.png",
+    "target_match": false,
+    "scope": "Offline re-inference on saved last controller RGB frame; not an additional navigation trial."
+  }
+]

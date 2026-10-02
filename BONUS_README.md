@@ -67,3 +67,5 @@ python -m task3.run --provider ollama --model qwen2.5:7b \
 - 原 Task 4 报告的 8/10 是旧固定控制器修订的结果，不代表本 bonus 分支的新评估成绩。
 
 本分支只提交代码、测试和说明，不提交模型缓存、音频、视频、API key 或本地原始运行日志。
+
+2026-10-02 Task 5 整合复核：`0e3a66b` 的 Windows 固定十次单目标椅子试验为 8/10 成功、8/10 任务停止确认帧匹配、0 次物体接触。记录在 `task4_evidence/2026-10-02-task5-0e3a66b/`；这不衡量语音识别或多目标任务成功率。最终组报告和待核对的成员、视频信息见 `GROUP_REPORT_DRAFT.md` 与 `TASK5_REVIEW.md`。可用 `prepare_submission.py --video-bonus ...` 将本地 bonus 视频纳入 Canvas ZIP。

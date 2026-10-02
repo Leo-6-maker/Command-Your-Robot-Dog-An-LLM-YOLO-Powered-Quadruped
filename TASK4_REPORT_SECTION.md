@@ -1,5 +1,7 @@
 # Task 4: YOLO object search and approach
 
+> Historical chapter scope: this section documents the fixed `d6f0c7b` batch. The integrated report `GROUP_REPORT_DRAFT.md` also includes a separate Windows evaluation of bonus runtime `0e3a66b`, with receipts in `task4_evidence/2026-10-02-task5-0e3a66b/`. Do not combine the batches.
+
 ## Method and integration
 
 We used the Task 2 `object_lab` MJCF scene

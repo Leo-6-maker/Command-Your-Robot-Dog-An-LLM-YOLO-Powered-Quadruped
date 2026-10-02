@@ -8,7 +8,7 @@ One MuJoCo quadruped executes typed English commands. Task 2 supplies the robot,
 | Task 3 | [`task3/`](task3/) (prompt, schema, validator, chat, executor, motion adapter) |
 | Task 4 | [`task4.py`](task4.py), [`task3/task4_integration.py`](task3/task4_integration.py), [`task3/dual_view.py`](task3/dual_view.py) |
 | Optional bonus | [Multi-goal missions and English speech input](BONUS_README.md) |
-| Report and evaluation | [`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md), [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md), [compact Task 4 receipts](task4_evidence/2026-10-02-benchmark-d6f0c7b/) |
+| Report and evaluation | [`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md), [`TASK5_REVIEW.md`](TASK5_REVIEW.md), [current runtime receipts](task4_evidence/2026-10-02-task5-0e3a66b/) |
 
 The locomotion platform and resources derive from [`aoqianz/quadruped_mujoco`](https://github.com/aoqianz/quadruped_mujoco), inspected at commit `dd40180f1121a66373d261e64a9a09eb69b1b2a7`. Student A's Task 2 changes and provenance are documented in [`task2/README_TASK2_中文.md`](task2/README_TASK2_%E4%B8%AD%E6%96%87.md) and [`task2/task2/assets/PROVENANCE.txt`](task2/task2/assets/PROVENANCE.txt). The ONNX walking policy, robot/terrain resources, and YOLO11n weights are retained because they are needed to run the simulator. **Videos, raw clips, ZIP archives, generated reports, and raw trial image series are not stored on GitHub.** Compact report images and numerical receipts are retained.
 
@@ -64,7 +64,7 @@ These poses are demonstration choices, not guaranteed success. After submitting 
 
 Task 4 marks a target as found only when **C1** a fresh stopped onboard frame detects the requested class and color, **C2** trunk-to-object planar distance is at most `0.80 m`, and **C3** `[FOUND] class=... color=... t=... d=...` is printed. The course requires at least ten trials across different objects and starts, including an initially hidden target and same-class color disambiguation.
 
-The retained [current summary and per-trial logs/JSON](task4_evidence/2026-10-02-benchmark-d6f0c7b/) report **8/10 C1–C3 successes and 0/10 object-contact trials for controller commit `d6f0c7b` only**. Earlier batches are historical and are not mixed into this fixed evaluation. Historical video clips and raw frame images remain local, outside Git. See [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md) for the method, ten-trial table, and failure analysis.
+The [current Windows batch](task4_evidence/2026-10-02-task5-0e3a66b/) evaluates runtime `0e3a66b`: **8/10 C1–C3 successes, 8/10 mission stopped-frame target matches, and 0/10 object-contact trials**. Two green-chair missions failed C1 despite reaching the distance threshold. An extra post-mission frame retained a target in 7/10 trials; it is distinct from the controller's success-decision frame. The batch measures single-goal chair navigation, not speech or multi-goal success rates. See the [combined report](GROUP_REPORT_DRAFT.md) for the table and failure analysis. The [earlier d6f0c7b batch](task4_evidence/2026-10-02-benchmark-d6f0c7b/) also achieved 8/10, with different failures; results are not mixed. [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md) documents that historical batch.
 
 To evaluate a new committed controller revision, choose a new output directory:
 
@@ -79,10 +79,12 @@ The benchmark refuses to run if its output directory already exists, preventing 
 
 The course submission is **separate from this GitHub repository**: a group PDF report, source and setup instructions, scene/object and prompt files, and three local videos named `Video_Task2.mp4`, `Video_Task3.mp4`, and `Video_Task4.mp4`. Task 3 and Task 4 videos must keep the terminal visible. Task 4's video must show typed English commands, `[CMD]`, `[SEARCH]`/`[DETECT]`, `[FOUND]`, and `[MISSION]` for two objects, including one initially hidden and one same-class color distinction.
 
-[`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md) is editable, **not final**. The group must fill its index, identities, actual contributions, and AI usage; review each video; and update Task 4 metrics only from a fixed evaluation of the final controller. To render a review copy, install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py` with Edge or Chrome installed. After reviewing the final PDF and three videos, create the Canvas ZIP locally:
+[`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md) is the combined English report for Tasks 1–5 and bonus. The group must confirm its index, identities, actual contributions and AI usage and review the final videos; [`TASK5_REVIEW.md`](TASK5_REVIEW.md) records outstanding fields and acceptance checks. To render a local PDF, install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py` with Edge or Chrome installed. After reviewing the final PDF and videos, create the Canvas ZIP locally:
 
 ```powershell
 .\.venv\Scripts\python.exe prepare_submission.py <group-index> --report <final-report.pdf> --video-task2 <Video_Task2.mp4> --video-task3 <Video_Task3.mp4> --video-task4 <Video_Task4.mp4>
 ```
 
 The packager rejects unresolved identity/contribution placeholders and refuses to overwrite an existing ZIP. It creates `..\minilab_1.3_group_<index>.zip`. Do not add that ZIP or the videos to Git; submit the reviewed ZIP to Canvas.
+
+Add `--video-bonus <Video_Bonus.mp4>` to include the optional reviewed speech/multi-goal recording. The PDF is the one combined group report; reference chapter templates do not block packaging a separately finalised PDF.

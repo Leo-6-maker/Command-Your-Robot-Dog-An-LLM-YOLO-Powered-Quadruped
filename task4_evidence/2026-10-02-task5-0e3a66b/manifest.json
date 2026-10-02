@@ -1,0 +1,99 @@
+{
+  "code_revision": "0e3a66bbd147946566e6a9d27ab71ac1bf3b4d42",
+  "camera_fovy_deg": 100.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 5,
+  "timeout_wall_s": 120,
+  "trials": [
+    {
+      "id": "01_green_aligned",
+      "color": "green",
+      "start": [
+        1,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "02_red_aligned",
+      "color": "red",
+      "start": [
+        1,
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "03_green_offset",
+      "color": "green",
+      "start": [
+        0.5,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "04_red_offset",
+      "color": "red",
+      "start": [
+        0.5,
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "05_green_center",
+      "color": "green",
+      "start": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "06_red_center",
+      "color": "red",
+      "start": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "07_green_hidden",
+      "color": "green",
+      "start": [
+        1,
+        1,
+        180
+      ]
+    },
+    {
+      "id": "08_red_hidden",
+      "color": "red",
+      "start": [
+        1,
+        -1,
+        180
+      ]
+    },
+    {
+      "id": "09_green_angled",
+      "color": "green",
+      "start": [
+        1,
+        0,
+        30
+      ]
+    },
+    {
+      "id": "10_red_angled",
+      "color": "red",
+      "start": [
+        1,
+        0,
+        -30
+      ]
+    }
+  ]
+}

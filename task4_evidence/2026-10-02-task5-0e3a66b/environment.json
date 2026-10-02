@@ -1,0 +1,30 @@
+{
+  "date_local": "2026-10-02",
+  "timezone": "Asia/Singapore",
+  "runtime_revision": "0e3a66bbd147946566e6a9d27ab71ac1bf3b4d42",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:17:27) [MSC v.1929 64 bit (AMD64)]",
+  "packages": {
+    "mujoco": "3.14.0",
+    "onnxruntime": "1.30.0",
+    "ultralytics": "8.3.111",
+    "Pillow": "10.4.0",
+    "PyMuPDF": "1.27.2.2",
+    "numpy": "2.5.2",
+    "torch": "2.6.0+cpu"
+  },
+  "sha256": {
+    "task4.py": "0917cd0f55fb44b356f5657756cc31b88736703bc69770b6b7f74c7acfaf445e",
+    "run_task4_trial.py": "d4f35e1f9931db9558d7c41987f4580c74bdf7876b918478ed74107d3bb864a7",
+    "run_task4_benchmark.py": "886f556ea591f8aa455dbadeb81a4d50e28e6a324679e1a7a9b8f2a93f181620",
+    "task3/task4_integration.py": "10a2fa2b224b65a78b7dab719763632acd38f18cc6fe6c6f0c754fb4e9b40c82",
+    "task2/task2/platform.py": "a409d4e210752185fd4602fed96d5dc68e83f303cb80a0fe34eb7fd943829c3d",
+    "task2/task2/skills.py": "d26585d71933803bdf3ae5268f393ce45b65d16290945924b985e39724bc5c3e",
+    "task2/task2/camera.py": "ac35db5b97efe3021a7c6edb22eb8b6d9cc9c5543ed6e7c90f85be44a5a807d5",
+    "task2/task2/assets/yolo11n.pt": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+    "task2/eg/model_3400.onnx": "75e5b8dc631e2fc219f9e2b8e9ea0e7f201c072367d1a715889cbd3f060287e9",
+    "task2/task2/assets/scene.xml": "bb03db5480f735dda38801486a5b9f76f47c7d621db4557d0882e886ac642ae2",
+    "task2/task2/assets/objects.json": "65b47343a6aa7414582651cc2309d6d98c60e712e3c7d3b55a64809258a9717a"
+  },
+  "scope": "Ten single-goal chair trials; no LLM calls or speech; report-only edits after the runtime revision."
+}
