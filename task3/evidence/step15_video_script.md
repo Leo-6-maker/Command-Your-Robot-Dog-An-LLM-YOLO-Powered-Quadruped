@@ -1,9 +1,10 @@
 # Step 15 — Task 3 desktop-video script
 
-Status: **complete (2026-09-30)**. The recording was reviewed by the operator, converted
-to the final MP4 submission format, and successfully decoded from beginning to end.
+Status: **replacement required after the 2026-10-02 log-protocol correction**. The previous
+recording was technically valid but used `[CMD]` for raw input text. It is retained only as a
+superseded artifact and must not be submitted as the final Task 3 video.
 
-## Final artifact
+## Superseded artifact
 
 - Submission file: `EE5112_MiniLab1_3_Task3_Demo.mp4`
 - Saved at: `/home/ziyan/Videos/Screencasts/EE5112_MiniLab1_3_Task3_Demo.mp4`
@@ -18,7 +19,7 @@ to the final MP4 submission format, and successfully decoded from beginning to e
 
 - Keep the real terminal and MuJoCo GUI visible side by side.
 - Type every robot request in English in the terminal.
-- Keep each `[CMD]`, `[LLM]`, `[PLAN]`, `[EXEC]`, and final `[DONE]` line visible long enough to read.
+- Keep each `[INPUT]`, `[LLM]`, parsed `[CMD]`, `[PLAN]`, `[EXEC]`, and final `[DONE]` line visible long enough to read.
 - Show successful movement, turning, a multi-turn context command, and one rejected request.
 - Do not expose an API key or the external key file.
 
@@ -75,7 +76,8 @@ Use `Ctrl+Alt+Shift+R` to start recording the desktop and use the same shortcut 
 ## Acceptance check after recording
 
 - Both windows remain readable at normal playback size.
-- Every English input has one `[CMD]` line and ends in a visible `[DONE]` line.
+- Every English input has one `[INPUT]` line, one parsed/rejected `[CMD]` line and a visible `[DONE]` line.
+- Accepted commands show `[CMD] actions=... n=...`; the rejected request shows `[CMD] rejected reason=...`.
 - Robot movement is visible for all four accepted commands.
 - The poem request is visibly rejected and causes no motion.
 - No API key, billing page, unrelated notification, or private information is visible.

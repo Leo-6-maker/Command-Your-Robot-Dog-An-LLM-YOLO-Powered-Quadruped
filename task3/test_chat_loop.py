@@ -64,7 +64,11 @@ def test_submit_runs_planning_and_execution_on_worker_thread():
     assert planner.calls == [("Move forward", None)]
     assert executor.executed == [MOVE_PLAN]
     assert loop.previous_successful_plan == MOVE_PLAN
-    assert logs[0] == "[CMD] text=Move forward"
+    assert logs[0] == "[INPUT] text=Move forward"
+    assert (
+        "[CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=2.00) n=1"
+        in logs
+    )
     assert any(
         line.startswith("[LLM]")
         and "input_tokens=na output_tokens=na" in line
@@ -82,7 +86,11 @@ def test_blank_command_is_rejected_without_calling_llm():
 
     assert planner.calls == []
     assert executor.executed == []
-    assert logs == ["[DONE] status=REJECTED stage=input reason=empty_command"]
+    assert logs == [
+        "[INPUT] text=empty",
+        "[CMD] rejected reason=empty_input",
+        "[DONE] status=REJECTED stage=input reason=empty_command",
+    ]
 
 
 def test_successful_plan_becomes_context_for_next_command():
@@ -137,6 +145,8 @@ def test_non_english_and_dangerous_commands_are_rejected_before_llm():
     assert [plan.accepted for plan in executor.executed] == [False, False]
     assert all(plan.actions == () for plan in executor.executed)
     assert sum("provider=local" in line for line in logs) == 2
+    assert "[CMD] rejected reason=non-English" in logs
+    assert "[CMD] rejected reason=unsafe_request" in logs
 
 
 class BlockingPlanner(FakePlanner):
@@ -209,6 +219,7 @@ def test_untrusted_input_and_exception_cannot_forge_logs():
 
     assert all("\n" not in line for line in logs)
     assert sum(line.startswith("[DONE]") for line in logs) == 1
+    assert "[CMD] rejected reason=planner_error" in logs
 
 
 def test_untrusted_provider_metadata_cannot_forge_logs():
@@ -255,3 +266,17 @@ def test_direction_mismatch_is_rejected_before_execution():
     assert executor.executed[0].actions == ()
     assert loop.previous_successful_plan is None
     assert any(line.startswith("[GUARD] status=REJECTED") for line in logs)
+    assert "[CMD] rejected reason=direction_mismatch" in logs
+
+
+def test_llm_rejection_uses_cmd_rejected_protocol():
+    logs = []
+    executor = FakeExecutor()
+    loop = TerminalChatLoop(FakePlanner(REJECTED_PLAN), executor, logger=logs.append)
+
+    loop.submit("Write a poem about robot dogs.")
+    assert loop.wait(1.0)
+
+    assert "[INPUT] text=Write a poem about robot dogs." in logs
+    assert "[CMD] rejected reason=unsupported_request" in logs
+    assert executor.executed == [REJECTED_PLAN]

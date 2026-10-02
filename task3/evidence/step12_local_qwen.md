@@ -1,5 +1,9 @@
 # Step 12 evidence — local Qwen provider
 
+> Historical log note: this run predates the 2026-10-02 protocol correction. The current runtime
+> uses `[INPUT]` for the raw sentence and reserves `[CMD]` for the parsed action list or a stable
+> rejection reason.
+
 Date: 2026-09-29
 
 ## Scope

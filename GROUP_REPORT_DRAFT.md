@@ -204,8 +204,13 @@ rejection and no motion. This was added after Qwen produced text saying “right
 The asynchronous chat loop prints stable one-line evidence records:
 
 ```text
-[CMD] -> [LLM] -> [PLAN] -> [EXEC] -> [DONE]
+[INPUT] -> [LLM] -> [CMD] -> [PLAN] -> [EXEC] -> [DONE]
 ```
+
+`[INPUT]` contains the sanitised user text. The teacher-facing `[CMD]` record contains the parsed
+actions and count (for example, `[CMD] actions=move(...),turn(...) n=2`) or a stable rejection
+reason (`[CMD] rejected reason=unsupported_request`). `[PLAN]` remains additional validation detail
+and does not replace `[CMD]`.
 
 Actions execute strictly in list order. A failure or cancellation stops the current action and
 skips all remaining actions. Only an accepted plan whose execution ends in `SUCCESS` becomes the
@@ -252,15 +257,17 @@ Run all Task 3 tests from the repository root:
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-Final result:
+Current main-aligned result during the log-protocol revision:
 
 ```text
-102 passed in 0.20s
+115 passed, 3 failed
 ```
 
 The tests cover parsing, schema and semantic limits, direction consistency, provider boundaries,
 context, cancellation, strict execution order, Task 2 completion, Task 4 callbacks, log sanitising,
-benchmark scoring and cost calculations. `git diff --check` also passes.
+benchmark scoring and cost calculations. All 40 log/chat/policy/executor tests pass. The three
+remaining failures are inherited Task 4 final-redetection test mismatches and are tracked
+separately from this logging change.
 
 ## 8. Reproduction
 
@@ -295,10 +302,10 @@ Enter `/quit` to cancel outstanding work and stop the integrated runtime safely.
 
 ## 9. Video evidence
 
-The final desktop video shows the terminal and live MuJoCo view together, four successful motion
-commands including conversational context, one unrelated-command rejection, and clean shutdown.
-One integrated Qwen demonstration is recorded; both providers are evaluated with the common
-benchmark rather than duplicating the same video.
+The previous desktop recording predates the corrected `[INPUT]`/`[CMD]` protocol and must be
+re-recorded after the remaining improvements are complete. The replacement must visibly show
+parsed-action and rejected `[CMD]` records. Both providers are evaluated with the common benchmark,
+so only one integrated provider demonstration is needed.
 
 - File: `EE5112_MiniLab1_3_Task3_Demo.mp4`
 - Format: H.264 MP4, 1920x1080, 30 FPS, 95.8 seconds

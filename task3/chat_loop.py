@@ -4,9 +4,9 @@ from collections.abc import Callable
 import threading
 from typing import Protocol
 
-from .command_policy import local_rejection_reason, plan_consistency_reason
+from .command_policy import local_rejection, plan_consistency_reason
 from .executor import ExecutionResult, PlanExecutor
-from .log_format import inline_value, optional_count
+from .log_format import command_log, inline_value, optional_count
 from .planner import CompatibleChatPlanner, OllamaPlanner, OpenAIPlanner, PlanningResult
 from .validator import CommandPlan, validate_plan
 
@@ -71,6 +71,11 @@ class TerminalChatLoop:
         """Start one LLM→validator→executor job; return False when already busy."""
         command = command.strip()
         if not command:
+            self.log("[INPUT] text=empty")
+            rejected = validate_plan(
+                {"accepted": False, "message": "The command is empty.", "actions": []}
+            )
+            self.log(command_log(rejected, rejection_reason="empty_input"))
             self.log("[DONE] status=REJECTED stage=input reason=empty_command")
             return False
         with self._lock:
@@ -78,7 +83,7 @@ class TerminalChatLoop:
                 self.log("[CHAT] status=BUSY hint=/stop")
                 return False
             self._cancel_requested.clear()
-            self.log(f"[CMD] text={inline_value(command, limit=500)}")
+            self.log(f"[INPUT] text={inline_value(command, limit=500)}")
             self._worker = threading.Thread(
                 target=self._process_command,
                 args=(command,),
@@ -142,9 +147,11 @@ class TerminalChatLoop:
 
     def _process_command(self, command: str) -> None:
         stage = "planning"
+        command_logged = False
         try:
-            local_reason = local_rejection_reason(command)
-            if local_reason is not None:
+            local_result = local_rejection(command)
+            if local_result is not None:
+                reason_code, local_reason = local_result
                 plan = validate_plan(
                     {"accepted": False, "message": local_reason, "actions": []}
                 )
@@ -152,6 +159,8 @@ class TerminalChatLoop:
                     "[LLM] provider=local model=command-policy latency_s=0.000 "
                     "input_tokens=0 output_tokens=0 accepted=false actions=0"
                 )
+                self.log(command_log(plan, rejection_reason=reason_code))
+                command_logged = True
                 self.executor.execute(plan)
                 return
             with self._lock:
@@ -167,6 +176,11 @@ class TerminalChatLoop:
                 f"{str(plan.accepted).lower()} actions={len(plan.actions)}"
             )
             if self._cancel_requested.is_set():
+                cancelled = validate_plan(
+                    {"accepted": False, "message": "Planning was cancelled.", "actions": []}
+                )
+                self.log(command_log(cancelled, rejection_reason="cancelled"))
+                command_logged = True
                 self.log("[DONE] status=CANCELLED stage=planning")
                 return
             consistency_reason = plan_consistency_reason(command, plan)
@@ -185,12 +199,22 @@ class TerminalChatLoop:
                         "actions": [],
                     }
                 )
+                rejection_reason = "direction_mismatch"
+            else:
+                rejection_reason = "unsupported_request"
+            self.log(command_log(plan, rejection_reason=rejection_reason))
+            command_logged = True
             stage = "execution"
             result = self.executor.execute(plan)
             if result.status == "SUCCESS" and plan.accepted:
                 with self._lock:
                     self._previous_successful_plan = plan
         except Exception as exc:
+            if not command_logged and stage == "planning":
+                failed = validate_plan(
+                    {"accepted": False, "message": "Command planning failed.", "actions": []}
+                )
+                self.log(command_log(failed, rejection_reason="planner_error"))
             self.log(
                 f"[DONE] status=ERROR stage={stage} "
                 f"error={type(exc).__name__} reason={inline_value(exc, limit=500)}"

@@ -252,7 +252,7 @@ python -m task3.run \
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-测试覆盖 JSON/schema 边界、本地拒绝、方向语义一致性、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。当前结果为 `102 passed`。
+测试覆盖 JSON/schema 边界、本地拒绝、方向语义一致性、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。日志协议相关的 40 项测试全部通过；与最新 `main` 对齐后的完整结果为 `115 passed, 3 failed`，3 个失败均为合并前已经存在的 Task 4 复检行为与旧测试不一致，和本次日志修改无关。
 
 ## 终端日志协议
 
@@ -261,8 +261,9 @@ conda run -n ee5112-minilab python -m pytest -q task3
 ```text
 [RUNTIME] event=START mode=browser duration_s=120.0
 [CHAT] event=READY input=english hint=/help
-[CMD] text=Move forward for one second.
+[INPUT] text=Move forward for one second.
 [LLM] provider=ollama model=qwen2.5:7b latency_s=1.246 input_tokens=1120 output_tokens=48 accepted=true actions=1
+[CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=1.00) n=1
 [PLAN] accepted=true actions=1 message=Moving forward.
 [EXEC] step=1/1 type=move vx=0.40 vy=0.00 wz=0.00 duration_s=1.00
 [EXEC] step=1/1 type=move status=SUCCESS
@@ -274,11 +275,20 @@ conda run -n ee5112-minilab python -m pytest -q task3
 
 - `[RUNTIME]`：MuJoCo 主循环开始或结束；
 - `[CHAT]`：终端循环状态和本地控制命令；
-- `[CMD]`：当次用户英文指令；
+- `[INPUT]`：用户输入的原始英文文本；
 - `[LLM]`：供应商、模型、延迟、token 与计划大小；
+- `[CMD]`：经过解析与本地验证的机器人动作列表，或稳定的拒绝原因；
 - `[PLAN]`：经本地 validator 确认的计划；
 - `[EXEC]`：每个动作的开始参数和完成状态；
 - `[DONE]`：一条指令的最终 `SUCCESS` / `REJECTED` / `FAIL` / `CANCELLED` / `ERROR`。
+
+老师要求的 `[CMD]` 不代表原始文本。多动作和拒绝示例分别为：
+
+```text
+[CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=1.00),turn(angle_deg=45.00) n=2
+[CMD] rejected reason=non-English
+[CMD] rejected reason=unsupported_request
+```
 
 ## 20 条 LLM benchmark
 

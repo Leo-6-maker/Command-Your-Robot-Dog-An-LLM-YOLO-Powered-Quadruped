@@ -23,8 +23,8 @@ _DANGEROUS_PATTERNS = tuple(
 )
 
 
-def local_rejection_reason(command: str) -> str | None:
-    """Reject clear policy violations before any paid provider request.
+def local_rejection(command: str) -> tuple[str, str] | None:
+    """Return a stable reason code and message for clear local violations.
 
     Ambiguous and unrelated English commands are intentionally left to the LLM;
     this local layer only handles cases that can be identified conservatively.
@@ -32,10 +32,16 @@ def local_rejection_reason(command: str) -> str | None:
     if not isinstance(command, str):
         raise TypeError("command must be text")
     if any(_is_non_ascii_letter(character) for character in command):
-        return "Please enter the robot command in English."
+        return ("non-English", "Please enter the robot command in English.")
     if any(pattern.search(command) for pattern in _DANGEROUS_PATTERNS):
-        return "Unsafe or harmful robot commands are not allowed."
+        return ("unsafe_request", "Unsafe or harmful robot commands are not allowed.")
     return None
+
+
+def local_rejection_reason(command: str) -> str | None:
+    """Backward-compatible message-only view used by existing callers/tests."""
+    rejection = local_rejection(command)
+    return None if rejection is None else rejection[1]
 
 
 _TRANSLATION_DIRECTION = re.compile(
