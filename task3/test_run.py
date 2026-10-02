@@ -96,6 +96,49 @@ def test_quit_request_stops_before_next_physics_step():
     assert platform.step_calls == 0
 
 
+def test_one_shot_mode_exits_after_command_worker_finishes():
+    platform = FakePlatform()
+    chat = SimpleNamespace(quit_requested=False, busy=False)
+
+    steps = run_simulation_loop(
+        platform,
+        FakeTask4(),
+        FakeViewer(),
+        duration_s=10,
+        browser_only=True,
+        chat=chat,
+        exit_when_idle=True,
+    )
+
+    assert steps == 1
+    assert platform.step_calls == 1
+
+
+def test_reset_runs_on_simulation_thread_before_next_step():
+    events = []
+    platform = FakePlatform()
+
+    class ResetChat:
+        quit_requested = False
+        reset_requested = True
+
+        def finish_reset(self, *, error=None):
+            events.append(("reset_done", error))
+            self.reset_requested = False
+
+    def reset_scene():
+        events.append(("reset_scene", None))
+        platform.data.time = 0.0
+
+    steps = run_simulation_loop(
+        platform, FakeTask4(), FakeViewer(), duration_s=0.1,
+        browser_only=True, chat=ResetChat(), reset_scene=reset_scene,
+    )
+
+    assert steps == 1
+    assert events == [("reset_scene", None), ("reset_done", None)]
+
+
 def test_duration_must_be_positive_and_finite():
     for value in (0, -1, float("inf"), float("nan")):
         with pytest.raises(ValueError, match="duration_s"):

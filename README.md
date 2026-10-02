@@ -7,6 +7,7 @@ One MuJoCo quadruped executes typed English commands. Task 2 supplies the robot,
 | Task 2 | [`task2/task2/`](task2/task2/), [`task2/eg/`](task2/eg/), [`task2/src/`](task2/src/), [`task2/task2/assets/`](task2/task2/assets/) |
 | Task 3 | [`task3/`](task3/) (prompt, schema, validator, chat, executor, motion adapter) |
 | Task 4 | [`task4.py`](task4.py), [`task3/task4_integration.py`](task3/task4_integration.py), [`task3/dual_view.py`](task3/dual_view.py) |
+| Optional bonus | [Multi-goal missions and English speech input](BONUS_README.md) |
 | Report and evaluation | [`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md), [`TASK4_REPORT_SECTION.md`](TASK4_REPORT_SECTION.md), [compact Task 4 receipts](task4_evidence/2026-10-02-benchmark-d6f0c7b/) |
 
 The locomotion platform and resources derive from [`aoqianz/quadruped_mujoco`](https://github.com/aoqianz/quadruped_mujoco), inspected at commit `dd40180f1121a66373d261e64a9a09eb69b1b2a7`. Student A's Task 2 changes and provenance are documented in [`task2/README_TASK2_中文.md`](task2/README_TASK2_%E4%B8%AD%E6%96%87.md) and [`task2/task2/assets/PROVENANCE.txt`](task2/task2/assets/PROVENANCE.txt). The ONNX walking policy, robot/terrain resources, and YOLO11n weights are retained because they are needed to run the simulator. **Videos, raw clips, ZIP archives, generated reports, and raw trial image series are not stored on GitHub.** Compact report images and numerical receipts are retained.

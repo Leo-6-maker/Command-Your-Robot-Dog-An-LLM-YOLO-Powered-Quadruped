@@ -6,6 +6,7 @@ from task3.chat_loop import TerminalChatLoop
 from task3.executor import ExecutionResult
 from task3.planner import PlanningResult
 from task3.validator import validate_plan
+from task3.speech_input import SpeechInputError, SpeechResult
 
 
 MOVE_PLAN = validate_plan(
@@ -76,6 +77,59 @@ def test_submit_runs_planning_and_execution_on_worker_thread():
     )
 
 
+def test_voice_transcript_uses_the_same_planner_and_executor():
+    class FakeSpeech:
+        def record_and_transcribe(self):
+            return SpeechResult("Visit the green chair.", "fake-stt", 0.2)
+
+    planner = FakePlanner()
+    executor = FakeExecutor()
+    logs = []
+    loop = TerminalChatLoop(planner, executor, logger=logs.append,
+                            speech_input=FakeSpeech())
+    assert loop.handle_line("/voice")
+    assert loop.wait(1.0)
+    assert planner.calls == [("Visit the green chair.", None)]
+    assert executor.executed == [MOVE_PLAN]
+    assert any(line.startswith("[STT] status=OK") and
+               "text=Visit the green chair." in line for line in logs)
+    assert "[INPUT] text=Visit the green chair." in logs
+
+
+def test_failed_stt_does_not_call_planner_or_move():
+    class SilentSpeech:
+        def record_and_transcribe(self):
+            raise SpeechInputError("no audible speech detected")
+
+    planner = FakePlanner()
+    executor = FakeExecutor()
+    logs = []
+    loop = TerminalChatLoop(planner, executor, logger=logs.append,
+                            speech_input=SilentSpeech())
+    assert loop.handle_line("/voice")
+    assert loop.wait(1.0)
+    assert planner.calls == [] and executor.executed == []
+    assert "[STT] status=FAIL reason=no audible speech detected" in logs
+
+
+def test_voice_file_transcript_uses_the_same_command_path():
+    class FakeSpeech:
+        def transcribe_file(self, path):
+            assert path == "/tmp/spoken-command.wav"
+            return SpeechResult("Turn left 30 degrees.", "fake-stt", 0.1)
+
+    planner = FakePlanner()
+    executor = FakeExecutor()
+    logs = []
+    loop = TerminalChatLoop(planner, executor, logger=logs.append,
+                            speech_input=FakeSpeech())
+    assert loop.handle_line("/voice-file /tmp/spoken-command.wav")
+    assert loop.wait(1.0)
+    assert planner.calls == [("Turn left 30 degrees.", None)]
+    assert executor.executed == [MOVE_PLAN]
+    assert "[STT] status=TRANSCRIBING source=file" in logs
+
+
 def test_blank_command_is_rejected_without_calling_llm():
     planner = FakePlanner()
     executor = FakeExecutor()
@@ -103,6 +157,47 @@ def test_successful_plan_becomes_context_for_next_command():
     assert loop.wait(1.0)
 
     assert planner.calls[1] == ("Do that again", MOVE_PLAN)
+
+
+def test_reset_waits_for_simulator_and_clears_old_command_context():
+    planner = FakePlanner()
+    logs = []
+    loop = TerminalChatLoop(planner, FakeExecutor(), logger=logs.append)
+    assert loop.submit("Move forward")
+    assert loop.wait(1.0)
+    assert loop.previous_successful_plan == MOVE_PLAN
+
+    assert loop.handle_line("/reset")
+    assert loop.reset_requested
+    assert not loop.submit("Do that again")
+    assert "[CHAT] status=RESETTING hint=wait_for_reset_success" in logs
+    loop.finish_reset()
+
+    assert not loop.reset_requested
+    assert loop.previous_successful_plan is None
+    assert loop.last_execution_result is None
+    assert "[RESET] status=SUCCESS position=initial" in logs
+
+
+def test_reset_is_rejected_while_command_is_running():
+    started = threading.Event()
+    release = threading.Event()
+
+    class SlowPlanner(FakePlanner):
+        def plan(self, command, previous_plan=None):
+            started.set()
+            assert release.wait(1.0)
+            return super().plan(command, previous_plan)
+
+    logs = []
+    loop = TerminalChatLoop(SlowPlanner(), FakeExecutor(), logger=logs.append)
+    assert loop.submit("Move forward")
+    assert started.wait(1.0)
+    assert loop.handle_line("/reset")
+    assert not loop.reset_requested
+    assert "[RESET] status=REJECTED reason=command_busy" in logs
+    release.set()
+    assert loop.wait(1.0)
 
 
 def test_rejected_plan_does_not_replace_successful_context():

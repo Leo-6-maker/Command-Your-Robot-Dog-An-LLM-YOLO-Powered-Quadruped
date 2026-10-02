@@ -29,7 +29,6 @@ def test_valid_multistep_plan_becomes_typed_actions():
             ],
         }
     )
-
     assert plan.accepted is True
     assert plan.message == "Moving, then turning."
     assert plan.actions == (
@@ -37,6 +36,26 @@ def test_valid_multistep_plan_becomes_typed_actions():
         TurnAction(angle_deg=90.0),
         GotoObjectAction(class_name="chair", color="green"),
     )
+
+
+def test_bonus_three_goal_plan_accepts_only_scene_targets_in_order():
+    goals = [
+        {"type": "goto_object", "class": "sports ball", "color": "orange"},
+        {"type": "goto_object", "class": "chair", "color": "red"},
+        {"type": "goto_object", "class": "chair", "color": "green"},
+    ]
+    plan = validate_plan({"accepted": True, "message": "Visiting three goals.",
+                          "actions": goals})
+    assert plan.actions == (
+        GotoObjectAction("sports ball", "orange"),
+        GotoObjectAction("chair", "red"),
+        GotoObjectAction("chair", "green"),
+    )
+    schema = load_action_plan_schema()
+    goto_variant = schema["properties"]["actions"]["items"]["anyOf"][2]
+    assert "sports ball" in goto_variant["properties"]["class"]["enum"]
+    assert "orange" in goto_variant["properties"]["color"]["enum"]
+
 
 
 def test_valid_rejection_has_no_actions():
@@ -109,7 +128,7 @@ def test_invalid_plan_level_semantics_are_rejected(mutation, error_path):
         {"type": "move", "vx": 0.5, "vy": 0, "wz": 0, "duration_s": math.inf},
         {"type": "turn", "angle_deg": 0},
         {"type": "turn", "angle_deg": 721},
-        {"type": "goto_object", "class": "sports ball", "color": "orange"},
+        {"type": "goto_object", "class": "sports ball", "color": "green"},
         {"type": "goto_object", "class": "chair", "color": "blue"},
         {"type": "stop", "reason": "extra field"},
         {"type": "dance"},

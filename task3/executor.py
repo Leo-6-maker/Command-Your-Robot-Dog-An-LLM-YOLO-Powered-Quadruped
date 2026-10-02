@@ -65,10 +65,12 @@ class PlanExecutor:
         motion: MotionController,
         *,
         goto_object: Callable[[str, str], bool] | None = None,
+        goto_object_multigoal: Callable[[str, str], bool] | None = None,
         logger: Callable[[str], None] = print,
     ):
         self.motion = motion
         self.goto_object = goto_object
+        self.goto_object_multigoal = goto_object_multigoal
         self.log = logger
         self._execution_lock = threading.Lock()
         self._cancel_requested = threading.Event()
@@ -97,12 +99,23 @@ class PlanExecutor:
                 )
 
             completed = 0
+            multi_goal = sum(isinstance(a, GotoObjectAction) for a in plan.actions) > 1
             for index, action in enumerate(plan.actions, start=1):
                 try:
                     if self._cancel_requested.is_set():
                         raise MotionCancelledError("plan was cancelled")
                     self.log(_start_log(action, index, total))
-                    completion = self._dispatch(action)
+                    completion = self._dispatch(action, multi_goal=multi_goal)
+                    if (
+                        isinstance(action, GotoObjectAction)
+                        and index < total
+                        and isinstance(plan.actions[index], GotoObjectAction)
+                    ):
+                        # Clear the reached object before searching for the
+                        # next goal. This is bounded local motion, independent
+                        # of scene truth and absent from one-goal missions.
+                        self.log(f"[TRANSITION] after={index}/{total} retreat_s=1.50")
+                        self.motion.move(-0.30, 0.0, 0.0, 1.50)
                     completed += 1
                     self.log(
                         f"[EXEC] step={index}/{total} type={_action_type(action)} "
@@ -153,7 +166,7 @@ class PlanExecutor:
         self._cancel_requested.set()
         self.motion.stop()
 
-    def _dispatch(self, action: RobotAction) -> str:
+    def _dispatch(self, action: RobotAction, *, multi_goal: bool = False) -> str:
         if isinstance(action, MoveAction):
             self.motion.move(action.vx, action.vy, action.wz, action.duration_s)
             return ""
@@ -162,9 +175,14 @@ class PlanExecutor:
             error = result.get("final_error_deg")
             return "" if error is None else f" final_error_deg={float(error):.2f}"
         if isinstance(action, GotoObjectAction):
-            if self.goto_object is None:
+            callback = (
+                self.goto_object_multigoal
+                if multi_goal and self.goto_object_multigoal is not None
+                else self.goto_object
+            )
+            if callback is None:
                 raise GotoObjectUnavailableError("Task 4 goto_object is not connected")
-            if not self.goto_object(action.class_name, action.color):
+            if not callback(action.class_name, action.color):
                 raise GotoObjectMissionFailedError(
                     f"could not reach {action.color} {action.class_name}"
                 )

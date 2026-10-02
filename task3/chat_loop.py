@@ -9,6 +9,7 @@ from .executor import ExecutionResult, PlanExecutor
 from .log_format import command_log, inline_value, optional_count
 from .planner import CompatibleChatPlanner, OllamaPlanner, OpenAIPlanner, PlanningResult
 from .validator import CommandPlan, validate_plan
+from .speech_input import LocalSpeechInput, SpeechInputError
 
 
 class PlannerLike(Protocol):
@@ -41,16 +42,20 @@ class TerminalChatLoop:
         *,
         logger: Callable[[str], None] = print,
         input_fn: Callable[[str], str] = input,
+        speech_input: LocalSpeechInput | None = None,
     ):
         self.planner = planner
         self.executor = executor
         self.log = logger
         self.input_fn = input_fn
+        self.speech_input = speech_input
         self._lock = threading.RLock()
         self._worker: threading.Thread | None = None
         self._cancel_requested = threading.Event()
         self._quit_requested = threading.Event()
+        self._reset_requested = threading.Event()
         self._previous_successful_plan: CommandPlan | None = None
+        self._last_execution_result: ExecutionResult | None = None
 
     @property
     def busy(self) -> bool:
@@ -67,6 +72,43 @@ class TerminalChatLoop:
         """Tell the simulator owner thread that the user entered ``/quit``."""
         return self._quit_requested.is_set()
 
+    @property
+    def last_execution_result(self) -> ExecutionResult | None:
+        with self._lock:
+            return self._last_execution_result
+
+    @property
+    def reset_requested(self) -> bool:
+        return self._reset_requested.is_set()
+
+    def request_reset(self) -> bool:
+        """Ask the simulator owner to reset only when no command is running."""
+        with self._lock:
+            if self._worker is not None and self._worker.is_alive():
+                self.log("[RESET] status=REJECTED reason=command_busy")
+                return False
+            if self._reset_requested.is_set():
+                self.log("[RESET] status=PENDING")
+                return False
+            self._reset_requested.set()
+            self.log("[RESET] status=REQUESTED")
+            return True
+
+    def finish_reset(self, *, error: Exception | None = None) -> None:
+        """Called by the simulator thread after resetting physics and camera."""
+        with self._lock:
+            if error is None:
+                self._previous_successful_plan = None
+                self._last_execution_result = None
+                self._cancel_requested.clear()
+                self.log("[RESET] status=SUCCESS position=initial")
+            else:
+                self.log(
+                    f"[RESET] status=FAIL error={type(error).__name__} "
+                    f"reason={inline_value(error, limit=300)}"
+                )
+            self._reset_requested.clear()
+
     def submit(self, command: str) -> bool:
         """Start one LLM→validator→executor job; return False when already busy."""
         command = command.strip()
@@ -79,10 +121,14 @@ class TerminalChatLoop:
             self.log("[DONE] status=REJECTED stage=input reason=empty_command")
             return False
         with self._lock:
+            if self._reset_requested.is_set():
+                self.log("[CHAT] status=RESETTING hint=wait_for_reset_success")
+                return False
             if self._worker is not None and self._worker.is_alive():
                 self.log("[CHAT] status=BUSY hint=/stop")
                 return False
             self._cancel_requested.clear()
+            self._last_execution_result = None
             self.log(f"[INPUT] text={inline_value(command, limit=500)}")
             self._worker = threading.Thread(
                 target=self._process_command,
@@ -98,6 +144,54 @@ class TerminalChatLoop:
         self._cancel_requested.set()
         self.executor.cancel()
         self.log("[CHAT] event=STOP_REQUESTED")
+
+    def submit_voice(self, audio_file: str | None = None) -> bool:
+        """Transcribe on a worker, then use the same planner and executor path."""
+        if self.speech_input is None:
+            self.log("[STT] status=UNAVAILABLE hint=enable_voice_input")
+            return False
+        with self._lock:
+            if self._reset_requested.is_set():
+                self.log("[CHAT] status=RESETTING hint=wait_for_reset_success")
+                return False
+            if self._worker is not None and self._worker.is_alive():
+                self.log("[CHAT] status=BUSY hint=/stop")
+                return False
+            self._cancel_requested.clear()
+            self._last_execution_result = None
+            self._worker = threading.Thread(
+                target=self._process_voice, args=(audio_file,),
+                name="task3-voice-worker", daemon=True,
+            )
+            self._worker.start()
+            return True
+
+    def _process_voice(self, audio_file: str | None) -> None:
+        try:
+            if audio_file is None:
+                self.log("[STT] status=RECORDING")
+                result = self.speech_input.record_and_transcribe()
+            else:
+                self.log("[STT] status=TRANSCRIBING source=file")
+                result = self.speech_input.transcribe_file(audio_file)
+            self.log(
+                f"[STT] status=OK model={inline_value(result.model, limit=80)} "
+                f"latency_s={result.latency_s:.3f} text={inline_value(result.text, limit=500)}"
+            )
+            if self._cancel_requested.is_set():
+                self.log("[DONE] status=CANCELLED stage=stt")
+                return
+            self.log(f"[INPUT] text={inline_value(result.text, limit=500)}")
+            self._process_command(result.text)
+        except SpeechInputError as exc:
+            self.log(f"[STT] status=FAIL reason={inline_value(exc, limit=500)}")
+            self.log("[DONE] status=REJECTED stage=stt")
+        except Exception as exc:
+            self.log(
+                f"[STT] status=ERROR error={type(exc).__name__} "
+                f"reason={inline_value(exc, limit=500)}"
+            )
+            self.log("[DONE] status=ERROR stage=stt")
 
     def wait(self, timeout: float | None = None) -> bool:
         """Wait for the current command; return True if it has finished."""
@@ -120,10 +214,20 @@ class TerminalChatLoop:
             self.cancel()
             return True
         if local == "/status":
-            self.log(f"[CHAT] status={'BUSY' if self.busy else 'IDLE'}")
+            status = "RESETTING" if self.reset_requested else "BUSY" if self.busy else "IDLE"
+            self.log(f"[CHAT] status={status}")
             return True
         if local == "/help":
-            self.log("[CHAT] event=HELP commands=/status,/stop,/help,/quit")
+            self.log("[CHAT] event=HELP commands=/status,/stop,/reset,/voice,/voice-file,/help,/quit")
+            return True
+        if local == "/reset":
+            self.request_reset()
+            return True
+        if local == "/voice":
+            self.submit_voice()
+            return True
+        if local.startswith("/voice-file "):
+            self.submit_voice(stripped[len("/voice-file "):].strip())
             return True
         self.submit(stripped)
         return True
@@ -161,7 +265,9 @@ class TerminalChatLoop:
                 )
                 self.log(command_log(plan, rejection_reason=reason_code))
                 command_logged = True
-                self.executor.execute(plan)
+                result = self.executor.execute(plan)
+                with self._lock:
+                    self._last_execution_result = result
                 return
             with self._lock:
                 previous_plan = self._previous_successful_plan
@@ -206,6 +312,8 @@ class TerminalChatLoop:
             command_logged = True
             stage = "execution"
             result = self.executor.execute(plan)
+            with self._lock:
+                self._last_execution_result = result
             if result.status == "SUCCESS" and plan.accepted:
                 with self._lock:
                     self._previous_successful_plan = plan

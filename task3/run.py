@@ -22,6 +22,7 @@ from .chat_loop import (
 from .executor import PlanExecutor
 from .task2_adapter import Task2MotionAdapter
 from .task4_integration import Task4Integration, load_object_positions
+from .speech_input import LocalSpeechInput
 
 
 class ViewerLike(Protocol):
@@ -107,6 +108,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="test simulator/camera/YOLO wiring without creating an API client",
     )
+    parser.add_argument("--voice", action="store_true",
+                        help="enable local microphone commands with /voice")
+    parser.add_argument("--voice-model", default="base.en",
+                        help="local faster-whisper model (default: base.en)")
+    parser.add_argument("--voice-duration", type=float, default=7.0,
+                        help="microphone recording seconds per /voice command")
+    parser.add_argument("--command", type=str,
+                        help="submit one English command at startup and exit when it finishes")
     return parser
 
 
@@ -119,6 +128,8 @@ def run_simulation_loop(
     browser_only: bool,
     pace_wall_clock: bool = False,
     chat: TerminalChatLoop | None = None,
+    reset_scene: Callable[[], None] | None = None,
+    exit_when_idle: bool = False,
     monotonic: Callable[[], float] = time.monotonic,
     sleep: Callable[[float], None] = time.sleep,
 ) -> int:
@@ -130,10 +141,21 @@ def run_simulation_loop(
     while viewer.is_running() and float(platform.data.time) < end_sim_time:
         if chat is not None and chat.quit_requested:
             break
+        if chat is not None and getattr(chat, "reset_requested", False):
+            try:
+                if reset_scene is None:
+                    raise RuntimeError("scene reset is not configured")
+                reset_scene()
+            except Exception as exc:
+                chat.finish_reset(error=exc)
+                raise
+            chat.finish_reset()
         started = monotonic()
         fresh = platform.step()
         task4.capture_after_step(bool(fresh))
         steps += 1
+        if exit_when_idle and chat is not None and not chat.busy:
+            break
         if not browser_only:
             viewer.sync()
         if pace_wall_clock:
@@ -151,6 +173,12 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--start values must be finite")
     if args.dual_view and not args.gui:
         raise SystemExit("--dual-view requires --gui")
+    if args.voice and args.no_chat:
+        raise SystemExit("--voice requires chat")
+    if args.command and args.no_chat:
+        raise SystemExit("--command requires chat")
+    if args.voice and not 1 <= args.voice_duration <= 30:
+        raise SystemExit("--voice-duration must be between 1 and 30 seconds")
     if (
         not args.no_chat
         and args.provider == "openai"
@@ -206,7 +234,10 @@ def main(argv: list[str] | None = None) -> int:
             weights=str(weights_path),
             mission_timeout_s=args.mission_timeout,
         )
-        executor = PlanExecutor(motion, goto_object=task4.goto_object, logger=log)
+        executor = PlanExecutor(
+            motion, goto_object=task4.goto_object,
+            goto_object_multigoal=task4.goto_object_multigoal, logger=log,
+        )
         if not args.no_chat:
             if args.provider == "ollama":
                 chat = build_ollama_chat_loop(
@@ -221,6 +252,10 @@ def main(argv: list[str] | None = None) -> int:
                 chat = build_deepseek_chat_loop(executor, model=args.model, logger=log)
             else:
                 chat = build_openai_chat_loop(executor, model=args.model, logger=log)
+            if args.voice:
+                chat.speech_input = LocalSpeechInput(
+                    model=args.voice_model, duration_s=args.voice_duration
+                )
         else:
             log("[CHAT] status=DISABLED reason=no_chat")
 
@@ -241,20 +276,31 @@ def main(argv: list[str] | None = None) -> int:
                 f"start=({args.start[0]:.2f},{args.start[1]:.2f},{args.start[2]:.1f})"
             )
             if chat is not None:
-                terminal_thread = threading.Thread(
-                    target=chat.run,
-                    name="task3-terminal",
-                    daemon=True,
-                )
-                terminal_thread.start()
+                if args.command:
+                    chat.submit(args.command)
+                else:
+                    terminal_thread = threading.Thread(
+                        target=chat.run,
+                        name="task3-terminal",
+                        daemon=True,
+                    )
+                    terminal_thread.start()
+            def reset_scene() -> None:
+                platform.reset()
+                task4.reset_observations()
+
             steps = run_simulation_loop(
                 platform,
                 task4,
                 viewer,
                 duration_s=args.duration,
                 browser_only=browser_only,
-                pace_wall_clock=not args.headless,
+                # A one-shot headless command must not exhaust simulated time
+                # while its model is still producing the plan.
+                pace_wall_clock=not args.headless or bool(args.command),
                 chat=chat,
+                reset_scene=reset_scene,
+                exit_when_idle=bool(args.command),
             )
         log(
             f"[RUNTIME] event=STOP steps={steps} "
@@ -264,6 +310,9 @@ def main(argv: list[str] | None = None) -> int:
             chat.cancel()
             log("[CHAT] event=SIM_STOPPED hint=/quit")
             terminal_thread.join()
+        if args.command:
+            result = chat.last_execution_result if chat is not None else None
+            return 0 if result is not None and result.succeeded else 1
         return 0
     finally:
         if chat is not None:
@@ -272,6 +321,8 @@ def main(argv: list[str] | None = None) -> int:
             dual_view.close()
         if task4 is not None:
             task4.close()
+        if chat is not None:
+            chat.wait(5.0)
         platform.close()
         if log_file is not None:
             sys.stdout = terminal_stdout

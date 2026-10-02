@@ -11,7 +11,7 @@ LLM 只能生成四种动作：
 
 - `move(vx, vy, wz, duration_s)`：归一化速度均为 `[-1, 1]`，持续时间为 `(0, 60]` 秒；
 - `turn(angle_deg)`：基于 Task 2 闭环转向，范围为 `[-720, 720]` 度且不能为零；
-- `goto_object(class, color)`：当前 Task 4 只支持 `red chair` 和 `green chair`；
+- `goto_object(class, color)`：支持 `red chair`、`green chair` 和 bonus 用的 `orange sports ball`；
 - `stop`：停止并清空动作队列；为避免停止后又继续运动，它必须是计划中的唯一动作。
 
 一份合法的多步计划示例：
@@ -38,6 +38,8 @@ LLM 只能生成四种动作：
 ```
 
 `action_plan.schema.json` 用于 LLM Structured Outputs；`validator.py` 是独立的本地安全检查。即使云端返回符合 JSON Schema 的结果，执行前仍必须调用本地验证器。
+
+可选的“多目标任务”和英语语音输入见[Bonus 操作说明](../BONUS_README.md)；原有文字命令仍可照常使用。
 
 ## Task 2 动作适配器
 

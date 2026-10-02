@@ -30,6 +30,7 @@ class Detection:
     bbox: tuple[int, int, int, int]
     frame_width: int
     frame_height: int
+    source: str = "yolo"
 
     @property
     def center_x(self) -> float:
@@ -46,6 +47,7 @@ class Detection:
         return (
             f"[DETECT] class={self.class_name} color={self.color} "
             f"conf={self.confidence:.2f} bbox=[{x1},{y1},{x2},{y2}]"
+            + (f" source={self.source}" if self.source != "yolo" else "")
         )
 
 
@@ -60,6 +62,7 @@ def _box_color(
     rgb_frame: np.ndarray,
     bbox: tuple[int, int, int, int],
     min_share: float,
+    class_name: str = "chair",
 ) -> str:
     x1, y1, x2, y2 = bbox
     hsv = np.asarray(Image.fromarray(rgb_frame[y1:y2, x1:x2]).convert("HSV"))
@@ -76,11 +79,50 @@ def _box_color(
     green = (hue >= 50) & (hue <= 128)
     red_share = np.count_nonzero(red) / hue.size
     green_share = np.count_nonzero(green) / hue.size
+    if class_name in {"sports ball", "orange"}:
+        orange_share = np.count_nonzero((hue >= 5) & (hue <= 30)) / hue.size
+        return "orange" if orange_share >= min_share else "unknown"
     if red_share >= min_share and red_share > green_share:
         return "red"
     if green_share >= min_share:
         return "green"
     return "unknown"
+
+
+def _orange_ball_from_pixels(rgb_frame: np.ndarray) -> Detection | None:
+    """Find the scene's orange round target when YOLO changes its class label."""
+    import cv2
+
+    height, width = rgb_frame.shape[:2]
+    hsv = np.asarray(Image.fromarray(rgb_frame).convert("HSV"))
+    hue, saturation, value = hsv.transpose(2, 0, 1)
+    mask = (
+        (hue >= 5) & (hue <= 30) & (saturation >= 100) & (value >= 50)
+    ).astype(np.uint8)
+    mask = cv2.morphologyEx(
+        mask, cv2.MORPH_CLOSE, np.ones((5, 5), dtype=np.uint8)
+    )
+    count, _labels, stats, _centers = cv2.connectedComponentsWithStats(mask)
+    candidates = []
+    for index in range(1, count):
+        x, y, box_width, box_height, area = map(int, stats[index])
+        if (
+            area < 80 or box_width < 12 or box_height < 12
+            or box_width > 0.5 * width or box_height > 0.6 * height
+        ):
+            continue
+        aspect = box_width / box_height
+        fill = area / (box_width * box_height)
+        if 0.65 <= aspect <= 1.4 and fill >= 0.4:
+            candidates.append((area, x, y, box_width, box_height, fill))
+    if not candidates:
+        return None
+    _area, x, y, box_width, box_height, fill = max(candidates)
+    return Detection(
+        "sports ball", "orange", min(0.99, fill),
+        (x, y, x + box_width, y + box_height), width, height,
+        source="color_shape",
+    )
 
 
 class YoloColorDetector:
@@ -121,14 +163,15 @@ class YoloColorDetector:
         )[0]
         detections = []
         if result.boxes is None:
-            self.latest_annotated_frame = rgb_frame.copy()
-            return detections
+            yolo_boxes = []
+        else:
+            yolo_boxes = zip(
+                result.boxes.xyxy.cpu().numpy(),
+                result.boxes.cls.cpu().numpy(),
+                result.boxes.conf.cpu().numpy(),
+            )
 
-        for box, class_id, confidence in zip(
-            result.boxes.xyxy.cpu().numpy(),
-            result.boxes.cls.cpu().numpy(),
-            result.boxes.conf.cpu().numpy(),
-        ):
+        for box, class_id, confidence in yolo_boxes:
             x1, y1, x2, y2 = box
             bbox = (
                 max(0, int(np.floor(x1))),
@@ -139,9 +182,19 @@ class YoloColorDetector:
             if bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
                 continue
 
+            raw_class = result.names[int(class_id)]
+            color = _box_color(rgb_frame, bbox, self.min_color_share, raw_class)
+            # At close range YOLO sometimes calls the same round orange mesh
+            # "orange" (fruit). The scene has one orange circular target; keep
+            # that visually grounded detection on the sports-ball track.
+            aspect = (bbox[2] - bbox[0]) / (bbox[3] - bbox[1])
+            class_name = (
+                "sports ball" if raw_class == "orange" and color == "orange"
+                and 0.65 <= aspect <= 1.35 else raw_class
+            )
             detection = Detection(
-                class_name=result.names[int(class_id)],
-                color=_box_color(rgb_frame, bbox, self.min_color_share),
+                class_name=class_name,
+                color=color,
                 confidence=float(confidence),
                 bbox=bbox,
                 frame_width=width,
@@ -149,6 +202,12 @@ class YoloColorDetector:
             )
             print(detection.log_line())
             detections.append(detection)
+
+        if not any(d.matches("sports ball", "orange") for d in detections):
+            ball = _orange_ball_from_pixels(rgb_frame)
+            if ball is not None:
+                detections.append(ball)
+                print(ball.log_line())
 
         # Publish the exact frame YOLO saw, with its boxes, for the demo view.
         self.latest_annotated_frame = annotate_frame(rgb_frame, detections)
@@ -187,6 +246,7 @@ def goto_object(
     final_approach_steps: int = FINAL_APPROACH_STEPS,
     center_tolerance: float = 0.09,
     camera_fovy_deg: float = CAMERA_FOVY_DEG,
+    final_creep: bool = False,
 ) -> bool:
     """Search, align and approach using injected Task 2 inputs.
 
@@ -276,10 +336,14 @@ def goto_object(
             height_share = (y2 - y1) / target.frame_height
             width_share = (x2 - x1) / target.frame_width
             tolerance = max(center_tolerance, 0.12 if height_share >= 0.75 else 0)
-            ready_to_stop = (
-                (height_share >= stop_box_height and width_share >= 0.42)
-                or (height_share >= 0.85 and width_share >= 0.55)
-            )
+            is_ball = target_class == "sports ball"
+            if is_ball:
+                ready_to_stop = height_share >= 0.27
+            else:
+                ready_to_stop = (
+                    (height_share >= stop_box_height and width_share >= 0.42)
+                    or (height_share >= 0.85 and width_share >= 0.55)
+                )
             if not ready_to_stop and abs(offset_x) > tolerance * target.frame_width:
                 # ponytail: partial turns keep a distant chair visible to YOLO;
                 # full correction can return to the view where detection dropped.
@@ -292,7 +356,35 @@ def goto_object(
                 continue
             # ponytail: approach in short steps; reobserve after each one so a
             # cropped chair cannot trigger several blind steps into the object.
-            if ready_to_stop or height_share >= stop_box_height:
+            if is_ball and ready_to_stop:
+                # A small bounded step compensates for gait pitch around the
+                # 0.80 m visual threshold, while keeping the ball in view.
+                move(0.15, 0.0, 0.0, 0.25)
+                stop()
+                final_targets = []
+                for _ in range(FINAL_CONFIRM_FRAMES):
+                    final_observation = get_observation(last_sim_time)
+                    last_sim_time = final_observation.sim_time
+                    final_targets = [
+                        d for d in detector.detect(final_observation.rgb_frame)
+                        if d.matches(target_class, target_color)
+                    ]
+                    if final_targets:
+                        break
+                if not final_targets:
+                    return fail("target_not_visible_at_stop")
+                distance = planar_distance_m(final_observation.base_xy,
+                                             target_class, target_color)
+                if not math.isfinite(distance) or distance < 0:
+                    return fail("distance_unavailable")
+                if distance > 0.80:
+                    return fail(f"visual_stop_outside_0.80m distance_m={distance:.4f}")
+                elapsed = final_observation.sim_time - start_sim_time
+                print(f"[FOUND] class={target_class} color={target_color} "
+                      f"t={elapsed:.1f} s d={distance:.2f} m")
+                print("[MISSION] status=SUCCESS")
+                return True
+            if ready_to_stop or (not is_ball and height_share >= stop_box_height):
                 # Height saturates when the chair meets the image borders. Width
                 # still separates the too-far and nearly-cropped cases in this scene.
                 if width_share < 0.42:
@@ -349,22 +441,56 @@ def goto_object(
                         break
                 if not final_targets and height_share >= 0.90 and width_share >= 0.35:
                     # A very close chair can be cropped out when the gait settles.
-                    # One short backward step is collision-safe; stop again and
-                    # require a fresh live match. Never turn after the final stop.
-                    print("[APPROACH] recovery=back")
-                    move(-0.10, 0.0, 0.0, 0.25)
-                    stop()
-                    for _ in range(FINAL_CONFIRM_FRAMES):
-                        final_observation = get_observation(last_sim_time)
-                        last_sim_time = final_observation.sim_time
-                        final_targets = [
-                            d for d in detector.detect(final_observation.rgb_frame)
-                            if d.matches(target_class, target_color)
-                        ]
+                    # Recover only by backing away; never turn or advance
+                    # blindly after losing the final live match. Bonus missions
+                    # get a second bounded attempt because the close chair can
+                    # cover nearly the whole frame after a visual approach.
+                    recovery_steps = 2 if final_creep else 1
+                    for recovery_step in range(recovery_steps):
+                        print(f"[APPROACH] recovery=back step={recovery_step + 1}/{recovery_steps}")
+                        if final_creep:
+                            move(-0.20, 0.0, 0.0, 0.40)
+                        else:
+                            move(-0.10, 0.0, 0.0, 0.25)
+                        stop()
+                        for _ in range(FINAL_CONFIRM_FRAMES):
+                            final_observation = get_observation(last_sim_time)
+                            last_sim_time = final_observation.sim_time
+                            final_targets = [
+                                d for d in detector.detect(final_observation.rgb_frame)
+                                if d.matches(target_class, target_color)
+                            ]
+                            if final_targets:
+                                break
                         if final_targets:
                             break
                 if not final_targets:
                     return fail("target_not_visible_at_stop")
+                if final_creep:
+                    final_target = max(final_targets, key=lambda d: d.confidence)
+                    fx1, fy1, fx2, fy2 = final_target.bbox
+                    final_width = (fx2 - fx1) / final_target.frame_width
+                    final_height = (fy2 - fy1) / final_target.frame_height
+                    visibly_cropped = (
+                        fx1 <= 3 or fx2 >= final_target.frame_width - 3
+                        or (fy1 <= 3 and fy2 >= 0.98 * final_target.frame_height)
+                    )
+                    if final_width < 0.70 and final_height < 0.92 and not visibly_cropped:
+                        print("[APPROACH] multigoal_creep=0.40s")
+                        move(0.20, 0.0, 0.0, 0.40)
+                        stop()
+                        final_targets = []
+                        for _ in range(FINAL_CONFIRM_FRAMES):
+                            final_observation = get_observation(last_sim_time)
+                            last_sim_time = final_observation.sim_time
+                            final_targets = [
+                                d for d in detector.detect(final_observation.rgb_frame)
+                                if d.matches(target_class, target_color)
+                            ]
+                            if final_targets:
+                                break
+                        if not final_targets:
+                            return fail("target_not_visible_at_stop")
                 distance = planar_distance_m(
                     final_observation.base_xy, target_class, target_color
                 )

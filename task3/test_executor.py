@@ -207,6 +207,53 @@ def test_task4_false_result_is_a_failed_mission():
     assert motion.calls == [("stop",)]
 
 
+def test_bonus_multigoal_failure_skips_all_later_goals():
+    visited = []
+    motion = FakeMotion()
+    def visit(class_name, color):
+        visited.append((class_name, color))
+        return color != "red"
+
+    executor = PlanExecutor(motion, goto_object=visit, logger=lambda _: None)
+    plan = validate_plan({
+        "accepted": True, "message": "Visit three objects.",
+        "actions": [
+            {"type": "goto_object", "class": "sports ball", "color": "orange"},
+            {"type": "goto_object", "class": "chair", "color": "red"},
+            {"type": "goto_object", "class": "chair", "color": "green"},
+        ],
+    })
+    result = executor.execute(plan)
+    assert result.status == "FAIL"
+    assert result.completed_actions == 1 and result.failed_step == 2
+    assert visited == [("sports ball", "orange"), ("chair", "red")]
+    assert motion.calls == [
+        ("move", -0.30, 0.0, 0.0, 1.50), ("stop",)
+    ]
+
+
+def test_bonus_multigoal_uses_close_approach_callback_and_order():
+    visited = []
+    motion = FakeMotion()
+    executor = PlanExecutor(
+        motion,
+        goto_object=lambda *_: (_ for _ in ()).throw(AssertionError("single-goal callback used")),
+        goto_object_multigoal=lambda cls, color: visited.append((cls, color)) or True,
+        logger=lambda _: None,
+    )
+    plan = validate_plan({
+        "accepted": True, "message": "Visit two objects.",
+        "actions": [
+            {"type": "goto_object", "class": "sports ball", "color": "orange"},
+            {"type": "goto_object", "class": "chair", "color": "green"},
+        ],
+    })
+    result = executor.execute(plan)
+    assert result.succeeded and result.completed_actions == 2
+    assert visited == [("sports ball", "orange"), ("chair", "green")]
+    assert motion.calls == [("move", -0.30, 0.0, 0.0, 1.50)]
+
+
 class BlockingMotion(FakeMotion):
     def __init__(self):
         super().__init__()

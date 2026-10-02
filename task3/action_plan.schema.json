@@ -78,11 +78,11 @@
               },
               "class": {
                 "type": "string",
-                "enum": ["chair"]
+                "enum": ["chair", "sports ball"]
               },
               "color": {
                 "type": "string",
-                "enum": ["red", "green"]
+                "enum": ["red", "green", "orange"]
               }
             },
             "required": ["type", "class", "color"],

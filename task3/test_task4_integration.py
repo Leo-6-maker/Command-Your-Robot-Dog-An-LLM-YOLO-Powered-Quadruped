@@ -132,6 +132,20 @@ def test_get_observation_waits_for_strictly_newer_frame():
     assert results[0].sim_time == 1.1
 
 
+def test_scene_reset_discards_old_camera_observation():
+    integration, platform, _motion = make_integration(camera_wait_timeout_s=0.01)
+    publish(integration, platform, sequence=1, sim_time=10.0)
+    integration.detector.latest_annotated_frame = np.zeros((2, 2, 3), dtype=np.uint8)
+
+    integration.reset_observations()
+
+    assert integration.detector.latest_annotated_frame is None
+    with pytest.raises(CameraFrameTimeoutError):
+        integration.get_observation(None)
+    publish(integration, platform, sequence=2, sim_time=0.1)
+    assert integration.get_observation(None).sim_time == 0.1
+
+
 def test_camera_timeout_explains_missing_platform_steps():
     integration, _platform, _motion = make_integration(camera_wait_timeout_s=0.01)
     with pytest.raises(CameraFrameTimeoutError, match=r"Platform\.step"):
@@ -279,6 +293,49 @@ def test_found_requires_live_matching_detection_at_stop(final_color, capsys):
     assert all(move[0] < 0 for move in moves)  # Recovery may only back away.
     if not result:
         assert "[MISSION] status=FAIL reason=target_not_visible_at_stop" in output
+
+
+def test_bonus_does_not_creep_into_already_cropped_chair():
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    moves = []
+    detector = SimpleNamespace(detect=lambda _: [
+        Detection("chair", "green", 0.8, (0, 3, 420, 480), 640, 480)
+    ])
+
+    assert goto_object(
+        "chair", "green", detector,
+        lambda after: CameraObservation(frame, (2.3, 1.0), (after or 0) + 1),
+        lambda *args: moves.append(args), lambda *_: None, lambda: None,
+        lambda *_: 0.7, final_approach_steps=0, final_creep=True,
+    )
+    assert moves == []
+
+
+def test_bonus_recovers_cropped_chair_with_bounded_backward_steps():
+    from task4 import CameraObservation, goto_object
+
+    frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    sequence = 0
+    moves = []
+
+    def observe(after):
+        nonlocal sequence
+        sequence += 1
+        return CameraObservation(frame, (2.3, 1.0), float(sequence))
+
+    def detect(_):
+        if sequence != 1 and sequence < 12:
+            return []
+        return [Detection("chair", "green", 0.8, (0, 3, 420, 480), 640, 480)]
+
+    assert goto_object(
+        "chair", "green", SimpleNamespace(detect=detect), observe,
+        lambda *args: moves.append(args), lambda *_: None, lambda: None,
+        lambda *_: 0.7, final_approach_steps=0, final_creep=True,
+    )
+    assert moves == [(-0.20, 0.0, 0.0, 0.40)] * 2
 
 
 def test_turn_requires_new_box_before_deciding_to_stop():

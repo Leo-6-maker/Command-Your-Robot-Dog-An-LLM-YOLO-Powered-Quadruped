@@ -23,7 +23,9 @@ from task4 import (CAMERA_FOVY_DEG, FINAL_APPROACH_STEPS, STOP_BOX_HEIGHT,
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--task2-root", type=Path, required=True)
-    parser.add_argument("--color", choices=("green", "red"), default="green")
+    parser.add_argument("--class", dest="target_class", choices=("chair", "sports ball"),
+                        default="chair")
+    parser.add_argument("--color", choices=("green", "red", "orange"), default="green")
     parser.add_argument("--start", type=float, nargs=3, default=(0, 0, 0),
                         metavar=("X", "Y", "YAW_DEG"))
     parser.add_argument("--timeout", type=float, default=60)
@@ -37,6 +39,10 @@ def main():
     parser.add_argument("--start-delay", type=float, default=0, help="seconds to view before motion")
     parser.add_argument("--hold-open", type=float, default=0, help="seconds to view after the trial")
     args = parser.parse_args()
+    if (args.target_class, args.color) not in {
+        ("chair", "green"), ("chair", "red"), ("sports ball", "orange")
+    }:
+        parser.error("unsupported class/color pair")
     if not all(math.isfinite(v) for v in (*args.start, args.timeout)) or args.timeout <= 0:
         parser.error("start pose must be finite and timeout must be finite and positive")
     if any(not math.isfinite(v) or v < 0 for v in (args.start_delay, args.hold_open)):
@@ -51,7 +57,7 @@ def main():
     platform = Platform(gui=args.gui, port=args.port)
     bridge = None
     worker = None
-    result = dict(target_class="chair", target_color=args.color, start_pose=args.start,
+    result = dict(target_class=args.target_class, target_color=args.color, start_pose=args.start,
                   timeout_wall_s=args.timeout, stop_box_height=args.stop_box_height,
                   final_approach_steps=args.final_steps, success=False)
     result["camera_fovy_deg"] = args.camera_fovy
@@ -93,7 +99,7 @@ def main():
             )
             result[label] = dict(sim_time=observation.sim_time, base_xy=observation.base_xy,
                                  detections=[asdict(d) for d in detections])
-            return any(d.matches("chair", args.color) for d in detections)
+            return any(d.matches(args.target_class, args.color) for d in detections)
 
         result["initially_visible"] = save_frame("initial")
         if args.gui:
@@ -105,11 +111,11 @@ def main():
             time.sleep(max(0, 0.005 - (time.monotonic() - step_started)))
         started = time.monotonic()
         start_sim = float(platform.data.time)
-        print(f"[TRIAL] class=chair color={args.color} source=explicit_target start={args.start}")
+        print(f"[TRIAL] class={args.target_class} color={args.color} source=explicit_target start={args.start}")
 
         def mission():
             try:
-                result["success"] = bridge.goto_object("chair", args.color)
+                result["success"] = bridge.goto_object(args.target_class, args.color)
             except Exception as exc:
                 result["error"] = f"{type(exc).__name__}: {exc}"
                 print(f"[MISSION] status=FAIL reason={result['error']}")
@@ -155,7 +161,7 @@ def main():
             pass
         result["final_target_visible"] = save_frame("final")
         result["final_distance_m"] = bridge.planar_distance_m(
-            result["final"]["base_xy"], "chair", args.color
+            result["final"]["base_xy"], args.target_class, args.color
         )
         result["object_contacts"] = sorted(contacts)
         result["success"] = bool(result["success"] and not contacts and not result.get("error"))
