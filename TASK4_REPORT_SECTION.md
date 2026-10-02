@@ -12,7 +12,7 @@ show the dog and objects; it does not feed the controller.
 
 CPU YOLO11n supplies COCO class labels and bounding boxes at confidence ≥0.25.
 For each box we convert its pixels to HSV, ignore pixels with saturation <70
-or value <45, and label red or green when at least 35% of the remaining pixels
+or value <25, and label red or green when at least 35% of the remaining pixels
 fall in the corresponding hue range (Pillow hue 0–255: red 0–14 or 242–255;
 green 50–128). This simple class-plus-color rule suits the two same-class
 chairs in our scene without a separate color model. It can fail when the chair
@@ -21,11 +21,16 @@ is heavily cropped, partially occluded, or affected by body pitch.
 Task 3 parses the typed English command into a validated
 `goto_object(class="chair", color="red"|"green")` action. The Task 4 callback
 requests synchronized fresh camera/robot-pose snapshots from the Task 2
-adapter. After five consecutive camera misses it rotates 30° and detects
-again; after detection it makes a partial turn toward the box center and advances through
-completed 0.25 s motion skills. Close-range box width limits the final number
-of short steps. A full search turn without a target, timeout, lost stopped-frame
-target, or excessive final distance prints `[MISSION] status=FAIL reason=...`.
+adapter. Before acquiring a target, two consecutive camera misses trigger a 30°
+search turn; while tracking a target, five consecutive misses are tolerated before
+resuming the search. After detection, the controller makes a partial turn toward
+the box center and advances through completed 0.25 s motion skills. Close-range
+box width limits the final number of short steps. It then stops and checks up to
+three fresh frames. If an extremely close chair is cropped out, the only recovery
+is one short backward step followed by another stop and fresh-frame check; it never
+turns during final recovery. A full search turn without a target, timeout, lost
+stopped-frame target after recovery, or excessive final distance prints
+`[MISSION] status=FAIL reason=...`.
 The mission wall-clock timeout is 120 s in the fixed evaluation; the GUI
 demonstrations allow 180 s.
 
