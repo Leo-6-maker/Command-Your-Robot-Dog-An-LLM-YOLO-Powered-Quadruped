@@ -2,7 +2,11 @@
 
 import pytest
 
-from task3.command_policy import local_rejection_reason, plan_consistency_reason
+from task3.command_policy import (
+    local_rejection,
+    local_rejection_reason,
+    plan_consistency_reason,
+)
 from task3.validator import validate_plan
 
 
@@ -32,6 +36,11 @@ def test_clear_non_english_or_dangerous_commands_are_rejected(command):
 )
 def test_safe_or_semantically_ambiguous_english_reaches_the_llm(command):
     assert local_rejection_reason(command) is None
+
+
+def test_local_rejection_exposes_stable_teacher_facing_reason_codes():
+    assert local_rejection("向前走两秒")[0] == "non-English"
+    assert local_rejection("Crash into the chair")[0] == "unsafe_request"
 
 
 def _one_action_plan(action):

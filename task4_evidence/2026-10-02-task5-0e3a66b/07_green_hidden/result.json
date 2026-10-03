@@ -1,0 +1,43 @@
+{
+  "target_class": "chair",
+  "target_color": "green",
+  "start_pose": [
+    1.0,
+    1.0,
+    180.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 5,
+  "success": false,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      1.0116659811108268,
+      1.0029400702544753
+    ],
+    "detections": []
+  },
+  "initially_visible": false,
+  "elapsed_wall_s": 28.047000000005937,
+  "elapsed_sim_s": 47.505000000006895,
+  "last_controller_snapshot": {
+    "sim_time": 49.20500000000672,
+    "base_xy": [
+      2.27740929077711,
+      0.9373916233091386
+    ]
+  },
+  "final": {
+    "sim_time": 49.605000000006925,
+    "base_xy": [
+      2.278522542206769,
+      0.9373957879491175
+    ],
+    "detections": []
+  },
+  "final_target_visible": false,
+  "final_distance_m": 0.7241885179083519,
+  "object_contacts": []
+}

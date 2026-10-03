@@ -1,0 +1,115 @@
+{
+  "target_class": "chair",
+  "target_color": "red",
+  "start_pose": [
+    1.0,
+    -1.0,
+    0.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 5,
+  "success": true,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.9883340188891738,
+      -1.0029400702544753
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.7495006322860718,
+        "bbox": [
+          276,
+          121,
+          357,
+          256
+        ],
+        "frame_width": 640,
+        "frame_height": 480,
+        "source": "yolo"
+      },
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.5461956262588501,
+        "bbox": [
+          17,
+          120,
+          133,
+          258
+        ],
+        "frame_width": 640,
+        "frame_height": 480,
+        "source": "yolo"
+      },
+      {
+        "class_name": "sports ball",
+        "color": "orange",
+        "confidence": 0.379108726978302,
+        "bbox": [
+          123,
+          216,
+          190,
+          270
+        ],
+        "frame_width": 640,
+        "frame_height": 480,
+        "source": "yolo"
+      },
+      {
+        "class_name": "sports ball",
+        "color": "orange",
+        "confidence": 0.3666064441204071,
+        "bbox": [
+          123,
+          216,
+          190,
+          270
+        ],
+        "frame_width": 640,
+        "frame_height": 480,
+        "source": "yolo"
+      }
+    ]
+  },
+  "initially_visible": true,
+  "elapsed_wall_s": 11.702999999994063,
+  "elapsed_sim_s": 17.805000000000366,
+  "last_controller_snapshot": {
+    "sim_time": 19.605000000000384,
+    "base_xy": [
+      2.270662301261177,
+      -1.0248250879839194
+    ]
+  },
+  "final": {
+    "sim_time": 19.905000000000324,
+    "base_xy": [
+      2.2682070636276754,
+      -1.024511682743232
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.5757680535316467,
+        "bbox": [
+          66,
+          0,
+          430,
+          478
+        ],
+        "frame_width": 640,
+        "frame_height": 480,
+        "source": "yolo"
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.7322033353620658,
+  "object_contacts": []
+}

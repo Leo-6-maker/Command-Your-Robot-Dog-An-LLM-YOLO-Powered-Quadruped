@@ -1,0 +1,291 @@
+[KEYBOARD] evdev not installed; browser keyboard control is available
+[MAP] switched to object_lab
+[DETECT] class=sports ball color=red conf=0.32 bbox=[423,221,498,283]
+[DETECT] class=orange color=red conf=0.30 bbox=[423,221,498,283]
+[TRIAL] class=chair color=green source=explicit_target start=[1.0, 0.0, 30.0]
+[DETECT] class=sports ball color=red conf=0.32 bbox=[423,221,498,283]
+[DETECT] class=orange color=red conf=0.30 bbox=[423,221,498,283]
+[DETECT] class=sports ball color=red conf=0.31 bbox=[423,221,498,283]
+[DETECT] class=orange color=red conf=0.26 bbox=[423,220,498,283]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=3.38
+[TURN] target=30.0 deg final_error=1.87 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.50 bbox=[412,111,541,266]
+[SKILL] turn values=(-22.710953135246125,) t=6.76
+[TURN] target=-22.7 deg final_error=-1.93 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.54 bbox=[316,123,396,251]
+[DETECT] class=sports ball color=red conf=0.32 bbox=[451,224,540,292]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=9.26
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.53 bbox=[473,213,577,287]
+[DETECT] class=chair color=green conf=0.52 bbox=[328,106,413,244]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=10.36
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.49 bbox=[326,104,417,245]
+[DETECT] class=orange color=red conf=0.38 bbox=[477,216,588,293]
+[DETECT] class=sports ball color=red conf=0.27 bbox=[477,216,588,293]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=11.28
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.68 bbox=[326,111,416,254]
+[DETECT] class=sports ball color=red conf=0.41 bbox=[484,227,602,308]
+[DETECT] class=orange color=red conf=0.27 bbox=[484,226,603,308]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=12.48
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.62 bbox=[487,223,611,306]
+[DETECT] class=airplane color=unknown conf=0.26 bbox=[2,146,640,478]
+[DETECT] class=chair color=green conf=0.50 bbox=[325,110,418,258]
+[DETECT] class=sports ball color=red conf=0.28 bbox=[489,230,616,315]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=14.42
+[MOVE] completed duration=0.25
+[DETECT] class=sports ball color=red conf=0.55 bbox=[496,224,633,313]
+[DETECT] class=chair color=green conf=0.52 bbox=[324,111,418,261]
+[DETECT] class=sports ball color=red conf=0.47 bbox=[493,235,624,322]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=16.08
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.38 bbox=[322,93,421,249]
+[DETECT] class=sports ball color=red conf=0.36 bbox=[499,218,640,310]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=17.02
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.37 bbox=[323,97,422,258]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=18.12
+[MOVE] completed duration=0.25
+[DETECT] class=kite color=red conf=0.39 bbox=[512,223,640,324]
+[DETECT] class=chair color=green conf=0.34 bbox=[320,89,423,253]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=19.08
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.42 bbox=[321,84,426,255]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=20.04
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.48 bbox=[318,83,426,259]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=21.02
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.69 bbox=[317,86,428,266]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=22.14
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.57 bbox=[315,77,430,262]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=23.24
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.61 bbox=[315,77,433,268]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=24.34
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.61 bbox=[311,69,435,268]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=25.34
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.66 bbox=[311,68,437,274]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=26.52
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.70 bbox=[308,63,438,274]
+[DETECT] class=umbrella color=red conf=0.51 bbox=[604,268,640,366]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=27.64
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.87 bbox=[308,61,443,281]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=28.76
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.91 bbox=[304,51,445,278]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=29.82
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.92 bbox=[304,56,447,293]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=30.96
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.92 bbox=[300,40,452,288]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=32.08
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.91 bbox=[300,32,458,293]
+[SKILL] turn values=(-9.797488232045552,) t=33.22
+[TURN] target=-9.8 deg final_error=-1.94 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.87 bbox=[264,68,401,306]
+[DETECT] class=person color=red conf=0.33 bbox=[608,304,640,405]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=34.98
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.84 bbox=[277,49,426,302]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=36.08
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.88 bbox=[278,28,437,299]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=36.98
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.90 bbox=[273,21,439,303]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=37.92
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.90 bbox=[272,6,445,309]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=38.86
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.91 bbox=[266,3,449,317]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=39.66
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.91 bbox=[264,18,448,342]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=40.70
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.89 bbox=[256,1,460,333]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=41.66
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.78 bbox=[252,0,466,351]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=42.62
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.73 bbox=[246,0,471,357]
+[DETECT] class=airplane color=green conf=0.27 bbox=[248,1,639,420]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=43.36
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.84 bbox=[239,1,478,378]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=44.42
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.83 bbox=[232,0,481,393]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=45.42
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.85 bbox=[227,0,495,422]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=46.52
+[MOVE] completed duration=0.25
+[DETECT] class=airplane color=green conf=0.42 bbox=[219,1,640,463]
+[DETECT] class=airplane color=green conf=0.27 bbox=[222,1,640,464]
+[DETECT] class=chair color=green conf=0.37 bbox=[223,1,505,456]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=49.12
+[MOVE] completed duration=0.25
+[DETECT] class=chair color=green conf=0.48 bbox=[212,1,517,466]
+[SKILL] move values=(0.25, 0.0, 0.0, 0.25) t=49.96
+[MOVE] completed duration=0.25
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=52.98
+[TURN] target=30.0 deg final_error=1.98 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=56.72
+[TURN] target=30.0 deg final_error=1.93 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.38 bbox=[516,194,640,417]
+[SKILL] turn values=(-31.215542522694786,) t=59.92
+[TURN] target=-31.2 deg final_error=-1.96 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=64.98
+[TURN] target=30.0 deg final_error=1.99 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.45 bbox=[500,192,640,411]
+[SKILL] turn values=(-30.688390485217997,) t=68.26
+[TURN] target=-30.7 deg final_error=-1.86 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=73.48
+[TURN] target=30.0 deg final_error=1.88 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.53 bbox=[493,192,640,412]
+[SKILL] turn values=(-30.45125755205858,) t=76.64
+[TURN] target=-30.5 deg final_error=-1.95 deg status=SUCCESS
+[DETECT] class=airplane color=green conf=0.29 bbox=[329,2,640,476]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=81.64
+[TURN] target=30.0 deg final_error=1.86 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.41 bbox=[490,192,640,413]
+[SKILL] turn values=(-30.34838702017523,) t=84.96
+[TURN] target=-30.3 deg final_error=-1.83 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=90.02
+[TURN] target=30.0 deg final_error=1.87 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.32 bbox=[487,192,640,415]
+[SKILL] turn values=(-30.2447620013507,) t=93.30
+[TURN] target=-30.2 deg final_error=-1.90 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=98.42
+[TURN] target=30.0 deg final_error=1.97 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.47 bbox=[482,192,640,415]
+[SKILL] turn values=(-30.070359525264994,) t=101.64
+[TURN] target=-30.1 deg final_error=-1.93 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=106.72
+[TURN] target=30.0 deg final_error=1.86 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.29 bbox=[482,192,640,417]
+[SKILL] turn values=(-30.070359525264994,) t=110.06
+[TURN] target=-30.1 deg final_error=-1.96 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=115.22
+[TURN] target=30.0 deg final_error=1.95 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.31 bbox=[474,189,640,417]
+[SKILL] turn values=(-29.786844169894202,) t=118.98
+[TURN] target=-29.8 deg final_error=-1.72 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=124.02
+[TURN] target=30.0 deg final_error=1.90 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.35 bbox=[470,189,640,418]
+[SKILL] turn values=(-29.642989749238602,) t=127.80
+[TURN] target=-29.6 deg final_error=-1.84 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=132.92
+[TURN] target=30.0 deg final_error=1.98 deg status=SUCCESS
+[DETECT] class=umbrella color=green conf=0.26 bbox=[475,193,640,423]
+[DETECT] class=chair color=green conf=0.41 bbox=[470,189,640,419]
+[SKILL] turn values=(-29.642989749238602,) t=136.66
+[TURN] target=-29.6 deg final_error=-1.99 deg status=SUCCESS
+[DETECT] class=airplane color=green conf=0.26 bbox=[3,197,638,479]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=141.76
+[TURN] target=30.0 deg final_error=1.89 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.37 bbox=[468,188,640,421]
+[SKILL] turn values=(-29.570531495052784,) t=145.56
+[TURN] target=-29.6 deg final_error=-1.77 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=150.58
+[TURN] target=30.0 deg final_error=1.96 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.32 bbox=[462,187,640,418]
+[DETECT] class=umbrella color=green conf=0.28 bbox=[461,186,640,418]
+[SKILL] turn values=(-29.35100883744271,) t=154.44
+[TURN] target=-29.4 deg final_error=-1.76 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=159.42
+[TURN] target=30.0 deg final_error=1.94 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.30 bbox=[471,192,640,423]
+[SKILL] turn values=(-29.67908574617118,) t=162.62
+[TURN] target=-29.7 deg final_error=-1.97 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=167.72
+[TURN] target=30.0 deg final_error=1.93 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.46 bbox=[470,185,640,422]
+[SKILL] turn values=(-29.642989749238602,) t=171.58
+[TURN] target=-29.6 deg final_error=-1.77 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=176.72
+[TURN] target=30.0 deg final_error=1.99 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.38 bbox=[471,186,640,423]
+[SKILL] turn values=(-29.67908574617118,) t=180.50
+[TURN] target=-29.7 deg final_error=-1.83 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=185.38
+[TURN] target=30.0 deg final_error=1.90 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.47 bbox=[470,185,640,422]
+[SKILL] turn values=(-29.642989749238602,) t=189.22
+[TURN] target=-29.6 deg final_error=-1.94 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=194.30
+[TURN] target=30.0 deg final_error=1.80 deg status=SUCCESS
+[DETECT] class=chair color=green conf=0.35 bbox=[472,185,640,422]
+[SKILL] turn values=(-29.715093318123515,) t=198.16
+[TURN] target=-29.7 deg final_error=-1.85 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=203.20
+[TURN] target=30.0 deg final_error=1.95 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=206.84
+[TURN] target=30.0 deg final_error=1.99 deg status=SUCCESS
+[DETECT] class=airplane color=unknown conf=0.27 bbox=[1,198,639,477]
+[DETECT] class=airplane color=unknown conf=0.37 bbox=[1,196,639,477]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=210.36
+[TURN] target=30.0 deg final_error=1.91 deg status=SUCCESS
+[DETECT] class=airplane color=unknown conf=0.32 bbox=[0,198,638,477]
+[DETECT] class=airplane color=unknown conf=0.32 bbox=[0,196,638,476]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=213.94
+[TURN] target=30.0 deg final_error=1.88 deg status=SUCCESS
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=217.32
+[TURN] target=30.0 deg final_error=1.93 deg status=SUCCESS
+[DETECT] class=airplane color=unknown conf=0.32 bbox=[4,200,640,479]
+[DETECT] class=airplane color=unknown conf=0.27 bbox=[3,199,640,479]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=220.62
+[TURN] target=30.0 deg final_error=1.82 deg status=SUCCESS
+[DETECT] class=chair color=red conf=0.68 bbox=[0,313,219,480]
+[DETECT] class=chair color=red conf=0.58 bbox=[0,313,211,480]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=227.62
+[TURN] target=30.0 deg final_error=1.97 deg status=SUCCESS
+[DETECT] class=chair color=red conf=0.44 bbox=[0,17,231,310]
+[DETECT] class=chair color=red conf=0.53 bbox=[0,17,227,309]
+[SEARCH] target=green_chair rotating=30deg
+[SKILL] turn values=(30.0,) t=236.34
+[TURN] target=30.0 deg final_error=4.48 deg status=FAIL timeout
+[MISSION] status=FAIL reason=TurnFailedError: Task 2 turn failed: FAIL timeout
+[DETECT] class=chair color=red conf=0.72 bbox=[237,76,359,291]
+[DETECT] class=umbrella color=red conf=0.33 bbox=[462,300,640,480]
+[TRIAL] result=runs/benchmark_2026-10-02_2fa2821/09_green_angled/result.json success=False

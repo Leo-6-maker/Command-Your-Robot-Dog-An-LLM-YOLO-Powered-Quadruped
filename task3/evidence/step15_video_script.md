@@ -1,9 +1,10 @@
 # Step 15 — Task 3 desktop-video script
 
-Status: **complete (2026-09-30)**. The recording was reviewed by the operator, converted
-to the final MP4 submission format, and successfully decoded from beginning to end.
+Status: **replacement required after the 2026-10-02 log-protocol correction**. The previous
+recording was technically valid but used `[CMD]` for raw input text. It is retained only as a
+superseded artifact and must not be submitted as the final Task 3 video.
 
-## Final artifact
+## Superseded artifact
 
 - Submission file: `EE5112_MiniLab1_3_Task3_Demo.mp4`
 - Saved at: `/home/ziyan/Videos/Screencasts/EE5112_MiniLab1_3_Task3_Demo.mp4`
@@ -18,8 +19,9 @@ to the final MP4 submission format, and successfully decoded from beginning to e
 
 - Keep the real terminal and MuJoCo GUI visible side by side.
 - Type every robot request in English in the terminal.
-- Keep each `[CMD]`, `[LLM]`, `[PLAN]`, `[EXEC]`, and final `[DONE]` line visible long enough to read.
-- Show successful movement, turning, a multi-turn context command, and one rejected request.
+- Keep each `[INPUT]`, `[LLM]`, parsed `[CMD]`, `[PLAN]`, `[EXEC]`, and final `[DONE]` line visible long enough to read.
+- Show successful movement, conversational context, and one natural-language command that parses
+  into at least two sequential actions including a turn, plus one rejected request.
 - Do not expose an API key or the external key file.
 
 The prepared demo uses local `qwen2.5:7b`, so no key or paid API request appears in the recording.
@@ -28,10 +30,21 @@ The prepared demo uses local `qwen2.5:7b`, so no key or paid API request appears
 
 Start the GNOME desktop recorder only after the terminal shows `[CHAT] event=READY` and the browser shows `SIM LIVE`. Enter one command at a time and wait for `[DONE]` before continuing.
 
-1. Explicit forward motion:
+Copy-ready list (submit each line separately):
+
+```text
+Move forward at speed 0.4 for one second.
+Do that again, but slower.
+Move left at speed 0.3 for one second.
+Execute exactly two actions in order: first move backward at speed 0.4 for one second, then turn left 45 degrees.
+Write a poem about robot dogs.
+/quit
+```
+
+1. Short explicit forward motion (kept short so the robot does not reach the chair):
 
    ```text
-   Move forward at speed 0.6 for two seconds.
+   Move forward at speed 0.4 for one second.
    ```
 
 2. Successful-context reference:
@@ -40,17 +53,28 @@ Start the GNOME desktop recorder only after the terminal shows `[CHAT] event=REA
    Do that again, but slower.
    ```
 
-3. Closed-loop turn:
+3. Lateral direction/sign demonstration:
 
    ```text
-   Turn left 90 degrees.
+   Move left at speed 0.3 for one second.
    ```
 
-4. Lateral direction/sign demonstration (the stronger two-second command is easier to see):
+4. Required multi-step command. This must produce one `[CMD]` line with `n=2`, followed by
+   `[EXEC] step=1/2` and `[EXEC] step=2/2`:
 
    ```text
-   Move left at speed 0.4 for two seconds.
+   Execute exactly two actions in order: first move backward at speed 0.4 for one second, then turn left 45 degrees.
    ```
+
+   A local Qwen preflight on 2026-10-02 produced exactly:
+
+   ```text
+   [CMD] actions=move(vx=-0.40,vy=0.00,wz=0.00,duration_s=1.00),turn(angle_deg=45.00) n=2
+   ```
+
+   The backward first step deliberately moves away from the chair before turning. Across the full
+   script, commanded forward travel is largely cancelled by this backward action, keeping the dog
+   visible and clear of the obstacle.
 
 5. Required rejection example:
 
@@ -75,7 +99,10 @@ Use `Ctrl+Alt+Shift+R` to start recording the desktop and use the same shortcut 
 ## Acceptance check after recording
 
 - Both windows remain readable at normal playback size.
-- Every English input has one `[CMD]` line and ends in a visible `[DONE]` line.
+- Every English input has one `[INPUT]` line, one parsed/rejected `[CMD]` line and a visible `[DONE]` line.
+- Accepted commands show `[CMD] actions=... n=...`; the rejected request shows `[CMD] rejected reason=...`.
+- The required combined request visibly produces `move(...),turn(...) n=2`, then successfully
+  executes both `step=1/2` and `step=2/2` in order.
 - Robot movement is visible for all four accepted commands.
 - The poem request is visibly rejected and causes no motion.
 - No API key, billing page, unrelated notification, or private information is visible.

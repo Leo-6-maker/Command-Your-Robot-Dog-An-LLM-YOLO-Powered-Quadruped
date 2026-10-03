@@ -1,5 +1,7 @@
 # Task 4: YOLO object search and approach
 
+> Historical chapter scope: this section documents the fixed `d6f0c7b` batch. The integrated report `GROUP_REPORT_DRAFT.md` also includes a separate Windows evaluation of bonus runtime `0e3a66b`, with receipts in `task4_evidence/2026-10-02-task5-0e3a66b/`. Do not combine the batches.
+
 ## Method and integration
 
 We used the Task 2 `object_lab` MJCF scene
@@ -12,7 +14,7 @@ show the dog and objects; it does not feed the controller.
 
 CPU YOLO11n supplies COCO class labels and bounding boxes at confidence ≥0.25.
 For each box we convert its pixels to HSV, ignore pixels with saturation <70
-or value <45, and label red or green when at least 35% of the remaining pixels
+or value <25, and label red or green when at least 35% of the remaining pixels
 fall in the corresponding hue range (Pillow hue 0–255: red 0–14 or 242–255;
 green 50–128). This simple class-plus-color rule suits the two same-class
 chairs in our scene without a separate color model. It can fail when the chair
@@ -21,11 +23,16 @@ is heavily cropped, partially occluded, or affected by body pitch.
 Task 3 parses the typed English command into a validated
 `goto_object(class="chair", color="red"|"green")` action. The Task 4 callback
 requests synchronized fresh camera/robot-pose snapshots from the Task 2
-adapter. After five consecutive camera misses it rotates 30° and detects
-again; after detection it makes a partial turn toward the box center and advances through
-completed 0.25 s motion skills. Close-range box width limits the final number
-of short steps. A full search turn without a target, timeout, lost stopped-frame
-target, or excessive final distance prints `[MISSION] status=FAIL reason=...`.
+adapter. Before acquiring a target, two consecutive camera misses trigger a 20°
+search turn; while tracking a target, five consecutive misses are tolerated before
+resuming the search. After detection, the controller makes a partial turn toward
+the box center and advances through completed 0.25 s motion skills. Close-range
+box width limits the final number of short steps. It then stops and checks up to
+five fresh frames. If an extremely close chair is cropped out, the only recovery
+is one short backward step followed by another stop and fresh-frame check; it never
+turns during final recovery. A full search turn without a target, timeout, lost
+stopped-frame target after recovery, or excessive final distance prints
+`[MISSION] status=FAIL reason=...`.
 The mission wall-clock timeout is 120 s in the fixed evaluation; the GUI
 demonstrations allow 180 s.
 
@@ -38,11 +45,11 @@ records are checked after each trial.
 
 ## Fixed evaluation
 
-The results below belong to controller revision `3692d0b`, which includes
-close-range re-observation and reduced long-range turn gain. The optional
+The results below belong to controller revision `d6f0c7b`, which adds smaller
+search turns and a calibrated close-range visual approach. The optional
 randomized-start poses are explored separately from this fixed batch.
 
-All ten trials used controller commit `3692d0b`, one scene, one detector and
+All ten trials used controller commit `d6f0c7b`, one scene, one detector and
 one parameter set. We varied requested color and robot start position/yaw;
 180° starts deliberately face away from the target. These are structured
 target trials that isolate navigation; the separate video verifies the real
@@ -53,44 +60,42 @@ does not change the verdict.
 
 | Trial | Target | Start (x, y, yaw°) | Initial target detection | C1 class + color | d_eval (m) | Result |
 |---|---|---|---|---|---:|---|
-| 01 | green chair | (1, 1, 0) | yes | yes | 0.771 | success |
-| 02 | red chair | (1, −1, 0) | yes | yes | 0.745 | success |
-| 03 | green chair | (0.5, 1, 0) | yes | yes | 0.745 | success |
-| 04 | red chair | (0.5, −1, 0) | yes | yes | 0.825 | fail: stopped C2 d = 0.8192 m |
-| 05 | green chair | (0, 0, 0) | no | yes | 0.760 | success |
-| 06 | red chair | (0, 0, 0) | yes | yes | 0.795 | success |
-| 07 | green chair | (1, 1, 180) | no | yes | 0.812 | fail: stopped C2 d = 0.8077 m |
-| 08 | red chair | (1, −1, 180) | no | yes | 0.798 | success, initially hidden |
-| 09 | green chair | (1, 0, 30) | no | yes | 0.744 | success |
-| 10 | red chair | (1, 0, −30) | no | **no** | 0.800 | fail: target absent on stopped frame |
+| 01 | green chair | (1, 1, 0) | yes | yes | 0.779 | success |
+| 02 | red chair | (1, −1, 0) | yes | yes | 0.723 | success |
+| 03 | green chair | (0.5, 1, 0) | yes | **no** | 0.744 | fail: target not visible at stop |
+| 04 | red chair | (0.5, −1, 0) | yes | yes | 0.769 | success |
+| 05 | green chair | (0, 0, 0) | no | yes | 0.748 | success |
+| 06 | red chair | (0, 0, 0) | yes | yes | 0.780 | success |
+| 07 | green chair | (1, 1, 180) | no | yes | 0.752 | success, initially hidden |
+| 08 | red chair | (1, −1, 180) | no | yes | 0.807 | fail: stopped C2 d = 0.8060 m |
+| 09 | green chair | (1, 0, 30) | no | yes | 0.777 | success |
+| 10 | red chair | (1, 0, −30) | no | yes | 0.788 | success |
 
 The stopped-frame target detection rate is **9/10 (90%)**. Grounding selected
 the requested color on **9/9** stops with a target detection, or **9/10 (90%)**
-of all trials. The full C1–C3 approach success rate is **7/10 (70%)**, with
+of all trials. The full C1–C3 approach success rate is **8/10 (80%)**, with
 **0/10 object-contact trials**. This detection rate is a task-level stopped
 frame measure, not conventional mAP; we did not annotate every frame with
 ground-truth boxes. Five starts had no initial target detection, including
-the two 180° hidden starts. Trials 04 and 07 selected the correct chair but
-stopped 0.0192 m and 0.0077 m outside C2, respectively. Trial 10 ended near
-0.80 m but failed C1 because YOLO did not label the red chair on the stopped
-frames. None is counted as found. An exploratory random-start red-chair run
-from (0.5, 0.4, 90°) succeeded at 0.785 m in 55.6 wall-clock seconds with no
-contact; it is not included in the fixed ten-trial rate.
+the two 180° hidden starts. Trial 03 entered the required distance but lost the
+heavily cropped chair in the fresh stopped frames, so it failed C1. Trial 08
+retained the correct red-chair detection but stopped only 0.0060 m outside C2.
+Neither is counted as found, and no result from another controller revision is
+mixed into this rate.
 
 The compact GitHub evidence is in
-[`task4_evidence/2026-09-30-benchmark-v8/`](task4_evidence/2026-09-30-benchmark-v8/):
+[`task4_evidence/2026-10-02-benchmark-d6f0c7b/`](task4_evidence/2026-10-02-benchmark-d6f0c7b/):
 `manifest.json`, per-trial logs and `result.json`, `summary.csv` and
 `summary.json`. Raw RGB frames and annotated detections remain local, outside
-Git. The earlier v7 batch at revision `49af5ed` reported 8/10 and remains
-historical; results from the two revisions are not combined. Later controller
-edits are not covered by this v8 evaluation.
+Git. Earlier batches remain historical and are not combined with this fixed
+evaluation.
 
 ## Video and reproduction
 
 The historical `Video_Task4.mp4` is stored locally, not on GitHub. It is a
 104.375 s, 1920 × 1080, 8 fps desktop recording. The terminal remains visible
 throughout both unaltered executions. It was recorded before revision
-`3692d0b`, so its two missions are demonstration evidence, not entries in the
+`d6f0c7b`, so its two missions are demonstration evidence, not entries in the
 current ten-trial rate. The first command is `Go to the red
 chair.` from a 180° start; it shows `[CMD]`, `[SEARCH]`, `[DETECT]`, `[FOUND]
 ... d=0.74 m`, and `[MISSION] status=SUCCESS`. The second is `Go to the green

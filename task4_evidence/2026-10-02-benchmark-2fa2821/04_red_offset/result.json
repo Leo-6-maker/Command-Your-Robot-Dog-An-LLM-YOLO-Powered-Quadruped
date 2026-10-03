@@ -1,0 +1,84 @@
+{
+  "target_class": "chair",
+  "target_color": "red",
+  "start_pose": [
+    0.5,
+    -1.0,
+    0.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": false,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.4883340188891746,
+      -1.002940070254475
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.6029386520385742,
+        "bbox": [
+          285,
+          137,
+          348,
+          240
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "orange",
+        "color": "red",
+        "confidence": 0.4548833668231964,
+        "bbox": [
+          180,
+          208,
+          224,
+          248
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": true,
+  "elapsed_wall_s": 3.8896747970002252,
+  "elapsed_sim_s": 57.005000000011755,
+  "last_controller_snapshot": {
+    "sim_time": 58.305000000011376,
+    "base_xy": [
+      2.169991239708159,
+      -1.0486889326790731
+    ]
+  },
+  "final": {
+    "sim_time": 59.105000000011785,
+    "base_xy": [
+      2.1690589032628864,
+      -1.0486825071595132
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.7316411137580872,
+        "bbox": [
+          139,
+          0,
+          426,
+          475
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.8323659608309396,
+  "object_contacts": []
+}

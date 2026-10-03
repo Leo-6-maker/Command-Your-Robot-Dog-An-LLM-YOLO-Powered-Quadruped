@@ -11,7 +11,7 @@ LLM 只能生成四种动作：
 
 - `move(vx, vy, wz, duration_s)`：归一化速度均为 `[-1, 1]`，持续时间为 `(0, 60]` 秒；
 - `turn(angle_deg)`：基于 Task 2 闭环转向，范围为 `[-720, 720]` 度且不能为零；
-- `goto_object(class, color)`：当前 Task 4 只支持 `red chair` 和 `green chair`；
+- `goto_object(class, color)`：支持 `red chair`、`green chair` 和 bonus 用的 `orange sports ball`；
 - `stop`：停止并清空动作队列；为避免停止后又继续运动，它必须是计划中的唯一动作。
 
 一份合法的多步计划示例：
@@ -38,6 +38,8 @@ LLM 只能生成四种动作：
 ```
 
 `action_plan.schema.json` 用于 LLM Structured Outputs；`validator.py` 是独立的本地安全检查。即使云端返回符合 JSON Schema 的结果，执行前仍必须调用本地验证器。
+
+可选的“多目标任务”和英语语音输入见[Bonus 操作说明](../BONUS_README.md)；原有文字命令仍可照常使用。
 
 ## Task 2 动作适配器
 
@@ -252,7 +254,7 @@ python -m task3.run \
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-测试覆盖 JSON/schema 边界、本地拒绝、方向语义一致性、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。当前结果为 `102 passed`。
+测试覆盖 JSON/schema 边界、本地拒绝、方向语义一致性、两种 provider 的响应边界、上下文、动作严格顺序、失败停止、Task 4 回调、benchmark 语义评分和成本计算。当前 Task 3/4 自动测试结果为 `121 passed`。
 
 ## 终端日志协议
 
@@ -261,8 +263,9 @@ conda run -n ee5112-minilab python -m pytest -q task3
 ```text
 [RUNTIME] event=START mode=browser duration_s=120.0
 [CHAT] event=READY input=english hint=/help
-[CMD] text=Move forward for one second.
+[INPUT] text=Move forward for one second.
 [LLM] provider=ollama model=qwen2.5:7b latency_s=1.246 input_tokens=1120 output_tokens=48 accepted=true actions=1
+[CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=1.00) n=1
 [PLAN] accepted=true actions=1 message=Moving forward.
 [EXEC] step=1/1 type=move vx=0.40 vy=0.00 wz=0.00 duration_s=1.00
 [EXEC] step=1/1 type=move status=SUCCESS
@@ -274,11 +277,21 @@ conda run -n ee5112-minilab python -m pytest -q task3
 
 - `[RUNTIME]`：MuJoCo 主循环开始或结束；
 - `[CHAT]`：终端循环状态和本地控制命令；
-- `[CMD]`：当次用户英文指令；
+- `[INPUT]`：用户输入的原始英文文本；
 - `[LLM]`：供应商、模型、延迟、token 与计划大小；
+- `[CMD]`：经过解析与本地验证的机器人动作列表，或稳定的拒绝原因；
 - `[PLAN]`：经本地 validator 确认的计划；
 - `[EXEC]`：每个动作的开始参数和完成状态；
 - `[DONE]`：一条指令的最终 `SUCCESS` / `REJECTED` / `FAIL` / `CANCELLED` / `ERROR`。
+
+老师要求的 `[CMD]` 不代表原始文本。多动作和拒绝示例分别为：
+
+```text
+[CMD] actions=move(vx=0.40,vy=0.00,wz=0.00,duration_s=1.00),turn(angle_deg=45.00) n=2
+[CMD] goto_object class=chair color=green
+[CMD] rejected reason=non-English
+[CMD] rejected reason=unsupported_request
+```
 
 ## 20 条 LLM benchmark
 

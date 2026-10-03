@@ -1,5 +1,9 @@
 # Windows Task 3 end-to-end multi-step receipt
 
+> Historical note: this receipt predates the 2026-10-02 course-log correction and therefore uses
+> `[CMD]` for raw input text. The current runtime uses `[INPUT]` for raw text and `[CMD]` only for
+> parsed actions or a stable rejection reason. This receipt must not be used as final video proof.
+
 On 2026-09-30, the integrated `task3.run` headless entry point used the real DeepSeek `deepseek-chat` planner, Task 2 scene and motion skills. The typed English command was:
 
 > Move forward at speed 0.4 for one second, then turn left 45 degrees.

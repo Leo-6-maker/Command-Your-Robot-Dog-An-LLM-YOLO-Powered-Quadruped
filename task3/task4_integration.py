@@ -174,6 +174,14 @@ class Task4Integration:
             timeout_s=self.mission_timeout_s,
         )
 
+    def goto_object_multigoal(self, class_name: str, color: str) -> bool:
+        """Use an extra visual-only close step for consecutive bonus goals."""
+        return self._mission(
+            class_name, color, self.detector, self.get_observation,
+            self.move, self.turn, self.stop, self.planar_distance_m,
+            timeout_s=self.mission_timeout_s, final_creep=True,
+        )
+
     def _discard_motion_frame(self) -> None:
         # A frame newer than the previous detection can still predate this action's
         # completion. Wait for the simulation owner to publish another snapshot.
@@ -198,6 +206,14 @@ class Task4Integration:
             self._closed = True
             self._condition.notify_all()
         self.motion.stop()
+
+    def reset_observations(self) -> None:
+        """Discard frames from before a main-thread Platform.reset()."""
+        with self._condition:
+            self._motion_frame_sequence = self._latest_sequence
+            self._latest = None
+            self._condition.notify_all()
+        self.detector.latest_annotated_frame = None
 
 
 def load_object_positions(path: str | Path) -> dict[ObjectKey, tuple[float, float]]:

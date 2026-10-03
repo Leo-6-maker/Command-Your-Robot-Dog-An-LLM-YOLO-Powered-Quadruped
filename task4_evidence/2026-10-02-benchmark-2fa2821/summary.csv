@@ -1,0 +1,11 @@
+trial,color,start_pose,initially_detected,stopped,c1_target_detected,grounded,found_logged,success,final_distance_m,object_contacts,failure
+01_green_aligned,green,"[1, 1, 0]",True,True,True,True,True,True,0.760384031618475,0,
+02_red_aligned,red,"[1, -1, 0]",True,True,True,True,True,True,0.7511099844200453,0,
+03_green_offset,green,"[0.5, 1, 0]",True,True,True,True,False,False,0.8266452534847555,0,visual_stop_outside_0.80m distance_m=0.8276
+04_red_offset,red,"[0.5, -1, 0]",True,True,True,True,False,False,0.8323659608309396,0,visual_stop_outside_0.80m distance_m=0.8314
+05_green_center,green,"[0, 0, 0]",False,True,True,True,True,True,0.7555140737137506,0,
+06_red_center,red,"[0, 0, 0]",True,True,True,True,False,False,0.8078114521385066,0,visual_stop_outside_0.80m distance_m=0.8079
+07_green_hidden,green,"[1, 1, 180]",False,True,True,True,True,True,0.7676091500299013,0,
+08_red_hidden,red,"[1, -1, 180]",False,True,True,True,False,False,0.8178467826545743,0,visual_stop_outside_0.80m distance_m=0.8170
+09_green_angled,green,"[1, 0, 30]",False,False,False,False,False,False,0.4839554958665631,0,TurnFailedError: Task 2 turn failed: FAIL timeout
+10_red_angled,red,"[1, 0, -30]",False,False,False,False,False,False,2.2210128478691717,0,full_turn_without_detection

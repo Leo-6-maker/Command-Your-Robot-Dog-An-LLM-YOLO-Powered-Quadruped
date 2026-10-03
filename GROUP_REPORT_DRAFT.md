@@ -1,474 +1,297 @@
-# EE5112 MiniLab 1.3 — Group Report (draft)
+# Command Your Robot Dog
 
-**Group index:** [TEAM TO FILL]
-**Members and matriculation numbers:** [TEAM TO FILL]
-**Submission date:** [TEAM TO FILL]
+## EE5112 MiniLab 1.3 - Group Report
 
-> Review before submission: fill all identity and contribution fields, replace Task 2 and Task 3 videos as flagged below, and update Task 4 metrics only from the final tested controller revision.
+**National University of Singapore | Semester 1, AY 2026/27**
 
-## Contributions and AI usage
+**Group index:** 3<br/>
 
-| Member | Matriculation number | Actual tasks and contributions |
-|---|---|---|
-| [Student A] | [ ] | [Review and fill: Task 2 platform, scene, skills, video] |
-| [Student B] | [ ] | [Review and fill: Task 3 LLM parser, evaluation, video] |
-| [Student C] | [ ] | [Review and fill: Task 4 perception, approach, evaluation, video] |
+| Member | Matriculation number | Actual contribution |
+| --- | --- | --- |
+| SIYUAN WU | A0352422N | Task 1 research; Task 2 platform, camera, scene, skills and video |
+| ZIYAN WANG | A0352514L | Task 3 parsing and evaluation; Task 4 optimisation; speech and multi-goal bonus |
+| YU LIU | A0350716H | Task 4 perception and navigation; system integration, evaluation and group report writing |
 
-**AI Usage Declaration (team to verify):** OpenAI Codex assisted with code implementation, debugging, evidence analysis, and drafting parts of this report. [Each member must specify their actual use, review, and ownership before submission.]
+**AI Usage Declaration.** The team used OpenAI Codex to assist with code implementation, debugging, experiment analysis, repository integration, and report drafting and editing. The team remains responsible for understanding the submitted code, verifying numerical claims against saved records, and reviewing the demonstrations and final report.
 
-# Task 1: Language models and learned quadruped control
+**Abstract.** We built a simulated quadruped that converts English instructions into validated actions and executes them on a shared MuJoCo platform. A pretrained ONNX walking policy handles locomotion, an asynchronous language model selects high-level actions, and onboard RGB images guide object search and approach. Our scene contains green and red chairs and an orange sports ball. The parser comparison used twenty common test utterances with OpenAI and local Qwen; navigation was evaluated with ten fixed target/start combinations. Optional extensions add local English speech transcription and ordered multi-goal missions. This report explains the architecture, measurements, failure cases and submission procedure, distinguishing parser accuracy, navigation results, contract checks and demonstration evidence.
 
-The three approaches below place language reasoning above a robot's fast motor controller. Latency and cost for SayCan and Code as Policies are architectural expectations, not measurements from this MiniLab.
+**Report date:** 3 October 2026. Experimental results are tied to the code revisions and measurement dates stated in the report.
 
-| Approach | Core idea and model output | Latency and cost profile | Suitable use |
-|---|---|---|---|
-| Structured command parsing (our Task 3) | A language model maps an English request to a restricted JSON list of `move`, `turn`, `goto_object`, or `stop` actions. A local schema and numeric validator checks the list before the Task 2 executor acts. | One inference per request, plus action execution. Our 20-utterance planner benchmark measured mean inference latency of 1.096 s for cloud `gpt-4o-mini` and 0.973 s for local `qwen2.5:7b`; the cloud batch cost $0.003601 in total. Local inference had no API fee but uses local compute. These are measurements of this setup, not universal rates. | Bounded navigation and motion requests when a fixed action vocabulary and validation are useful. |
-| Affordance-grounded planning (SayCan) | The language model proposes a sequence of known skills; each candidate is combined with an estimated probability that the robot can execute it in the current state. Output is a selected skill sequence, not joint torques. [1] | Evaluating several candidates and updating the plan after skills adds model/affordance work relative to one JSON parse. Cloud inference can incur repeated-call charges; the exact seconds and dollars depend on the model and skill set and were not measured here. | Multi-step household or tabletop tasks with a reusable skill library and changing object availability. |
-| LLM-generated robot code (Code as Policies) | The model generates program code that composes perception and robot APIs, allowing conditions, loops, and spatial calculations. Output is code, which must be reviewed or sandboxed before execution. [2] | Code generation takes at least one model call; retries, execution checks, and debugging can add latency and compute cost. We did not benchmark it, so no numeric comparison is claimed. | Flexible manipulation and research prototypes where the fixed JSON vocabulary is too restrictive and generated code can be controlled. |
+<div class="pagebreak"></div>
 
-The quadruped's locomotion policy is obtained by reinforcement learning in simulation for a velocity-command interface, then exported as ONNX and transferred to the MuJoCo simulator; physical deployment would additionally require sim-to-real validation. In our platform, the local policy consumes six frames of 46-dimensional observations and runs at 50 Hz over 200 Hz MuJoCo physics and PD actuation. A roughly one-second LLM response is far too slow to replace either loop. The LLM therefore selects validated high-level actions asynchronously, while Task 2's learned gait and PD loop continue locally. Task 4 similarly uses onboard camera observations for slower search and steering, without giving the LLM direct torque control. [3]
+# 1. Objective and system integration
 
-References: [1] Ahn et al., *Do As I Can, Not As I Say: Grounding Language in Robotic Affordances* (2022), https://arxiv.org/abs/2204.01691. [2] Liang et al., *Code as Policies: Language Model Programs for Embodied Control* (2022), https://arxiv.org/abs/2209.07753. [3] Course quadruped platform, https://github.com/aoqianz/quadruped_mujoco, inspected at commit `dd40180f1121a66373d261e64a9a09eb69b1b2a7`; Task 2 control measurements are documented in `task2/Task2_Report.md`. For the JSON implementation, see `task3/action_plan.schema.json`, `task3/validator.py`, and the Task 3 benchmark records.
+The complete interaction loop is English command, structured LLM plan, local validation, autonomous execution, perception and completion or failure. Tasks 3 and 4 use the exact platform, scene, onboard camera and skills created in Task 2. After ENTER there is no second start trigger or operator steering [1].
 
-Task 2: Platform, Scene and Motion Skills
-
-EE5112 MiniLab 1.3 | Semester 1, AY 2026/27
-
-Contributor: Student A - [insert actual name and matriculation number]. This chapter documents Task 2 only; merge it into the group report.
-
-2.1 Platform and control pipeline
-
-The implementation extends the course quadruped_mujoco platform [1] at commit dd40180f1121a66373d261e64a9a09eb69b1b2a7. MuJoCo supplies dynamics; the bundled ONNX locomotion policy runs with CPUExecutionProvider. The original observation construction, rear-leg mapping, action scaling and PD torque equations are retained. A motion queue replaces the keyboard command source during autonomous skills.
-
-```mermaid
-flowchart LR
- A[Motion queue / keyboard] --> B[46-D observation x 6 frames] --> C[ONNX 50 Hz] --> D[Rear-leg remap] --> E[PD 200 Hz] --> F[MuJoCo] --> B
-```
-Figure 2.1. The local control pipeline. Policy decisions are held for four 5 ms physics steps.
-
-| Observation slice | Content / scale |
+| Task | Our work in the complete system |
 | --- | --- |
-| 0:3; 3:6; 6:9 | Velocity command x [2,2,0.25]; body angular velocity x 0.25; projected gravity |
-| 9:21; 21:33; 33:45 | Joint position deviation; joint velocity x 0.05; previous action |
-| 45 | (height command - 0.25) / 0.1 |
+| 1: research | Compare language-to-robot interfaces; explain learned locomotion and the separation of planning and control. |
+| 2: platform | Adapt the quadruped, create a detectable scene, expose fresh RGB frames and implement timed moves and feedback turns. |
+| 3: language | Parse English into ordered JSON actions, validate them, retain successful-plan context and compare two LLM services. |
+| 4: navigation | Ground class and colour, search when absent, align and approach from images, then enforce the found criteria. |
+| 5: group delivery | Integrate source and evidence into one report, provide reproducible commands and package the report, scene, prompts and local videos. |
 
+<div class="pipeline">English text or optional speech &rarr; LLM JSON plan &rarr; validator &rarr; executor<br/>Timed move / feedback turn &harr; onboard detection and search<br/>ONNX policy (50 Hz) &rarr; PD actuation and MuJoCo physics (200 Hz)<br/>Fresh stopped image + evaluation-only distance &rarr; [FOUND] / [MISSION]</div>
 
-Policy joint order is FL, FR, RL, RR, whereas MuJoCo uses FL, FR, RR, RL. Indices [0,1,2,3,4,5,9,10,11,6,7,8] reorder observations and output targets. Without this swap, rear-leg actions are applied to the opposite legs. PD uses Kp=40, Kd=1 and limits of 23.7 Nm (hip/thigh) and 35.55 Nm (calf).
+The main thread owns physics. Terminal input and inference run outside it, so waiting for a human or network response cannot suspend the walking loop. Worker-side adapters wait for each queued skill to complete without advancing MuJoCo themselves. Camera snapshots consistently pair RGB, simulation time and trunk XY. The rear overhead camera is for viewing; only `dog_front_camera` supplies navigation images.
 
+# 2. Task 1: language models and learned locomotion
 
----
+## 2.1 Comparing language interfaces
 
-2.2 Onboard camera and detectable scene
+We compare structured parsing, SayCan and Code as Policies as three approaches to connecting language models to robot control. Our implementation uses structured parsing and a layered control architecture. SayCan and Code as Policies are literature-based alternatives; their latency and cost descriptions are architectural expectations, not results from this project.
 
-FrontCamera renders dog_front_camera, rigidly attached to trunk, at 640 x 480 RGB. It samples every 0.1 s of simulation time (20 physics steps). Ten Hz reduces rendering work relative to 200 Hz while providing frequent updates for object search. No wall-clock 10 Hz performance claim is made: slow rendering slows the simulation. latest() returns a locked copy with a simulation timestamp and sequence number.
-
-The custom MJCF contains two chairs and an orange basketball. Chairs are original combinations of a seat, backrest and four legs; the ball has dark seams. External mesh downloads are unnecessary because the complete rendered shapes passed the actual COCO detector test. This does not imply that an arbitrary coloured primitive will be recognised.
-
-![YOLO detections](report_assets/task2_detections.png)
-Figure 2.2. YOLO11n detections from the live front camera after 2 s of simulation. CPU inference, imgsz=640, confidence threshold=0.25. The RGB array is converted to BGR before NumPy-based YOLO inference.
-
-| Object | COCO class | Centre (x,y,z), m | Confidence |
+| Approach | Core idea and model output | Latency and cost profile | Suitable setting |
 | --- | --- | --- | --- |
-| Green chair | chair | (3, 1, 0.5) | 0.678 |
-| Red chair | chair | (3, -1, 0.5) | 0.571 |
+| Structured parsing | An utterance becomes JSON or function arguments for fixed robot skills, checked before execution [7]. | One inference per request. Our parser-only means were 1.096 s cloud and 0.973 s local; estimated cloud cost was $0.00018006/call. | Bounded motion and indoor navigation with inspectable actions and numeric limits. |
+| SayCan | Language relevance is combined with skill value functions estimating physical feasibility. Output selects known skills [4]. | Candidate scoring and replanning add language and affordance computation; repeated cloud inference may add fees. Not measured here. | Long household tasks with reusable skills and changing feasibility. |
+| Code as Policies | The model generates programs composing perception and robot APIs, including loops, conditions and spatial calculations [5]. | Generation, recursive helpers and validation may require multiple calls. Execution cost depends on the program. | Flexible manipulation and research tasks needing richer logic than a fixed action list. |
+
+Structured parsing gives this project a small inspectable action boundary while supporting ordered plans. Schema adherence does not guarantee intent equivalence: Qwen's measured direction error shows why semantic checks remain necessary. SayCan would need task-specific feasibility estimators; generated code would need further execution controls. Neither is required for our small fixed skill set.
+
+## 2.2 Learned locomotion and the two-rate architecture
+
+A typical quadruped walking policy is learned in simulation through reinforcement learning with a velocity-command interface. Rewards encourage tracking and stable posture, while penalties discourage undesirable contacts and excessive actuation. Parallel simulation and curricula can accelerate training; Rudin et al. provide an example [6]. Domain randomisation and calibration support transfer, but simulation results alone do not establish physical-robot safety.
+
+We use the course's existing ONNX policy and do not train a new one. Its original training recipe is not inferred from the exported network. The policy receives commands and robot state and produces joint position targets. Sim-to-sim transfer requires matching observations, joint order, action scale and timing; sim-to-real would additionally require hardware, sensing and delay calibration, outside this MiniLab.
+
+The policy runs at 50 Hz over a 200 Hz MuJoCo and PD loop [2]. A roughly one-second language response cannot supply 20 ms policy or 5 ms physics updates. The LLM therefore selects high-level actions when a command arrives, while local perception and motion continue. This is the two-rate design: slow language planning above fast feedback control, with camera sampling at its own lower rate.
+
+# 3. Task 2: platform, camera, scene and skills
+
+## 3.1 Platform adaptation
+
+We extended `quadruped_mujoco` at upstream revision `dd40180f1121a66373d261e64a9a09eb69b1b2a7` [2]. MuJoCo supplies dynamics [3]; ONNX Runtime executes the walking policy on CPU. Six successive 46-dimensional observations contain commands, angular velocity, projected gravity, joint deviations and velocities, previous actions and body-height command. Policy outputs are held for four physics steps.
+
+The policy order is FL, FR, RL, RR, whereas MuJoCo uses FL, FR, RR, RL. Mapping `[0,1,2,3,4,5,9,10,11,6,7,8]` keeps observations and targets consistent. We retained the upstream observation and action scales and PD equations. Nominal gains are Kp = 40 and Kd = 1, with hip/thigh limits of 23.7 Nm and calf limits of 35.55 Nm. A motion queue replaces keyboard commands during autonomous skills while preserving locomotion.
+
+<div class="pipeline">Velocity commands (vx, vy, wz) and body height &rarr; 46-D observation x 6 frames<br/>ONNX policy at 50 Hz (decimation 4) &rarr; rear-leg target remap<br/>Joint targets &rarr; PD torques at 200 Hz &rarr; MuJoCo &rarr; state feedback</div>
+
+Platform validation covered native and browser launches, W/S/A/D/Q/E control, Race Track, Stairs and Cross Slope maps, and all three onboard cameras. These checks are documented in the Task 2 development evidence. The recorded Task 2 demonstration additionally shows the authored object scene, the onboard camera, a three-second move and a 180-degree feedback turn.
+
+## 3.2 Camera and authored scene
+
+The trunk-mounted camera exposes copied 640 x 480 RGB frames with timestamps and sequence numbers every 0.1 s of simulation time, or twenty physics steps. Ten Hz avoids rendering at 200 Hz and suits short motion commands. It is a simulation-time rate, not a claim of ten wall-clock inferences per second. Task 4 uses a 100-degree vertical field of view.
+
+The custom MJCF at `task2/task2/assets/scene.xml` has three procedural objects from two COCO classes [9]. Seat, backrest and leg geometry makes the chairs recognisable; arbitrary coloured boxes are not assumed detectable. The basketball includes dark seams. Centres in `task2/task2/assets/objects.json` are used only for final distance logging.
+
+| Object | COCO class | Centre (x, y, z), m | Task 2 detection confidence |
+| --- | --- | --- | ---: |
+| Green chair | chair | (3, 1, 0.50) | 0.678 |
+| Red chair | chair | (3, -1, 0.50) | 0.571 |
 | Orange basketball | sports ball | (2.5, 0, 0.16) | 0.408 |
 
+<div class="figure"><img src="report_assets/task2_detections.png" alt="Onboard YOLO scene verification"><p><em>Figure 1. Task 2 front-camera verification after two simulation seconds. CPU YOLO11n, image size 640, confidence threshold 0.25; RGB is converted to BGR for NumPy-based inference. Class detections establish scene detectability, not Task 4 colour-grounding accuracy.</em></p></div>
 
-Object centres are recorded in assets/objects.json for distance logging and evaluation only. Task 4 must consume latest() as its sole image source and infer colour from pixels; the class detector alone does not provide colour. Scene labels in this table describe authored objects, not an evaluated colour-grounding algorithm.
+## 3.3 Motion API and turning experiment
 
+`move(vx, vy, wz, duration_s)` queues normalised commands in [-1, 1], not guaranteed physical velocities. `turn(angle_deg)` reads the root quaternion and accumulates wrapped yaw increments, preserving direction across +/-180 degrees and supporting up to +/-720 degrees. Feedback uses a saturated yaw command and minimum active magnitude to overcome the gait dead zone. It stops at an instantaneous error of at most two degrees; timeout clears the queue and reports failure.
 
----
+For the timing baseline, a four-second left turn at wz = 1 calibrated a rate of 0.651790 rad/s. Baseline durations were absolute target angles divided by this rate. Both methods settled two seconds before moving; the table measures yaw one second after completion. Each condition is one deterministic trial, not a robustness study.
 
-2.3 Motion API and measured turning error
+| Method | Target, deg | Settled yaw, deg | Signed error, deg | Command time, s |
+| --- | ---: | ---: | ---: | ---: |
+| Open loop | 90 | 89.05 | 0.95 | 2.42 |
+| Closed loop | 90 | 85.74 | 4.26 | 5.82 |
+| Open loop | 180 | 181.24 | -1.24 | 4.82 |
+| Closed loop | 180 | 174.88 | 5.12 | 10.73 |
+| Open loop | -90 | -111.30 | 21.30 | 2.42 |
+| Closed loop | -90 | -83.44 | -6.56 | 4.68 |
 
-move(vx, vy, wz, duration) adds a timed command to a thread-safe FIFO queue. Commands are normalised to [-1,1]; they are not guaranteed physical velocities. The control loop checks simulation time, advances the queue in order and returns zero velocity when idle. turn(angle_deg) reads the root quaternion and accumulates wrapped yaw differences, preserving turn direction through the +/-180 degree boundary and supporting turns up to +/-720 degrees.
+Calibrated left turns were accurate, but reusing their rate for a right turn caused a 21.30-degree error. Feedback completion errors were 1.92, 1.89 and -1.99 degrees; gait relaxation increased the later settled errors. Feedback reduced the large right-turn error, but was slower and did not outperform the calibrated baseline in every condition. Measurements are in `task2/evidence/turn_comparison.csv`.
 
-The turn controller saturates at |wz|=0.65 and uses a minimum nonzero magnitude of 0.40 to overcome the learned gait response dead zone. It stops at an instantaneous yaw error of at most 2 degrees and logs [TURN]. A timeout clears remaining actions and reports FAIL. This is a heading skill; it does not freeze the robot pose or actively hold heading after completion.
+# 4. Task 3: English planning and autonomous execution
 
-For a fair open-loop baseline, a four-second left turn at wz=1 measured a mean rate of 0.651790 rad/s. Each open-loop duration was then |target angle| / calibrated rate. Both methods start after two seconds of settling; the table measures yaw again one second after the command ends. Each condition is one deterministic trial, not a statistical robustness study.
+## 4.1 Structured output and safety boundary
 
-| Method | Target | Measured yaw | Signed error | Time, s |
-| --- | --- | --- | --- | --- |
-| open | 90 deg | 89.05 deg | 0.95 deg | 2.42 |
-| closed | 90 deg | 85.74 deg | 4.26 deg | 5.82 |
-| open | 180 deg | 181.24 deg | -1.24 deg | 4.82 |
-| closed | 180 deg | 174.88 deg | 5.12 deg | 10.73 |
-| open | -90 deg | -111.30 deg | 21.30 deg | 2.42 |
-| closed | -90 deg | -83.44 deg | -6.56 deg | 4.68 |
+The parser receives the action schema and task prompt. OpenAI uses strict JSON-schema output through the Responses API; Ollama receives the schema as its structured format. DeepSeek and DashScope use compatible JSON-object mode with independent validation. JSON mode controls syntax; strict structured output additionally constrains supported schema structure [7]. Neither establishes semantic correctness or replaces numeric checks.
 
-
-The calibrated open-loop left turns were accurate (0.95 and -1.24 degrees), but reusing that timing for a right turn produced 21.30 degrees error. Direction-dependent gait dynamics invalidate a single universal timing constant. Closed-loop completion errors were 1.92, 1.89 and -1.99 degrees. After one second, errors increased to 4.26, 5.12 and -6.56 degrees because of gait relaxation. Feedback reduced the large right-turn error, but was slower and did not outperform calibrated open loop in every test.
-
-Demo: move(0.5,0,0,3), then turn(180); recorded completion error 1.93 degrees, SUCCESS.
-
-
----
-
-2.4 Reproduction, integration and evidence
-
-The tested environment is Linux with Python 3.12, MuJoCo 3.14.0, ONNX Runtime 1.30.0 and Ultralytics 8.4.160. Dependency pins are in requirements-task2.txt; environment-tested.txt records the resolved environment. Install CPU Torch/Torchvision first, then install the repository editable and the Task 2 requirements. The ONNX policy and YOLO11n weights are included.
-
-| Purpose | Command from repository root |
+| Action | Parameters and local checks |
 | --- | --- |
-| Native / browser | python -m task2.run<br/>MUJOCO_GL=egl python -m task2.run --gui |
-| Scene verification | MUJOCO_GL=egl python -m task2.verify_scene |
-| Turn comparison | MUJOCO_GL=egl python -m task2.evaluate |
-| Unit checks | python -m pytest -q task2/test_skills.py |
-| Automated video | MUJOCO_GL=egl python -m task2.run --headless --demo --duration 22 --record evidence/Video_Task2.mp4 |
+| move | vx, vy, wz in [-1, 1]; duration_s greater than zero and at most 60 s. |
+| turn | Nonzero angle_deg in [-720, 720]; positive means left, negative means right. |
+| goto_object | Valid scene pair: green chair, red chair, or orange sports ball in the bonus extension. |
+| stop | No numeric parameters; must be the only action so motion cannot restart afterwards. |
 
+Rejected plans have `accepted=false` and no actions. Conservative local rules reject empty input, explicit dangerous requests and obvious non-English text; the model handles other wording. Numeric validation blocks excessive values even in valid JSON. A direction guard rejects clear single-action contradictions between instruction and sign, but does not prove equivalence for every complex sentence.
 
-The original eg/play.py launched successfully in native mode and the browser service ran with --gui. API checks exercised W/S/A/D/Q/E, Race Track, Stairs and Cross Slope, and selected all three onboard cameras. Separate named-camera renders are included. The six unit tests passed, covering queue timing, cancellation, yaw wrapping/full turns, invalid inputs and timeout. Browser skill actions also completed a move and a 180-degree turn (1.87 degrees error).
+Single-step commands are supported, for example `Turn left 90 degrees.` A multi-step example is `Move forward at speed 0.4 for one second, then turn left 45 degrees.` Paraphrases go through the LLM. The latest successful plan is retained for follow-ups such as `Do that again, but slower.` This is successful-plan context, not an unlimited conversation archive.
 
-Task 3 should enqueue actions from its own input/LLM thread while the main simulation thread continuously calls Platform.step(). Task 4 reads FrontCamera.latest(), rejects stale frames and issues short motion commands. Ground-truth object centres are not read by either the motion controller or the camera pipeline. Task 3/4 logic and their evaluation are outside this implementation.
+## 4.2 Chat and log improvements
 
-Submission limitation. Video_Task2.mp4 is an offscreen simulation recording with synchronised console text, not a desktop terminal recording. To meet the literal terminal-visible requirement, record the browser/native window beside a terminal, trigger M then K, and retain the [TURN] SUCCESS line. The supplied evidence does not claim that the student has personally performed that recording.
+After `[CHAT] event=READY`, input is recorded as `[INPUT]`; `[CMD]` records parsed actions and their count, or a rejection reason. The executor records each `[EXEC]` and final `[DONE]`. The optimisation branch corrected earlier logging that mixed the utterance with parsed semantics and improved rejection and video examples. Actions execute serially through `Task2MotionAdapter`; failures or cancellation stop the remaining plan.
 
-AI Usage Declaration (review before submission). OpenAI Codex assisted with implementation, scene construction, debugging, test execution and drafting this Task 2 chapter. The submitting student must review the code, fill in their identity and actual contribution, and be able to explain the submitted work.
+`/stop` clears motion and `/quit` ends the session. Bonus `/reset` is accepted only while idle and runs on the physics-owner thread, clearing camera snapshots and successful-plan context. Typed and spoken commands share validation and execution.
 
-References
+## 4.3 Twenty-utterance comparison
 
-[1] Course platform: https://github.com/aoqianz/quadruped_mujoco (commit recorded on page 1).<br/>[2] MuJoCo documentation: https://mujoco.readthedocs.io/<br/>[3] Ultralytics documentation and YOLO11n COCO weights: https://docs.ultralytics.com/<br/>[4] EE5112 MiniLab 1.3, Semester 1 AY2026/27, Task 2 specification.
+Both providers received the same twenty independent cases: ten basic requests, five paraphrases and five invalid/out-of-range requests. Each case used a fresh context, temperature zero and, for Qwen, seed 42. Semantic scoring checks acceptance and ordered actions with their numeric values. No command was sent to the robot. The records date from 29 September 2026: `task3/evidence/step13_benchmark_results.json`.
 
+| Model | Overall | Basic (10) | Paraphrase (5) | Invalid (5) | Mean latency, s | Estimated USD/call |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| OpenAI gpt-4o-mini | 15/20 (75%) | 9/10 | 1/5 | 5/5 | 1.096 | 0.00018006 |
+| Ollama qwen2.5:7b | 16/20 (80%) | 10/10 | 4/5 | 2/5 | 0.973 | 0 API fee |
 
-See evidence/turn_comparison.csv and evidence/detections.json for numerical tables.
+OpenAI used 21,800 input and 552 output tokens, no cached input, for an estimated $0.0036012 batch cost. This uses recorded prices and tokens, not a new invoice or a current-price quotation. Local compute, electricity and storage are not priced. These measurements are specific to the twenty prompts and environments.
 
-# EE5112 MiniLab 1.3 — Task 3 Final Report
+OpenAI rejected all invalid requests but also rejected a safe right turn and four safe paraphrases. Qwen understood more wording but reversed the sign in `Slide toward your right ...`. It clipped speed 1.5 to 1.0 instead of rejecting, and emitted excessive duration and angle values in two other cases. Numeric validation blocked the latter two; the later direction guard addresses explicit sign errors. This historical benchmark is not rescored as if the guard or bonus prompt had existed at measurement time.
 
-## 1. Deliverable summary
+# 5. Task 4: visual object search and autonomous approach
 
-Task 3 converts an English terminal command into a validated JSON action plan and executes the
-plan through the Task 2 quadruped platform. It also dispatches visual object-navigation actions to
-the existing Task 4 controller. The implementation supports two interchangeable LLM providers:
-OpenAI `gpt-4o-mini` and local `qwen2.5:7b` through Ollama.
+## 5.1 Perception and image-based control
 
-Submitted material includes:
+YOLO supplies COCO class detections [8-10]. We use CPU YOLO11n at confidence at least 0.25. Bounding-box pixels are converted to Pillow HSV; saturation below 70 or value below 25 is ignored. A colour needs at least 35% of the remaining pixels. On the 0-255 hue scale, red is 0-14 or 242-255 and green is 50-128. Keeping dark saturated pixels avoids discarding shaded chair faces. The lower browser panel annotates the exact frame processed by the detector, rather than overlaying old boxes on a new frame.
 
-- Task 3 source code, JSON Schema and 102 automated tests;
-- Task 2 motion-queue and Task 4 visual-navigation integration;
-- a fixed 20-command benchmark for both LLMs;
-- per-command latency, token, cost and failure records;
-- a 1080p MP4 desktop demonstration and its verification metadata.
+Before acquisition, two consecutive misses trigger a 20-degree search turn. During tracking, five misses are tolerated before resuming search. Image-space proximity discourages duplicate boxes from stealing the track. A partial angular correction follows the horizontal box offset and focal geometry; bounded turns keep targets visible. Completed 0.25-second moves alternate with fresh observations. Near the target, box height and width bound additional steps; every final move is followed by reobservation.
 
-No API key, `.env` file, model weight or private credential is stored in Git.
+The robot stops and checks up to five fresh frames. If a nearly full-frame chair disappears through cropping or gait pitch, the single-goal path permits one short backward recovery. It never reads true object coordinates to steer or choose a forward distance. A full scan without detection, timeout, lost stopped-frame target or excessive distance prints `[MISSION] status=FAIL reason=...`. The fixed mission timeout is 120 wall-clock seconds; the interactive Windows demo allows 180 s. Logged mission time is simulation time, not wall-clock latency.
 
-## 2. System architecture
+## 5.2 The mandatory found criteria
 
-```text
-English terminal command
-        |
-        v
-local input policy
-        |
-        v
-OpenAI planner OR Ollama/Qwen planner
-        |
-        v
-JSON/schema validator -> explicit direction guard
-        |
-        v
-sequential PlanExecutor
-        |
-        +---- move / turn / stop ----> Task2MotionAdapter ----> Task 2 queue
-        |
-        +---- goto_object -----------> Task4Integration ------> task4.py
-                                                              |
-                                                    onboard RGB camera only
-```
+All three course conditions must hold [1]: C1, a fresh stopped onboard image labels the requested class and colour; C2, planar trunk-origin to object-centre distance is at most 0.80 m; C3, `[FOUND] class=... color=... t=... d=...` is printed. Distance is `sqrt((x_base-x_object)^2+(y_base-y_object)^2)`, ignoring z. Scene coordinates enter only this post-stop check. The robot must stop before contact, checked independently from trial contact records.
 
-LLM and robot work run in a command worker. The MuJoCo owner thread continuously calls
-`platform.step()`, so inference, queue waits and Task 4 navigation never block physics updates.
+A large image alone is insufficient: the front camera is ahead of the trunk, which can remain outside 0.80 m. A robot can also be close enough but fail C1 because the object is cropped out. Neither an earlier box nor a ground-truth position substitutes for stopped-frame evidence.
 
-## 3. Action contract and safety boundary
+## 5.3 Fixed evaluation and provenance
 
-The model may emit only four action types:
+The teammate's controller at revision `d6f0c7b` achieved 8/10 C1-C3 successes, 9/10 stopped target matches, 9/10 confirmed grounding and zero object-contact trials. Trial 03 lost the cropped green chair inside the distance threshold; trial 08 retained the correct red-chair detection but stopped at 0.8060 m. Evidence is in `task4_evidence/2026-10-02-benchmark-d6f0c7b/`.
 
-| Action | Important limits |
-|---|---|
-| `move(vx, vy, wz, duration_s)` | velocities in `[-1, 1]`; duration in `(0, 60]` seconds |
-| `turn(angle_deg)` | non-zero angle in `[-720, 720]` degrees |
-| `goto_object(class, color)` | supported targets: red or green chair |
-| `stop` | must be the only action in its plan |
+Bonus revision `0e3a66b` extends detection and multi-goal behaviour. We evaluated that runtime separately on the same ten starts under Windows; revisions are not mixed.
 
-OpenAI Structured Outputs and Ollama's schema format reduce malformed responses, but neither is
-trusted. `validator.py` independently rejects missing/extra fields, wrong types, booleans used as
-numbers, NaN/Infinity, duplicate JSON keys, unsafe ranges, empty accepted plans and actions in a
-rejected plan.
+| Trial | Target | Start (x, y, yaw deg) | Initial match | C1 | d_eval, m | Outcome |
+| --- | --- | --- | --- | --- | ---: | --- |
+| 01 | Green chair | (1, 1, 0) | Yes | Yes | 0.733 | Success |
+| 02 | Red chair | (1, -1, 0) | Yes | Yes | 0.732 | Success |
+| 03 | Green chair | (0.5, 1, 0) | Yes | No | 0.734 | Fail C1 |
+| 04 | Red chair | (0.5, -1, 0) | Yes | Yes | 0.778 | Success |
+| 05 | Green chair | (0, 0, 0) | No | Yes | 0.718 | Success |
+| 06 | Red chair | (0, 0, 0) | Yes | Yes | 0.772 | Success |
+| 07 | Green chair | (1, 1, 180) | No | No | 0.724 | Fail C1 |
+| 08 | Red chair | (1, -1, 180) | No | Yes | 0.742 | Success |
+| 09 | Green chair | (1, 0, 30) | No | Yes | 0.747 | Success |
+| 10 | Red chair | (1, 0, -30) | No | Yes | 0.759 | Success |
 
-The final runtime additionally compares explicit one-action direction words with numeric signs:
-forward/backward use positive/negative `vx`, left/right translation uses positive/negative `vy`,
-and left/right turns use positive/negative angles. A contradiction produces a visible `[GUARD]`
-rejection and no motion. This was added after Qwen produced text saying “right” with `vy=+0.2`.
+The current batch achieved **8/10 (80%) approach success**, **8/10 (80%) stopped class/colour detection**, and **8/10 confirmed grounding**, or 8/8 among stops with a live target match. There were **0/10 object-contact trials**. Five targets were not detected initially, including both 180-degree starts; the hidden red trial succeeded. Logs, per-trial JSON, summary and environment/runtime hashes are retained in `task4_evidence/2026-10-02-task5-0e3a66b/`.
 
-## 4. Terminal, context and execution
+Trials 03 and 07 failed because no matching green-chair detection survived the stopped-frame checks and backward recovery. Their distances were inside 0.80 m, but they did not pass C1 and printed no `[FOUND]`. The earlier d6f0c7b batch also had an 80% success rate, but different failures and a 90% stopped detection rate. These single batches do not establish a significant improvement or equivalent performance across operating systems.
 
-The asynchronous chat loop prints stable one-line evidence records:
+<div class="figure"><div class="figure-pair"><img src="report_assets/task4_stopped_green.png" alt="Successful stopped green chair detection"><img src="report_assets/task4_failed_green.png" alt="Failed stopped green chair confirmation"></div><p><em>Figure 2. Last controller images from trials 01 (left, success) and 03 (right, failure). Offline re-inference reproduces the green-chair match and its absence respectively. This is a frame check, not another navigation trial.</em></p></div>
 
-```text
-[CMD] -> [LLM] -> [PLAN] -> [EXEC] -> [DONE]
-```
+Detection accuracy is a task-level stopped-frame measure from the mission logs, not per-frame mAP. The extra independently rendered post-mission frames retain a target in 7/10 trials: successful trial 01 loses its later match as the camera settles. Its saved controller frame reproduces the detection at the actual success decision. This distinguishes meeting C1 at the stopping decision from maintaining visibility afterwards, which remains a limitation. Grounding checks that the base is nearer the requested chair than the other colour. Independent post-mission `d_eval` can also differ slightly as the gait settles. Initially undetected targets and 180-degree starts exercise search; coloured chairs exercise same-class disambiguation.
 
-Actions execute strictly in list order. A failure or cancellation stops the current action and
-skips all remaining actions. Only an accepted plan whose execution ends in `SUCCESS` becomes the
-next conversational context. This lets “Do that again, but slower” refer to the last successful
-move without allowing a rejected or failed request to poison later commands.
+# 6. Bonus: speech input and multi-goal missions
 
-## 5. Task 2 and Task 4 integration
+## 6.1 Speech follows the same command path
 
-Task 2's `move()` and `turn()` methods enqueue work and return immediately. `Task2MotionAdapter`
-turns that interface into blocking worker-side operations by observing queue completion and closed-
-loop turn result records. It never advances MuJoCo itself.
+`/voice` records microphone speech and transcribes locally with faster-whisper `base.en`, CPU int8 [11]. Default recording is seven seconds; longer instructions can use fifteen. Linux uses `arecord` when available and Windows uses `sounddevice`. `/voice-file` accepts a recorded file. Loading is lazy, and first use can include a model download. Empty or inaudible audio and transcription errors do not start motion.
 
-`Task4Integration` captures a synchronized onboard-camera, robot-position and simulation-time
-snapshot immediately after `platform.step()`. `goto_object()` uses YOLO detections and image-space
-feedback to steer. Object truth coordinates are read only after stopping to calculate the final C2
-distance; they do not control navigation.
+`[STT] status=OK ... text=...` precedes the ordinary LLM, validator and executor path. STT does not directly control motion. Forcing English transcription does not prove every non-English utterance is rejected; the transcript still needs normal checks. No labelled speech accuracy or latency benchmark was conducted.
 
-## 6. Two-model benchmark
+## 6.2 Ordered goals and ball grounding
 
-Both providers received the same 20 independent cases at temperature zero: 10 basic commands,
-5 paraphrases and 5 invalid/out-of-range requests. This planner-only benchmark did not move the
-robot.
+`Visit the orange ball and then the green chair.` produces consecutive object actions. Each must succeed before the next begins. The executor retreats briefly between consecutive object goals to clear the reached object. Multi-goal chairs additionally use bounded visual creep and up to two backward confirmation recoveries, which differ from the single-goal evaluation path. Failure truncates the remaining plan.
 
-| Provider | Model | Overall | Basic | Paraphrase | Invalid | Mean latency | API cost |
-|---|---|---:|---:|---:|---:|---:|---:|
-| OpenAI | `gpt-4o-mini` | 15/20 (75%) | 9/10 | 1/5 | 5/5 | 1.096 s | $0.003601 |
-| Ollama | `qwen2.5:7b` | 16/20 (80%) | 10/10 | 4/5 | 2/5 | 0.973 s | $0.000000 |
+Ball detection prefers YOLO. If it calls the round orange object an `orange`, scene-specific remapping and an orange connected-component fallback maintain the target. The fallback constrains size, aspect ratio and pixel fill and logs `source=color_shape`. Its confidence is a fill score, not a calibrated YOLO probability. It suits this scene's single orange sphere and could confuse another similar object; it is not used to claim YOLO class accuracy.
 
-OpenAI was more conservative: it rejected all five invalid requests, but over-rejected safe
-paraphrases. Qwen understood more valid wording but was weaker on safety limits. It clipped a
-requested speed of 1.5 to 1.0 and emitted out-of-range duration/angle values in two cases. The
-local numeric validator blocked the latter two. Qwen also reversed the sign of a rightward
-paraphrase; the final direction guard blocks this class of runtime error.
+The recorded bonus demonstration shows two speech-driven plans with Ollama `qwen2.5:7b`. The first visits the orange ball and then the green chair. After `/reset`, the second visits those two objects, turns through 180 degrees and moves forward for one second. The visible terminal records two `[STT] status=OK` transcriptions, ordered `[CMD]` plans, object `[FOUND]` confirmations and final `[DONE] status=SUCCESS` for both plans. An AAC audio track is present. These demonstrations establish example end-to-end execution, not a measured speech accuracy or multi-goal success rate. Separate development tests reported one success and one failure for the complex four-action sequence, while three-goal navigation remained unstable.
 
-The raw results and all failure records are in `evidence/step13_benchmark_results.json` and
-`evidence/step13_benchmark.md`. The benchmark predates the direction guard deliberately: the table
-measures each LLM's own understanding rather than post-processing accuracy.
+# 7. Task 5: reproducibility, contributions and deliverables
 
-## 7. Verification
+## 7.1 Environments, ownership and source paths
 
-Run all Task 3 tests from the repository root:
+The parser comparison and Task 2 development used Linux/Python 3.12. The navigation batch dated 2 October 2026 used Windows/Python 3.12.7, MuJoCo 3.14.0, ONNX Runtime 1.30.0, Ultralytics 8.3.111, PyTorch 2.6.0 CPU and Pillow 10.4.0. Linux pins use some newer vision versions, so detections and approach outcomes may differ. The per-batch receipt records the evaluated versions and runtime hashes.
 
-```bash
-conda run -n ee5112-minilab python -m pytest -q task3
-```
+| Responsibility | Key source and evidence |
+| --- | --- |
+| Task 1 - SIYUAN WU | `TASK1_REPORT_SECTION.md`; comparison and primary references in this report. The original Task 1 PDF is a local reference. |
+| Task 2 - SIYUAN WU | `task2/task2/platform.py`, `camera.py`, `skills.py`; `assets/scene.xml`, `assets/objects.json`; `task2/eg/model_3400.onnx`; `task2/evidence/turn_comparison.csv`. |
+| Task 3 - ZIYAN WANG | `task3/planner.py`, `action_plan.schema.json`, `validator.py`, `command_policy.py`, `chat_loop.py`, `executor.py`; `evidence/step13_benchmark_results.json`. |
+| Task 4 - YU LIU; optimisation by ZIYAN WANG | `task4.py`, `task3/task4_integration.py`, `task3/dual_view.py`; trial manifests, logs, JSON and summaries. |
+| Bonus - ZIYAN WANG | `task3/speech_input.py`, `requirements-bonus.txt`, `BONUS_README.md`; root demo scripts. |
+| Integration and report - YU LIU | `GROUP_REPORT_DRAFT.md`, `render_group_report.py`, `prepare_submission.py`, `TASK5_REVIEW.md`; final PDF and videos supplied locally. |
 
-Final result:
+The contribution split is stated on the cover and linked to the principal files above. The integrated project passed 143 automated checks on 2 October 2026: 136 Task 3/4 checks, six Task 2 skill checks and one submission-packaging check. These cover contracts, ordering, cancellation, speech handoff, reset, visual recovery and package boundaries. They do not measure microphone quality or navigation robustness.
 
-```text
-102 passed in 0.20s
-```
-
-The tests cover parsing, schema and semantic limits, direction consistency, provider boundaries,
-context, cancellation, strict execution order, Task 2 completion, Task 4 callbacks, log sanitising,
-benchmark scoring and cost calculations. `git diff --check` also passes.
-
-## 8. Reproduction
-
-The final local verification environment used Python 3.12.14, MuJoCo 3.14.0, NumPy 2.5.3,
-Ultralytics 8.4.160, OpenAI Python 3.20.0 and Ollama 0.34.4. Task 3 pins only the additional
-Python dependency it introduces; simulator and vision packages come from the Task 2 environment.
-
-Install the Task 3 Python dependency in the existing Task 2 environment:
-
-```bash
-python -m pip install -r task3/requirements-task3.txt
-```
-
-For OpenAI:
-
-```bash
-export OPENAI_API_KEY="..."  # set locally; never commit it
-python -m task3.run --provider openai --model gpt-4o-mini \
-  --task2-root /path/to/task2-project --gui
-```
-
-For local Qwen:
-
-```bash
-ollama serve
-ollama pull qwen2.5:7b       # first use only
-python -m task3.run --provider ollama --model qwen2.5:7b \
-  --task2-root /path/to/task2-project --gui
-```
-
-Enter `/quit` to cancel outstanding work and stop the integrated runtime safely.
-
-## 9. Video evidence
-
-The final desktop video shows the terminal and live MuJoCo view together, four successful motion
-commands including conversational context, one unrelated-command rejection, and clean shutdown.
-One integrated Qwen demonstration is recorded; both providers are evaluated with the common
-benchmark rather than duplicating the same video.
-
-- File: `EE5112_MiniLab1_3_Task3_Demo.mp4`
-- Format: H.264 MP4, 1920x1080, 30 FPS, 95.8 seconds
-- SHA-256: `60286cd75e30b259b027c979f05546675a1a5cb6f65f1b407d9fe5bb06c28d0c`
-
-The MP4 is uploaded separately to the course submission system. It is not committed to the source
-repository. Recording commands and acceptance checks are in `evidence/step15_video_script.md`.
-
-## 10. Known limitations
-
-- The explicit direction guard intentionally handles only unambiguous single-action commands;
-  arbitrary multi-clause semantic equivalence remains an LLM/evaluation problem.
-- A schema-valid model may still alter a requested magnitude, as Qwen did for speed 1.5. Runtime
-  limits prevent unsafe values, but complete intent equivalence requires broader semantic checks.
-- Local Qwen has no API fee but requires Ollama, model storage and suitable local compute.
-- Visual navigation depends on onboard-camera visibility and detector quality; scene truth is not
-  a fallback steering signal.
-
-## 11. Evidence index
-
-- `evidence/step10_pure_motion.md` — live movement and sequential-action checks
-- `evidence/step11_task4_integration.md` — camera-only Task 4 integration
-- `evidence/step12_local_qwen.md` — local provider setup and end-to-end run
-- `evidence/step13_benchmark.md` — two-provider comparison and failure analysis
-- `evidence/step13_benchmark_results.json` — machine-readable benchmark records
-- `evidence/step14_tests_logs.md` — automated coverage and log contract
-- `evidence/step15_video_script.md` — final video commands and technical verification
-
-# Task 4: YOLO object search and approach
-
-## Method and integration
-
-We used the Task 2 `object_lab` MJCF scene
-(`task2/task2/assets/scene.xml` in this repository) and its quadruped locomotion skills.
-The controller reads only the robot's onboard `dog_front_camera` RGB frames
-(640 × 480, sampled at 10 Hz of simulation time). The shared camera has a
-100° vertical field of view in both the Task 4 trial runner and the Task 3
-interactive entry point. The browser display uses a rear overhead camera to
-show the dog and objects; it does not feed the controller.
-
-CPU YOLO11n supplies COCO class labels and bounding boxes at confidence ≥0.25.
-For each box we convert its pixels to HSV, ignore pixels with saturation <70
-or value <45, and label red or green when at least 35% of the remaining pixels
-fall in the corresponding hue range (Pillow hue 0–255: red 0–14 or 242–255;
-green 50–128). This simple class-plus-color rule suits the two same-class
-chairs in our scene without a separate color model. It can fail when the chair
-is heavily cropped, partially occluded, or affected by body pitch.
-
-Task 3 parses the typed English command into a validated
-`goto_object(class="chair", color="red"|"green")` action. The Task 4 callback
-requests synchronized fresh camera/robot-pose snapshots from the Task 2
-adapter. After five consecutive camera misses it rotates 30° and detects
-again; after detection it makes a partial turn toward the box center and advances through
-completed 0.25 s motion skills. Close-range box width limits the final number
-of short steps. A full search turn without a target, timeout, lost stopped-frame
-target, or excessive final distance prints `[MISSION] status=FAIL reason=...`.
-The mission wall-clock timeout is 120 s in the fixed evaluation; the GUI
-demonstrations allow 180 s.
-
-The robot first stops, then checks the target class **and** color on a fresh
-onboard frame (C1). Only then does it read the Task 2 object center to compute
-trunk-to-object planar distance and enforce d ≤0.80 m (C2). It prints one
-`[FOUND] class=... color=... t=... d=...` line only after C1 and C2 pass (C3).
-Object coordinates never steer the robot. The simulator's object-contact
-records are checked after each trial.
-
-## Fixed evaluation
-
-The results below belong to controller revision `3692d0b`, which includes
-close-range re-observation and reduced long-range turn gain. The optional
-randomized-start poses are explored separately from this fixed batch.
-
-All ten trials used controller commit `3692d0b`, one scene, one detector and
-one parameter set. We varied requested color and robot start position/yaw;
-180° starts deliberately face away from the target. These are structured
-target trials that isolate navigation; the separate video verifies the real
-English LLM-to-simulator path. The table's `d_eval` is the independent
-post-mission snapshot distance in meters. C2 is decided from the live stopped
-snapshot in each mission log, so a small difference between the two distances
-does not change the verdict.
-
-| Trial | Target | Start (x, y, yaw°) | Initial target detection | C1 class + color | d_eval (m) | Result |
-|---|---|---|---|---|---:|---|
-| 01 | green chair | (1, 1, 0) | yes | yes | 0.771 | success |
-| 02 | red chair | (1, −1, 0) | yes | yes | 0.745 | success |
-| 03 | green chair | (0.5, 1, 0) | yes | yes | 0.745 | success |
-| 04 | red chair | (0.5, −1, 0) | yes | yes | 0.825 | fail: stopped C2 d = 0.8192 m |
-| 05 | green chair | (0, 0, 0) | no | yes | 0.760 | success |
-| 06 | red chair | (0, 0, 0) | yes | yes | 0.795 | success |
-| 07 | green chair | (1, 1, 180) | no | yes | 0.812 | fail: stopped C2 d = 0.8077 m |
-| 08 | red chair | (1, −1, 180) | no | yes | 0.798 | success, initially hidden |
-| 09 | green chair | (1, 0, 30) | no | yes | 0.744 | success |
-| 10 | red chair | (1, 0, −30) | no | **no** | 0.800 | fail: target absent on stopped frame |
-
-The stopped-frame target detection rate is **9/10 (90%)**. Grounding selected
-the requested color on **9/9** stops with a target detection, or **9/10 (90%)**
-of all trials. The full C1–C3 approach success rate is **7/10 (70%)**, with
-**0/10 object-contact trials**. This detection rate is a task-level stopped
-frame measure, not conventional mAP; we did not annotate every frame with
-ground-truth boxes. Five starts had no initial target detection, including
-the two 180° hidden starts. Trials 04 and 07 selected the correct chair but
-stopped 0.0192 m and 0.0077 m outside C2, respectively. Trial 10 ended near
-0.80 m but failed C1 because YOLO did not label the red chair on the stopped
-frames. None is counted as found. An exploratory random-start red-chair run
-from (0.5, 0.4, 90°) succeeded at 0.785 m in 55.6 wall-clock seconds with no
-contact; it is not included in the fixed ten-trial rate.
-
-The compact GitHub evidence is in
-[`task4_evidence/2026-09-30-benchmark-v8/`](task4_evidence/2026-09-30-benchmark-v8/):
-`manifest.json`, per-trial logs and `result.json`, `summary.csv` and
-`summary.json`. Raw RGB frames and annotated detections remain local, outside
-Git. The earlier v7 batch at revision `49af5ed` reported 8/10 and remains
-historical; results from the two revisions are not combined. Later controller
-edits are not covered by this v8 evaluation.
-
-## Video and reproduction
-
-The historical `Video_Task4.mp4` is stored locally, not on GitHub. It is a
-104.375 s, 1920 × 1080, 8 fps desktop recording. The terminal remains visible
-throughout both unaltered executions. It was recorded before revision
-`3692d0b`, so its two missions are demonstration evidence, not entries in the
-current ten-trial rate. The first command is `Go to the red
-chair.` from a 180° start; it shows `[CMD]`, `[SEARCH]`, `[DETECT]`, `[FOUND]
-... d=0.74 m`, and `[MISSION] status=SUCCESS`. The second is `Go to the green
-chair.`; both red and green chair detections occur in that live log, and it
-ends with `[FOUND] ... d=0.75 m` and `[MISSION] status=SUCCESS`. The video uses
-the real Task 3 chat loop and DeepSeek `deepseek-chat` JSON planner; the API
-key is read from `DEEPSEEK_API_KEY` in the environment and is not in the repo.
-Task 3's separate report covers its OpenAI-versus-local-Qwen comparison.
-The two original terminal logs and the MP4 hash are retained locally.
-Separate historical headless logs in
-[`task4_evidence/2026-09-30-llm-current/`](task4_evidence/2026-09-30-llm-current/)
-show real DeepSeek English commands succeeding for aligned red and green chairs
-at 0.79 m each. The same folder also retains a random-start red-chair run that
-correctly failed C2 at 0.8011 m. These logs verify that revision's LLM integration
-but are not substitutes for the terminal-visible video.
-
-On Windows, use the checked-in `task2/` source. Install Task 2 and Task 3
-requirements under Python 3.12, then run from this repo:
+## 7.2 Installation and demonstrations
+
+From the directly cloneable repository root, using Python 3.12 and PowerShell:
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 .\.venv\Scripts\python.exe -m pip install -e .\task2
-.\.venv\Scripts\python.exe -m pip install -r .\task2\requirements-task2.txt -r task3\requirements-task3.txt pywin32
-.\.venv\Scripts\python.exe -u run_task4_benchmark.py runs\new_fixed_batch
-.\.venv\Scripts\python.exe summarize_task4_benchmark.py runs\new_fixed_batch
-.\capture_task4_demo.ps1 -Color red -RunId red_new
-.\capture_task4_demo.ps1 -Color green -RunId green_new
+.\.venv\Scripts\python.exe -m pip install -r task2\requirements-task2.txt -r task3\requirements-task3.txt
 ```
 
-The measured Windows environment was Python 3.12.7, MuJoCo 3.14.0,
-NumPy 2.5.2, ONNX Runtime 1.30.0, Ultralytics 8.3.111,
-PyTorch 2.6.0+cpu and Pillow 10.4.0. The packaged Task 2 requirements may
-install newer patch versions on another machine, so rerun the fixed batch
-there before comparing outcomes.
+Interactive Windows scripts use DeepSeek and read `DEEPSEEK_API_KEY` from the local environment. OpenAI reads `OPENAI_API_KEY`; DashScope reads `DASHSCOPE_API_KEY`. Keys are excluded from source and recordings. Local Qwen requires Ollama serving `qwen2.5:7b` without an API key. Comparing two providers does not require recording the same complete demonstration twice.
 
-The benchmark runs headlessly with structured targets; the capture scripts
-open the live browser at <http://127.0.0.1:8765> and an interactive terminal.
-They require a configured `DEEPSEEK_API_KEY`, Windows desktop access, and the
-video helper packages `imageio-ffmpeg` and `pywin32`. A human can instead run
-`run_task4_demo.ps1` and type the English command in its terminal. The final
-video concatenates the two successful desktop clips in red-then-green order
-without changing either execution.
+| Purpose | Command / interaction |
+| --- | --- |
+| Task 2 | `./run_task2_demo.ps1`; open port 8765, show objects and onboard camera, enter `m` and `k`, retain `[TURN]`. |
+| Task 3 | `./run_task3_demo.ps1`; after READY, type the move-then-turn example; after `[DONE]`, type `Write a poem about robot dogs.` to show rejection. |
+| Task 4 | `./run_task4_demo.ps1`; open dual view on port 8766. A hidden red start uses `-StartX 1 -StartY -1 -StartYaw 180`; type the chair request after READY. |
+| New fixed batch | Run `run_task4_benchmark.py runs\new_batch`, then `summarize_task4_benchmark.py runs\new_batch`, using one unchanged runtime and a new directory. |
+| Automated checks | `.\.venv\Scripts\python.exe -m pytest -q task3 task2/task2/test_skills.py test_prepare_submission.py`. |
 
+For speech, install `task3/requirements-bonus.txt`, then run:
 
-# Task 5: Integration and submission
+```text
+python -m task3.run --provider ollama --model qwen2.5:7b --task2-root task2
+  --gui --dual-view --voice --voice-duration 15 --duration 600 --mission-timeout 150
+```
 
-The scene, onboard camera, Task 2 motion skills, Task 3 structured command interface and Task 4 visual approach are connected by `task3/run.py`. The Python and platform version, dependencies, install commands, scene paths, LLM key handling, and reproducibility commands are specified in the Task 2–4 sections and the root README. The two-model Task 3 table and ten-trial Task 4 table above are from their cited raw records. Object-center coordinates are used only after the robot stops, to evaluate the 0.80 m Task 4 distance condition.
+Enter that launch command on one line. Use `/voice` and check the printed transcript. `BONUS_README.md` provides Linux setup and two example utterances. Run one simulation at a time.
 
-**Video status before final export:** The existing Task 4 desktop video shows successful red and green chair searches with the terminal. The existing Task 2 video needs a desktop recording with the real `[TURN]` line visible. The existing Task 3 desktop video needs a single multi-step English command with at least two executed actions including a turn; it already shows a rejected command. Replace those files in the final package and review them end to end.
+## 7.3 Demonstration evidence and submission package
 
-**Final group package:** `minilab_1.3_group_<index>.zip` must contain this report as PDF, source and setup instructions, Task 2 scene/objects and model dependencies, prompt/schema files, and `Video_Task2.mp4`, `Video_Task3.mp4`, `Video_Task4.mp4`. Group index and identity fields remain pending team confirmation.
+| Deliverable | Demonstrated behaviour / required evidence |
+| --- | --- |
+| Video_Task2.mp4 | Objects, onboard camera, timed move and feedback turn; `[TURN]` visible. |
+| Video_Task3.mp4 | Typed English and terminal visible throughout; accepted `[CMD]`; at least two actions including a turn; autonomous `[EXEC]`/`[DONE]`; one rejection. |
+| Video_Task4.mp4 | Terminal visible throughout; typed English, `[CMD]`, `[SEARCH]`/`[DETECT]`, `[FOUND]`, `[MISSION]`; two objects, initially hidden search and colour disambiguation. |
+| Video_Bonus.mp4, optional | Spoken English, `[STT]` transcript, parsed plan and autonomous execution; microphone audio and visible terminal evidence. |
+
+The Task 2 recording lasts 22.1 s and shows both motion skills with visible completion records. The Task 3 recording demonstrates rejection, context-based speed modification and an ordered move-then-turn sequence with `[CMD]`, `[EXEC]` and `[DONE]`. The 150.0 s bonus recording shows the two speech-driven plans described in section 6. The approximately 300 s Task 4 recording shows initially hidden red-chair search and separate red- and green-chair approaches, with visible `[FOUND]` and `[MISSION] status=SUCCESS` records. Final media checks are tracked separately in `TASK5_REVIEW.md`. Videos and submission archives are supplied locally and excluded from GitHub.
+
+Install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py --final`. The A4 PDF uses Times New Roman 12 pt body text, 1.5 spacing and one-inch margins. The final local archive for Group 3 is assembled with:
+
+```text
+python prepare_submission.py 3 --report GROUP_REPORT.pdf
+  --video-task2 video/Video_Task2.mp4 --video-task3 video/Video_Task3_reviewed.mp4
+  --video-task4 video/Video_Task4.mp4 --video-bonus video/Video_bonus.mp4
+```
+
+Enter the packaging command on one line; omit the optional bonus argument when unused. The ZIP includes one group PDF, three required videos, optional bonus video, tracked source, setup instructions, scene/object assets and prompt/schema files. For this group it is named `minilab_1.3_group_3.zip` and submitted to Canvas. The brief gives 4 October 2026 as the deadline but does not specify the exact Canvas cut-off time [1].
+
+# 8. Discussion and conclusion
+
+The parser experiments reveal a trade-off between over-rejecting safe wording and accepting semantically unsafe plans. Navigation reveals that image scale is an imperfect distance cue and stopped-frame visibility is independent of proximity. Speech and longer action chains introduce further uncertainty.
+
+Useful next steps are gait-tolerant target tracking, improved visual distance estimation, varied appearances and starts, repeated fixed trials and labelled speech evaluation. Obstacle avoidance and physical deployment require further work. The evidence supports the measured tasks and stated demonstrations in the authored scene, rather than general navigation robustness. Together, the five tasks demonstrate a language-to-action pipeline on a shared locomotion platform, with measured parser performance, camera-guided navigation and explicit completion criteria.
+
+<div class="pagebreak"></div>
+
+# References
+
+[1] National University of Singapore, *EE5112 MiniLab 1.3: Command Your Robot Dog*, S1 AY 2026/27. Supplied brief, Tasks 1-5 and the C1-C3 definition.
+
+[2] *quadruped_mujoco*, course example platform. [Repository](https://github.com/aoqianz/quadruped_mujoco), inspected revision `dd40180f1121a66373d261e64a9a09eb69b1b2a7`.
+
+[3] E. Todorov, T. Erez and Y. Tassa, "MuJoCo: A physics engine for model-based control," IROS, 2012. [MuJoCo](https://mujoco.org/).
+
+[4] M. Ahn et al., "Do As I Can, Not As I Say: Grounding Language in Robotic Affordances," CoRL, 2022. [Paper](https://arxiv.org/abs/2204.01691).
+
+[5] J. Liang et al., "Code as Policies: Language Model Programs for Embodied Control," ICRA, 2023; arXiv preprint, 2022. [Paper](https://arxiv.org/abs/2209.07753).
+
+[6] N. Rudin et al., "Learning to Walk in Minutes Using Massively Parallel Deep Reinforcement Learning," CoRL 2021, PMLR 164, pp. 91-100, 2022. [Proceedings](https://proceedings.mlr.press/v164/rudin22a.html).
+
+[7] OpenAI, *Structured model outputs*. [Official documentation](https://developers.openai.com/api/docs/guides/structured-outputs), accessed 2 October 2026.
+
+[8] J. Redmon et al., "You Only Look Once: Unified, Real-Time Object Detection," CVPR, 2016. [Paper](https://arxiv.org/abs/1506.02640).
+
+[9] T.-Y. Lin et al., "Microsoft COCO: Common Objects in Context," ECCV, 2014. [Paper](https://arxiv.org/abs/1405.0312).
+
+[10] Ultralytics, *YOLO11*. [Official documentation](https://docs.ultralytics.com/models/yolo11/), accessed 2 October 2026. Included YOLO11n weights are used without detector training.
+
+[11] SYSTRAN, *faster-whisper: Faster Whisper transcription with CTranslate2*. [Official repository](https://github.com/SYSTRAN/faster-whisper), accessed 2 October 2026.

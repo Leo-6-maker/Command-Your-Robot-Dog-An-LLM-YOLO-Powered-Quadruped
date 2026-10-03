@@ -36,13 +36,18 @@ Runtime output now uses stable one-line prefixes and `key=value` fields:
 ```text
 [RUNTIME] event=START ...
 [CHAT] event=READY ...
-[CMD] text=...
+[INPUT] text=...
 [LLM] provider=... model=... latency_s=... input_tokens=... output_tokens=... accepted=... actions=...
+[CMD] actions=move(...),turn(...) n=2
 [PLAN] accepted=... actions=... message=...
 [EXEC] step=... type=... parameters/status=...
 [DONE] status=... actions/stage/reason=...
 [RUNTIME] event=STOP ...
 ```
+
+Rejected input uses `[CMD] rejected reason=<stable_code>`, for example `non-English`,
+`unsafe_request`, `unsupported_request`, `direction_mismatch` or `planner_error`. This separates
+the original natural-language input from the parsed command semantics required by the course.
 
 Provider token counts use `na` when unavailable and `0` only for a known zero, so missing telemetry is not confused with free or empty usage. Untrusted command, model and exception text is collapsed to one line before logging; tests verify that embedded text such as `[DONE] status=SUCCESS` cannot create a forged second event.
 
@@ -54,7 +59,7 @@ Command:
 conda run -n ee5112-minilab python -m pytest -q task3
 ```
 
-Result:
+Original Step 14 result:
 
 ```text
 ........................................................................ [ 70%]
@@ -63,3 +68,7 @@ Result:
 ```
 
 `git diff --check` also completed without errors.
+
+On 2026-10-02, four new protocol tests were added. The focused log/chat/policy/executor suite is
+`40 passed`; after the Task 4 integration tests were aligned with the final fresh-frame behavior,
+the full Task 3/4 suite is `121 passed`.

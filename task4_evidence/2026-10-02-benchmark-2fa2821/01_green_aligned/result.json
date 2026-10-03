@@ -1,0 +1,97 @@
+{
+  "target_class": "chair",
+  "target_color": "green",
+  "start_pose": [
+    1.0,
+    1.0,
+    0.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 4,
+  "success": true,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.9883340188891734,
+      0.9970599297455228
+    ],
+    "detections": [
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.6820075511932373,
+        "bbox": [
+          445,
+          215,
+          511,
+          268
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.6100431084632874,
+        "bbox": [
+          276,
+          120,
+          358,
+          256
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.5099142789840698,
+        "bbox": [
+          501,
+          121,
+          628,
+          260
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": true,
+  "elapsed_wall_s": 3.1648406469998918,
+  "elapsed_sim_s": 46.46500000000636,
+  "last_controller_snapshot": {
+    "sim_time": 47.805000000006004,
+    "base_xy": [
+      2.240356931616392,
+      1.0010954801564342
+    ]
+  },
+  "final": {
+    "sim_time": 48.50500000000636,
+    "base_xy": [
+      2.2396173113974216,
+      1.0014291304629903
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.6701033115386963,
+        "bbox": [
+          118,
+          1,
+          459,
+          477
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "final_target_visible": true,
+  "final_distance_m": 0.760384031618475,
+  "object_contacts": []
+}

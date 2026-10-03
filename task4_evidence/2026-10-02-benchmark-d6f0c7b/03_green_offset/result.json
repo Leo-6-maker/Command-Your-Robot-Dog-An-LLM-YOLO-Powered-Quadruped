@@ -1,0 +1,83 @@
+{
+  "target_class": "chair",
+  "target_color": "green",
+  "start_pose": [
+    0.5,
+    1.0,
+    0.0
+  ],
+  "timeout_wall_s": 120.0,
+  "stop_box_height": 0.97,
+  "final_approach_steps": 5,
+  "success": false,
+  "camera_fovy_deg": 100.0,
+  "initial": {
+    "sim_time": 1.9049999999999814,
+    "base_xy": [
+      0.48833401888917477,
+      0.9970599297455227
+    ],
+    "detections": [
+      {
+        "class_name": "chair",
+        "color": "red",
+        "confidence": 0.5658997297286987,
+        "bbox": [
+          466,
+          137,
+          547,
+          240
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "chair",
+        "color": "green",
+        "confidence": 0.48707205057144165,
+        "bbox": [
+          285,
+          137,
+          349,
+          240
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      },
+      {
+        "class_name": "sports ball",
+        "color": "red",
+        "confidence": 0.44832083582878113,
+        "bbox": [
+          412,
+          208,
+          455,
+          247
+        ],
+        "frame_width": 640,
+        "frame_height": 480
+      }
+    ]
+  },
+  "initially_visible": true,
+  "elapsed_wall_s": 4.529514216999814,
+  "elapsed_sim_s": 62.75500000001362,
+  "last_controller_snapshot": {
+    "sim_time": 64.305000000014,
+    "base_xy": [
+      2.257227537056514,
+      0.9525444907906591
+    ]
+  },
+  "final": {
+    "sim_time": 64.80500000001355,
+    "base_xy": [
+      2.257386703104431,
+      0.9525408141502759
+    ],
+    "detections": []
+  },
+  "final_target_visible": false,
+  "final_distance_m": 0.7441282705606777,
+  "object_contacts": []
+}

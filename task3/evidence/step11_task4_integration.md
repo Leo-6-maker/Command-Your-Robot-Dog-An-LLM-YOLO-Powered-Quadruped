@@ -1,5 +1,9 @@
 # Step 11 — Task 4 integration evidence
 
+> Historical log note: this run predates the 2026-10-02 protocol correction. The current runtime
+> prints the raw sentence as `[INPUT] text=...` and the parsed navigation action as
+> `[CMD] goto_object class=chair color=green`.
+
 Date: 2026-09-29
 
 ## Wiring checked

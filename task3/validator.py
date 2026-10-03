@@ -8,7 +8,7 @@ from typing import Any, TypeAlias
 
 MAX_ACTIONS = 8
 MAX_MESSAGE_LENGTH = 300
-SUPPORTED_OBJECTS = {"chair": {"red", "green"}}
+SUPPORTED_OBJECTS = {"chair": {"red", "green"}, "sports ball": {"orange"}}
 
 
 class PlanValidationError(ValueError):
