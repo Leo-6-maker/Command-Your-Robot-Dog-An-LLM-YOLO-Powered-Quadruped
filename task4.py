@@ -1,5 +1,7 @@
 """YOLO class detection and red/green grounding for Task 4.
 
+Lead: YU LIU (A0350716H); optimisation/bonus: ZIYAN WANG (A0352514L).
+
 Input frames are RGB uint8 images from ``dog_front_camera``. Camera capture,
 motion skills, and the Task 3 command parser stay outside this module.
 """

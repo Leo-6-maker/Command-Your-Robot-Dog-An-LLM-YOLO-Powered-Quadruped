@@ -1,4 +1,4 @@
-"""Task 3 natural-language command planning and execution."""
+"""Task 3 planning and execution. Task 3/bonus lead: ZIYAN WANG (A0352514L)."""
 
 from .chat_loop import TerminalChatLoop, build_ollama_chat_loop, build_openai_chat_loop
 from .command_policy import local_rejection_reason

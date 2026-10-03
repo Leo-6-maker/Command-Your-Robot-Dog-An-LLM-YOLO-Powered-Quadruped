@@ -1,5 +1,6 @@
 """Render the editable group report draft to PDF on Windows with Edge/Chrome."""
 
+import argparse
 from pathlib import Path
 import subprocess
 import tempfile
@@ -9,9 +10,13 @@ import markdown
 
 
 root = Path(__file__).resolve().parent
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--final", action="store_true", help="write GROUP_REPORT.html and GROUP_REPORT.pdf")
+args = parser.parse_args()
 source = root / "GROUP_REPORT_DRAFT.md"
-html_path = root / "GROUP_REPORT_DRAFT.html"
-pdf_path = root / "GROUP_REPORT_DRAFT.pdf"
+stem = "GROUP_REPORT" if args.final else "GROUP_REPORT_DRAFT"
+html_path = root / f"{stem}.html"
+pdf_path = root / f"{stem}.pdf"
 browser = next((path for path in (
     Path("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"),
     Path("C:/Program Files/Google/Chrome/Application/chrome.exe"),

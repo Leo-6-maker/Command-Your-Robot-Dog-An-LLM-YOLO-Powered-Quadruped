@@ -17,8 +17,12 @@ def test_reviewed_package_and_optional_bonus(tmp_path):
     (repo / "chapter.md").write_text("[TEAM TO FILL] reference template")
     (repo / "untracked.zip").write_bytes(b"exclude this local archive")
     (repo / "local_clip.mp4").write_bytes(b"exclude this local clip")
+    for name in ("reference.pdf", "old.zip", "tracked_clip.mp4", ".env"):
+        (repo / name).write_bytes(b"exclude even if tracked")
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
     subprocess.run(["git", "add", "prepare_submission.py", "chapter.md"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "reference.pdf", "old.zip", "tracked_clip.mp4", ".env"],
+                   cwd=repo, check=True)
     videos = []
     for name in ("task2", "task3", "task4", "bonus"):
         path = tmp_path / f"{name}.mp4"

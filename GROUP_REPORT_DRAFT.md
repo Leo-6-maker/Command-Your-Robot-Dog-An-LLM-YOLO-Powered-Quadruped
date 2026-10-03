@@ -4,20 +4,19 @@
 
 **National University of Singapore | Semester 1, AY 2026/27**
 
-**Group index:** [TEAM TO FILL]<br/>
-**Submission date:** [TEAM TO FILL]
+**Group index:** 3<br/>
 
-| Member | Matriculation number | Actual contribution (confirm before submission) |
+| Member | Matriculation number | Actual contribution |
 | --- | --- | --- |
-| [Student A] | [TEAM TO FILL] | [Review and fill: Task 2 platform, camera, scene, skills and video] |
-| [Student B] | [TEAM TO FILL] | [Review and fill: Task 3 parser and evaluation; Task 1 research; optimisation and bonus] |
-| [Student C] | [TEAM TO FILL] | [Review and fill: Task 4 perception and navigation; integration, evaluation and group report] |
+| SIYUAN WU | A0352422N | Task 1 research; Task 2 platform, camera, scene, skills and video |
+| ZIYAN WANG | A0352514L | Task 3 parsing and evaluation; Task 4 optimisation; speech and multi-goal bonus |
+| YU LIU | A0350716H | Task 4 perception and navigation; system integration, evaluation and group report writing |
 
-**AI Usage Declaration.** OpenAI Codex assisted with implementation, debugging, experiment analysis, repository integration and report drafting. [Each member must specify their actual tools and use, review the declaration and source files, and confirm ownership.] The team is responsible for understanding the submitted code, checking numerical claims against saved records and reviewing the demonstrations.
+**AI Usage Declaration.** The team used OpenAI Codex to assist with code implementation, debugging, experiment analysis, repository integration, and report drafting and editing. The team remains responsible for understanding the submitted code, verifying numerical claims against saved records, and reviewing the demonstrations and final report.
 
 **Abstract.** We built a simulated quadruped that converts English instructions into validated actions and executes them on a shared MuJoCo platform. A pretrained ONNX walking policy handles locomotion, an asynchronous language model selects high-level actions, and onboard RGB images guide object search and approach. Our scene contains green and red chairs and an orange sports ball. The parser comparison used twenty common test utterances with OpenAI and local Qwen; navigation was evaluated with ten fixed target/start combinations. Optional extensions add local English speech transcription and ordered multi-goal missions. This report explains the architecture, measurements, failure cases and submission procedure, distinguishing parser accuracy, navigation results, contract checks and demonstration evidence.
 
-> Review copy: identity, contribution and AI-use fields require team confirmation. Final media acceptance is recorded in `TASK5_REVIEW.md`.
+**Report date:** 3 October 2026. Experimental results are tied to the code revisions and measurement dates stated in the report.
 
 <div class="pagebreak"></div>
 
@@ -41,7 +40,7 @@ The main thread owns physics. Terminal input and inference run outside it, so wa
 
 ## 2.1 Comparing language interfaces
 
-The teammate's Task 1 study discusses structured parsing, layered planning and affordance-based reasoning. We incorporate that distinction and explicitly compare the named methods required by the brief. Layering describes our architecture rather than a separate output format. SayCan and Code as Policies were not implemented or benchmarked here; their latency and cost descriptions are architectural expectations.
+We compare structured parsing, SayCan and Code as Policies as three approaches to connecting language models to robot control. Our implementation uses structured parsing and a layered control architecture. SayCan and Code as Policies are literature-based alternatives; their latency and cost descriptions are architectural expectations, not results from this project.
 
 | Approach | Core idea and model output | Latency and cost profile | Suitable setting |
 | --- | --- | --- | --- |
@@ -69,7 +68,7 @@ The policy order is FL, FR, RL, RR, whereas MuJoCo uses FL, FR, RR, RL. Mapping 
 
 <div class="pipeline">Velocity commands (vx, vy, wz) and body height &rarr; 46-D observation x 6 frames<br/>ONNX policy at 50 Hz (decimation 4) &rarr; rear-leg target remap<br/>Joint targets &rarr; PD torques at 200 Hz &rarr; MuJoCo &rarr; state feedback</div>
 
-The Task 2 development report records native/browser launches, W/S/A/D/Q/E control, Race Track, Stairs and Cross Slope checks, and all three onboard cameras. These UI checks are historical development evidence and were not repeated during this report review.
+Platform validation covered native and browser launches, W/S/A/D/Q/E control, Race Track, Stairs and Cross Slope maps, and all three onboard cameras. These checks are documented in the Task 2 development evidence. The recorded Task 2 demonstration additionally shows the authored object scene, the onboard camera, a three-second move and a 180-degree feedback turn.
 
 ## 3.2 Camera and authored scene
 
@@ -138,7 +137,7 @@ OpenAI used 21,800 input and 552 output tokens, no cached input, for an estimate
 
 OpenAI rejected all invalid requests but also rejected a safe right turn and four safe paraphrases. Qwen understood more wording but reversed the sign in `Slide toward your right ...`. It clipped speed 1.5 to 1.0 instead of rejecting, and emitted excessive duration and angle values in two other cases. Numeric validation blocked the latter two; the later direction guard addresses explicit sign errors. This historical benchmark is not rescored as if the guard or bonus prompt had existed at measurement time.
 
-# 5. Task 4: detection, colour grounding and approach
+# 5. Task 4: visual object search and autonomous approach
 
 ## 5.1 Perception and image-based control
 
@@ -181,7 +180,7 @@ Trials 03 and 07 failed because no matching green-chair detection survived the s
 
 Detection accuracy is a task-level stopped-frame measure from the mission logs, not per-frame mAP. The extra independently rendered post-mission frames retain a target in 7/10 trials: successful trial 01 loses its later match as the camera settles. Its saved controller frame reproduces the detection at the actual success decision. This distinguishes meeting C1 at the stopping decision from maintaining visibility afterwards, which remains a limitation. Grounding checks that the base is nearer the requested chair than the other colour. Independent post-mission `d_eval` can also differ slightly as the gait settles. Initially undetected targets and 180-degree starts exercise search; coloured chairs exercise same-class disambiguation.
 
-# 6. Optional bonus: speech and multi-goal missions
+# 6. Bonus: speech input and multi-goal missions
 
 ## 6.1 Speech follows the same command path
 
@@ -195,24 +194,24 @@ Detection accuracy is a task-level stopped-frame measure from the mission logs, 
 
 Ball detection prefers YOLO. If it calls the round orange object an `orange`, scene-specific remapping and an orange connected-component fallback maintain the target. The fallback constrains size, aspect ratio and pixel fill and logs `source=color_shape`. Its confidence is a fill score, not a calibrated YOLO probability. It suits this scene's single orange sphere and could confuse another similar object; it is not used to claim YOLO class accuracy.
 
-`BONUS_README.md` reports a real speech demonstration: ball then green chair completed, and after `/reset`, another spoken command completed two goals, a 180-degree turn and a one-second move. The member retains the microphone-audio video locally. This remains teammate-reported evidence until the group reviews the video and log. The same document reports one success and one failure in two separate complex four-action trials and unstable three-goal navigation. We claim implemented speech and multi-goal features with limited demonstrations, not a statistically established bonus success rate.
+The recorded bonus demonstration shows two speech-driven plans with Ollama `qwen2.5:7b`. The first visits the orange ball and then the green chair. After `/reset`, the second visits those two objects, turns through 180 degrees and moves forward for one second. The visible terminal records two `[STT] status=OK` transcriptions, ordered `[CMD]` plans, object `[FOUND]` confirmations and final `[DONE] status=SUCCESS` for both plans. An AAC audio track is present. These demonstrations establish example end-to-end execution, not a measured speech accuracy or multi-goal success rate. Separate development tests reported one success and one failure for the complex four-action sequence, while three-goal navigation remained unstable.
 
-# 7. Task 5: reproducibility and group submission
+# 7. Task 5: reproducibility, contributions and deliverables
 
 ## 7.1 Environments, ownership and source paths
 
-Historical parser and Task 2 development used Linux/Python 3.12. The current review and navigation batch use Windows/Python 3.12.7, MuJoCo 3.14.0, ONNX Runtime 1.30.0, Ultralytics 8.3.111, PyTorch 2.6.0 CPU and Pillow 10.4.0. Linux pins use some newer vision versions, so detections and approach outcomes may differ. The per-batch receipt records the evaluated versions and runtime hashes.
+The parser comparison and Task 2 development used Linux/Python 3.12. The navigation batch dated 2 October 2026 used Windows/Python 3.12.7, MuJoCo 3.14.0, ONNX Runtime 1.30.0, Ultralytics 8.3.111, PyTorch 2.6.0 CPU and Pillow 10.4.0. Linux pins use some newer vision versions, so detections and approach outcomes may differ. The per-batch receipt records the evaluated versions and runtime hashes.
 
 | Responsibility | Key source and evidence |
 | --- | --- |
-| Task 1, group | Teammate `EE5112_MiniLab_Task1_Report.pdf`; comparison and references in this report. |
-| Task 2 lead | `task2/task2/platform.py`, `camera.py`, `skills.py`; `assets/scene.xml`, `assets/objects.json`; `task2/eg/model_3400.onnx`; `task2/evidence/turn_comparison.csv`. |
-| Task 3 lead | `task3/planner.py`, `action_plan.schema.json`, `validator.py`, `command_policy.py`, `chat_loop.py`, `executor.py`; `evidence/step13_benchmark_results.json`. |
-| Task 4 lead | `task4.py`, `task3/task4_integration.py`, `task3/dual_view.py`; trial manifests, logs, JSON and summaries. |
-| Bonus and integration | `task3/speech_input.py`, `requirements-bonus.txt`, `BONUS_README.md`; root demo scripts. |
-| Task 5, group | `GROUP_REPORT_DRAFT.md`, `render_group_report.py`, `prepare_submission.py`, `TASK5_REVIEW.md`; final PDF and videos supplied locally. |
+| Task 1 - SIYUAN WU | `TASK1_REPORT_SECTION.md`; comparison and primary references in this report. The original Task 1 PDF is a local reference. |
+| Task 2 - SIYUAN WU | `task2/task2/platform.py`, `camera.py`, `skills.py`; `assets/scene.xml`, `assets/objects.json`; `task2/eg/model_3400.onnx`; `task2/evidence/turn_comparison.csv`. |
+| Task 3 - ZIYAN WANG | `task3/planner.py`, `action_plan.schema.json`, `validator.py`, `command_policy.py`, `chat_loop.py`, `executor.py`; `evidence/step13_benchmark_results.json`. |
+| Task 4 - YU LIU; optimisation by ZIYAN WANG | `task4.py`, `task3/task4_integration.py`, `task3/dual_view.py`; trial manifests, logs, JSON and summaries. |
+| Bonus - ZIYAN WANG | `task3/speech_input.py`, `requirements-bonus.txt`, `BONUS_README.md`; root demo scripts. |
+| Integration and report - YU LIU | `GROUP_REPORT_DRAFT.md`, `render_group_report.py`, `prepare_submission.py`, `TASK5_REVIEW.md`; final PDF and videos supplied locally. |
 
-Role labels must be matched to actual members on the cover and in source ownership statements. Git authorship is not substituted for a contribution declaration. The integrated runtime passed 142 automated checks on 2 October 2026 (136 Task 3/4 and 6 Task 2 skill checks). These cover contracts, ordering, cancellation, speech handoff, reset and visual recovery, not real microphone quality or mission robustness.
+The contribution split is stated on the cover and linked to the principal files above. The integrated project passed 143 automated checks on 2 October 2026: 136 Task 3/4 checks, six Task 2 skill checks and one submission-packaging check. These cover contracts, ordering, cancellation, speech handoff, reset, visual recovery and package boundaries. They do not measure microphone quality or navigation robustness.
 
 ## 7.2 Installation and demonstrations
 
@@ -233,7 +232,7 @@ Interactive Windows scripts use DeepSeek and read `DEEPSEEK_API_KEY` from the lo
 | Task 3 | `./run_task3_demo.ps1`; after READY, type the move-then-turn example; after `[DONE]`, type `Write a poem about robot dogs.` to show rejection. |
 | Task 4 | `./run_task4_demo.ps1`; open dual view on port 8766. A hidden red start uses `-StartX 1 -StartY -1 -StartYaw 180`; type the chair request after READY. |
 | New fixed batch | Run `run_task4_benchmark.py runs\new_batch`, then `summarize_task4_benchmark.py runs\new_batch`, using one unchanged runtime and a new directory. |
-| Contract checks | `.\.venv\Scripts\python.exe -m pytest -q task3 task2/task2/test_skills.py`. |
+| Automated checks | `.\.venv\Scripts\python.exe -m pytest -q task3 task2/task2/test_skills.py test_prepare_submission.py`. |
 
 For speech, install `task3/requirements-bonus.txt`, then run:
 
@@ -244,32 +243,32 @@ python -m task3.run --provider ollama --model qwen2.5:7b --task2-root task2
 
 Enter that launch command on one line. Use `/voice` and check the printed transcript. `BONUS_README.md` provides Linux setup and two example utterances. Run one simulation at a time.
 
-## 7.3 Media acceptance and local packaging
+## 7.3 Demonstration evidence and submission package
 
-| Deliverable | Required evidence before acceptance |
+| Deliverable | Demonstrated behaviour / required evidence |
 | --- | --- |
 | Video_Task2.mp4 | Objects, onboard camera, timed move and feedback turn; `[TURN]` visible. |
 | Video_Task3.mp4 | Typed English and terminal visible throughout; accepted `[CMD]`; at least two actions including a turn; autonomous `[EXEC]`/`[DONE]`; one rejection. |
 | Video_Task4.mp4 | Terminal visible throughout; typed English, `[CMD]`, `[SEARCH]`/`[DETECT]`, `[FOUND]`, `[MISSION]`; two objects, initially hidden search and colour disambiguation. |
 | Video_Bonus.mp4, optional | Spoken English, `[STT]` transcript, parsed plan and autonomous execution; microphone audio and visible terminal evidence. |
 
-Videos and submission ZIPs remain local. Historical recordings predating protocol corrections are not automatically accepted. Final paths and human review status are recorded in `TASK5_REVIEW.md`; unit tests and offscreen clips do not replace that review.
+The Task 2 recording lasts 22.1 s and shows both motion skills with visible completion records. The Task 3 recording demonstrates rejection, context-based speed modification and an ordered move-then-turn sequence with `[CMD]`, `[EXEC]` and `[DONE]`. The 150.0 s bonus recording shows the two speech-driven plans described in section 6. The approximately 300 s Task 4 recording shows initially hidden red-chair search and separate red- and green-chair approaches, with visible `[FOUND]` and `[MISSION] status=SUCCESS` records. Final media checks are tracked separately in `TASK5_REVIEW.md`. Videos and submission archives are supplied locally and excluded from GitHub.
 
-Install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py`. The A4 PDF uses Times New Roman 12 pt body text, 1.5 spacing and one-inch margins. After confirming identities, reviewing the PDF and accepting the videos:
+Install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py --final`. The A4 PDF uses Times New Roman 12 pt body text, 1.5 spacing and one-inch margins. The final local archive for Group 3 is assembled with:
 
 ```text
-python prepare_submission.py <group-index> --report <final.pdf>
-  --video-task2 <task2.mp4> --video-task3 <task3.mp4> --video-task4 <task4.mp4>
-  --video-bonus <bonus.mp4>
+python prepare_submission.py 3 --report GROUP_REPORT.pdf
+  --video-task2 video/Video_Task2.mp4 --video-task3 video/Video_Task3_reviewed.mp4
+  --video-task4 video/Video_Task4.mp4 --video-bonus video/Video_bonus.mp4
 ```
 
-Enter the packaging command on one line; omit the optional bonus argument when unused. The ZIP includes one group PDF, three required videos, optional bonus video, tracked source, setup instructions, scene/object assets and prompt/schema files. It is named `minilab_1.3_group_<index>.zip` and submitted to Canvas. The brief gives 4 October 2026 as the deadline but does not specify the exact Canvas cut-off time [1].
+Enter the packaging command on one line; omit the optional bonus argument when unused. The ZIP includes one group PDF, three required videos, optional bonus video, tracked source, setup instructions, scene/object assets and prompt/schema files. For this group it is named `minilab_1.3_group_3.zip` and submitted to Canvas. The brief gives 4 October 2026 as the deadline but does not specify the exact Canvas cut-off time [1].
 
 # 8. Discussion and conclusion
 
 The parser experiments reveal a trade-off between over-rejecting safe wording and accepting semantically unsafe plans. Navigation reveals that image scale is an imperfect distance cue and stopped-frame visibility is independent of proximity. Speech and longer action chains introduce further uncertainty.
 
-Useful next steps are gait-tolerant target tracking, improved visual distance estimation, varied appearances and starts, repeated fixed trials and labelled speech evaluation. Obstacle avoidance and physical deployment require further work. The evidence supports the measured tasks and stated demonstrations in the authored scene, rather than general navigation robustness. Task 5 joins these findings into a reproducible group deliverable.
+Useful next steps are gait-tolerant target tracking, improved visual distance estimation, varied appearances and starts, repeated fixed trials and labelled speech evaluation. Obstacle avoidance and physical deployment require further work. The evidence supports the measured tasks and stated demonstrations in the authored scene, rather than general navigation robustness. Together, the five tasks demonstrate a language-to-action pipeline on a shared locomotion platform, with measured parser performance, camera-guided navigation and explicit completion criteria.
 
 <div class="pagebreak"></div>
 

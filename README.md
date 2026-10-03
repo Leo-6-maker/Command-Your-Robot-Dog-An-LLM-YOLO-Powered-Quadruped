@@ -77,9 +77,11 @@ The benchmark refuses to run if its output directory already exists, preventing 
 
 ## Course submission
 
+See [`SUBMISSION.md`](SUBMISSION.md) for the exact Group 3 archive contents, current local media and packaging command. **Canvas requires one combined ZIP; a GitHub link is supplementary and does not replace the attachments.**
+
 The course submission is **separate from this GitHub repository**: a group PDF report, source and setup instructions, scene/object and prompt files, and three local videos named `Video_Task2.mp4`, `Video_Task3.mp4`, and `Video_Task4.mp4`. Task 3 and Task 4 videos must keep the terminal visible. Task 4's video must show typed English commands, `[CMD]`, `[SEARCH]`/`[DETECT]`, `[FOUND]`, and `[MISSION]` for two objects, including one initially hidden and one same-class color distinction.
 
-[`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md) is the combined English report for Tasks 1–5 and bonus. The group must confirm its index, identities, actual contributions and AI usage and review the final videos; [`TASK5_REVIEW.md`](TASK5_REVIEW.md) records outstanding fields and acceptance checks. To render a local PDF, install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py` with Edge or Chrome installed. After reviewing the final PDF and videos, create the Canvas ZIP locally:
+[`GROUP_REPORT_DRAFT.md`](GROUP_REPORT_DRAFT.md) is the editable combined English report for Tasks 1–5 and bonus. Group 3 identities and contributions are filled in; [`TASK5_REVIEW.md`](TASK5_REVIEW.md) records media checks and remaining submission items. To render the formal local `GROUP_REPORT.pdf`, install `Markdown==3.4.1` and `PyMuPDF==1.27.2.2`, then run `python render_group_report.py --final` with Edge or Chrome installed. See [`TASK4_RECORDING.md`](TASK4_RECORDING.md) for the hidden-red and green-chair recording commands. After reviewing the final PDF and videos, create the Canvas ZIP locally:
 
 ```powershell
 .\.venv\Scripts\python.exe prepare_submission.py <group-index> --report <final-report.pdf> --video-task2 <Video_Task2.mp4> --video-task3 <Video_Task3.mp4> --video-task4 <Video_Task4.mp4>

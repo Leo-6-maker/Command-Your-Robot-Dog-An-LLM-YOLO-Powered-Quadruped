@@ -1,1 +1,1 @@
-"""Task 2 additions. Contributor: Student A (fill in name and matriculation)."""
+"""Task 2 additions. Lead: SIYUAN WU (A0352422N)."""

@@ -47,7 +47,10 @@ with zipfile.ZipFile(destination, "x", compression=zipfile.ZIP_DEFLATED) as arch
     for label, video in videos:
         archive.write(video, f"Video_{label}.mp4")
     for file in source_files:
-        if file.is_file() and not any(part in ("__pycache__", ".pytest_cache")
-                                      for part in file.parts):
+        if (file.is_file()
+                and file.suffix.lower() not in (".pdf", ".zip", ".mp4", ".webm", ".wav")
+                and not file.name.startswith(".env")
+                and not any(part in ("__pycache__", ".pytest_cache", ".venv")
+                            for part in file.relative_to(root).parts)):
             archive.write(file, "source/team_repo/" + file.relative_to(root).as_posix())
 print(destination)
